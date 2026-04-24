@@ -6,14 +6,13 @@ const initialUsers = [
   { id: 1, name: 'Lyka Santos',     username: 'lyka',  role: 'Admin',    email: 'lyka@forkhub.com',  status: 'Active'   },
   { id: 2, name: 'Juan Dela Cruz',  username: 'juan',  role: 'Customer', email: 'juan@email.com',    status: 'Active'   },
   { id: 3, name: 'Maria Reyes',     username: 'maria', role: 'Customer', email: 'maria@email.com',   status: 'Inactive' },
-  { id: 4, name: 'Carlo Mendoza',   username: 'carlo', role: 'Staff',    email: 'carlo@forkhub.com', status: 'Active'   },
+  { id: 4, name: 'Carlo Mendoza',   username: 'carlo', role: 'Admin',    email: 'carlo@forkhub.com', status: 'Active'   },
   { id: 5, name: 'Anna Torres',     username: 'anna',  role: 'Customer', email: 'anna@email.com',    status: 'Active'   },
 ]
 
 const roleBadge = {
   Admin:    { bg: '#fce4ec', color: '#c62828' },
-  Staff:    { bg: '#e8f5e9', color: '#2e7d32' },
-  Customer: { bg: '#e3f2fd', color: '#1565c0' },
+  Customer: { bg: '#e3f2fd', color: '#1565c0' }
 }
 
 export default function UserPage() {
