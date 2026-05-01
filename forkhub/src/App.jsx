@@ -9,6 +9,7 @@ import CartPage from './pages/CartPage'
 import OrderPage from './pages/OrderPage'
 import TrackingPage from './pages/TrackingPage'
 import AdminPage from './pages/AdminPage'
+import UserPage from './pages/UserPage'
 import './App.css'
 
 function ProtectedRoute({ isAuthenticated, children }) {
@@ -161,6 +162,14 @@ function App() {
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <AdminPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/profile"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <UserPage />
             </ProtectedRoute>
           )}
         />
