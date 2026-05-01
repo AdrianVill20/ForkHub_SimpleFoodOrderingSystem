@@ -1,0 +1,18 @@
+const BASE_URL = 'http://localhost:5000/api/auth'
+
+export async function deleteUser(token) {
+  const response = await fetch(`${BASE_URL}/profile`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.message || 'Failed to delete user account')
+  }
+
+  return await response.json()
+}

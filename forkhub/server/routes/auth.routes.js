@@ -164,4 +164,22 @@ router.put('/profile', requireAuth, async (req, res, next) => {
   }
 })
 
+router.delete('/profile', requireAuth, async (req, res, next) => {
+  try {
+    const users = await readUsers()
+    const userIndex = users.findIndex((item) => item.id === req.user.id)
+
+    if (userIndex === -1) {
+      throw createHttpError(404, 'User not found')
+    }
+
+    users.splice(userIndex, 1)
+    await writeUsers(users)
+
+    return res.json({ message: 'User account deleted successfully' })
+  } catch (error) {
+    return next(error)
+  }
+})
+
 export default router
