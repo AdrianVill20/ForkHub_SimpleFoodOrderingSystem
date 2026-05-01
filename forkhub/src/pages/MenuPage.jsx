@@ -1,6 +1,16 @@
 import TopNav from '../components/TopNav'
 
 export default function MenuPage() {
+  const serviceType = localStorage.getItem('order_service_type') || 'Delivery'
+  let userAddress = 'No saved address yet'
+
+  try {
+    const user = JSON.parse(localStorage.getItem('auth_user') || '{}')
+    userAddress = user.address || userAddress
+  } catch {
+    userAddress = 'No saved address yet'
+  }
+
   const categories = [
     { title: 'Pizzas' },
     { title: 'Pasta' },
@@ -40,7 +50,11 @@ export default function MenuPage() {
                 <p>
                   <strong>My Location</strong>
                 </p>
-                <p className="muted">1001 Quezon Boulevard, Manila</p>
+                <p className="muted">{userAddress}</p>
+                <p style={{ marginTop: 10 }}>
+                  <strong>Service</strong>
+                </p>
+                <p className="muted">{serviceType}</p>
                 <p style={{ marginTop: 10 }}>
                   <strong>My Store</strong>
                 </p>

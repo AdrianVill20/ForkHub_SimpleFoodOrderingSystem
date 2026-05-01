@@ -3,6 +3,10 @@ import TopNav from '../components/TopNav'
 
 export default function Home() {
   const navigate = useNavigate()
+  const startOrder = (serviceType) => {
+    localStorage.setItem('order_service_type', serviceType)
+    navigate('/login', { state: { nextPath: '/menu' } })
+  }
 
   return (
     <div className="page">
@@ -10,9 +14,13 @@ export default function Home() {
       <main className="content-wrap">
         <div className="order-strip">
           <span>Start your order</span>
-          <button className="btn-red">Delivery</button>
+          <button className="btn-red" onClick={() => startOrder('Delivery')}>
+            Delivery
+          </button>
           <span>or</span>
-          <button className="btn-red">Take Out</button>
+          <button className="btn-red" onClick={() => startOrder('Take Out')}>
+            Take Out
+          </button>
         </div>
 
         <section className="hero-banner">
@@ -31,7 +39,7 @@ export default function Home() {
         </section>
 
         <div style={{ marginTop: 20 }}>
-          <button className="btn-purple" onClick={() => navigate('/login')}>
+          <button className="btn-purple" onClick={() => navigate('/login', { state: { nextPath: '/menu' } })}>
             Sign In To Continue
           </button>
         </div>

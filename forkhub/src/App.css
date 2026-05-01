@@ -199,6 +199,13 @@ a {
   margin: 8px 0 14px;
 }
 
+.field-readonly {
+  background: #f3f3f3;
+  color: #757575;
+  border-color: #dcdcdc;
+  cursor: not-allowed;
+}
+
 .layout-2col {
   display: grid;
   grid-template-columns: 2fr 1fr;

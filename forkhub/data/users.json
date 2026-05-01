@@ -1,0 +1,12 @@
+[
+  {
+    "id": "1b2d71ef-83bb-4468-8762-a405b425e4d1",
+    "email": "adrianvillarte@gmail.com",
+    "password": "$2b$10$apOKJ6rj92ZQbHt8INNXDepqUGgshU3qVhigvZz2e71/xrU7n4poa",
+    "createdAt": "2026-05-01T06:50:06.388Z",
+    "firstName": "Adrian",
+    "lastName": "Villarte",
+    "phone": "098765432",
+    "address": "Cebu City"
+  }
+]

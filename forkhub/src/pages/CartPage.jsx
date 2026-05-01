@@ -1,6 +1,16 @@
 import TopNav from '../components/TopNav'
 
 export default function CartPage() {
+  const serviceType = localStorage.getItem('order_service_type') || 'Delivery'
+  let userAddress = 'No saved address yet'
+
+  try {
+    const user = JSON.parse(localStorage.getItem('auth_user') || '{}')
+    userAddress = user.address || userAddress
+  } catch {
+    userAddress = 'No saved address yet'
+  }
+
   return (
     <div className="page">
       <TopNav signedIn />
@@ -28,8 +38,9 @@ export default function CartPage() {
                 Review Order Settings
               </h3>
               <div style={{ padding: 12 }}>
+                <p className="muted">Location: {userAddress}</p>
                 <p className="muted">Store: Taft Avenue</p>
-                <p className="muted">Service: Take Out</p>
+                <p className="muted">Service: {serviceType}</p>
                 <p className="muted">Timing: Now</p>
               </div>
             </div>
