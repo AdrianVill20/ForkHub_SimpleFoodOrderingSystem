@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
-import { deleteUser } from '../services/authService'
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState({
@@ -21,11 +20,8 @@ export default function DashboardPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [confirmText, setConfirmText] = useState('')
   const navigate = useNavigate()
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
@@ -202,110 +198,22 @@ export default function DashboardPage() {
         <section className="form-panel" style={{ maxWidth: 900 }}>
           <h2 className="card-title" style={{ color: '#d32f2f' }}>Danger Zone</h2>
           <div style={{ padding: '14px 14px 18px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, borderTop: '1px solid #fca5a5', paddingTop: 16 }}>
-              <div>
-                <p style={{ fontWeight: 600, margin: '0 0 4px', color: '#111111' }}>Delete Account</p>
-                <p className="muted">Permanently delete your account and all associated data.</p>
+             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, borderTop: '1px solid #fca5a5', paddingTop: 16 }}>
+               <div>
+                <p style={{ fontWeight: 600, margin: '0 0 4px' }}>Delete Account</p>
+                 <p className="muted">Permanently delete your account and all associated data.</p>
               </div>
               <button
-                onClick={() => { setConfirmText(''); setErrorMessage(''); setShowConfirmModal(true) }}
-                disabled={isDeleting}
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#d32f2f',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 4,
-                  cursor: isDeleting ? 'not-allowed' : 'pointer',
-                  opacity: isDeleting ? 0.6 : 1,
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete Account'}
-              </button>
+                 onClick={() => navigate('/profile')}
+                style={{ padding: '10px 16px', backgroundColor: '#d32f2f', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Delete Account
+               </button>
             </div>
           </div>
         </section>
-      </main>
 
- 
-      {isEditing && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-          <div className="light-box" style={{ width: 'min(620px, 100%)', padding: 16 }}>
-            <h3 style={{ margin: '0 0 8px' }}>Edit Your Information</h3>
-            <label>First Name</label>
-            <input className="field" value={profile.firstName} onChange={(e) => updateProfileField('firstName', e.target.value)} />
-            <label>Last Name</label>
-            <input className="field" value={profile.lastName} onChange={(e) => updateProfileField('lastName', e.target.value)} />
-            <label>Email</label>
-            <input className="field field-readonly" value={profile.email} disabled />
-            <label>Phone</label>
-            <input className="field" value={profile.phone} onChange={(e) => updateProfileField('phone', e.target.value)} />
-            <label>Primary Address</label>
-            <input className="field" value={profile.address} onChange={(e) => updateProfileField('address', e.target.value)} />
-            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-              <button className="btn-red" onClick={saveProfile} disabled={isSaving || isLoading}>
-                {isSaving ? 'Saving...' : 'Save Profile'}
-              </button>
-              <button className="btn-purple" onClick={() => { setProfile(originalProfile); setIsEditing(false) }} disabled={isSaving}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showConfirmModal && (
-        <div
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
-          onClick={() => { if (!isDeleting) { setShowConfirmModal(false); setConfirmText('') } }}
-        >
-          <div
-            style={{ backgroundColor: 'white', padding: '32px 28px', borderRadius: 12, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.55)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, fontSize: 24 }}>
-              🗑️
-            </div>
-            <h2 style={{ margin: '0 0 8px' }}>Confirm Account Deletion</h2>
-            <p style={{ margin: '0 0 20px', color: '#555' }}>
-              Are you sure you want to delete your account? This action cannot be undone.
-            </p>
-            <label style={{ fontWeight: 600, fontSize: 14, color: '#333', display: 'block', marginBottom: 6 }}>
-              Type <span style={{ fontFamily: 'monospace', background: '#f0f0f0', padding: '1px 5px', borderRadius: 3 }}>DELETE</span> to confirm
-            </label>
-            <input
-              type="text"
-              value={confirmText}
-              onChange={e => setConfirmText(e.target.value)}
-              disabled={isDeleting}
-              placeholder="Type DELETE here"
-              autoFocus
-              style={{ width: '100%', padding: '10px 12px', border: '1px solid #ccc', borderRadius: 6, fontSize: 14, marginBottom: 8, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: 1 }}
-            />
-            {errorMessage && (
-              <p style={{ color: 'red', margin: '0 0 12px', fontSize: 13 }}>{errorMessage}</p>
-            )}
-            <div style={{ display: 'flex', marginTop: 16, gap: 10 }}>
-              <button
-                onClick={() => { setShowConfirmModal(false); setConfirmText('') }}
-                disabled={isDeleting}
-                style={{ flex: 1, padding: '10px 0', border: '1px solid #ccc', borderRadius: 6, background: '#fff', fontWeight: 600, fontSize: 14, cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.5 : 1 }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={isDeleting || confirmText !== 'DELETE'}
-                style={{ flex: 1, padding: '10px 0', border: 'none', borderRadius: 6, background: confirmText === 'DELETE' ? '#d32f2f' : '#cf8181', color: 'white', fontWeight: 700, fontSize: 14, cursor: confirmText === 'DELETE' && !isDeleting ? 'pointer' : 'not-allowed' }}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete Account'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        </main>
+      </div>    
   )
 }
