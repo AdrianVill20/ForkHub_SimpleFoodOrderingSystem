@@ -1,12 +1,12 @@
 [
   {
-    "id": "1b2d71ef-83bb-4468-8762-a405b425e4d1",
+    "id": "09f1ec02-34bd-4283-aca1-db43c951f77d",
     "email": "adrianvillarte@gmail.com",
-    "password": "$2b$10$apOKJ6rj92ZQbHt8INNXDepqUGgshU3qVhigvZz2e71/xrU7n4poa",
-    "createdAt": "2026-05-01T06:50:06.388Z",
+    "password": "$2b$10$4knsaeYWksvPhJTq6L/p2eXphXJGhHKVBnlkjgHmm4h/lx2kh0KrS",
     "firstName": "Adrian",
     "lastName": "Villarte",
-    "phone": "098765432",
-    "address": "Cebu City"
+    "phone": "098765432123434",
+    "address": "Cebu City",
+    "createdAt": "2026-05-02T01:57:29.984Z"
   }
 ]

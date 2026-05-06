@@ -2,10 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import { deleteUser } from '../services/authService'
+import profileIcon from '../assets/profile-icon.svg'
+import emailIcon from '../assets/email-icon.svg'
+import phoneIcon from '../assets/phone-icon.svg'
+import addressIcon from '../assets/address-icon.svg'
+import dangerIcon from '../assets/danger-icon.svg'
+import editIcon from '../assets/edit-icon.svg'
 
 export default function UserPage() {
   const navigate = useNavigate()
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
   const storedUser = JSON.parse(localStorage.getItem('auth_user') || '{}')
 
   const [profile] = useState({
@@ -41,96 +46,281 @@ export default function UserPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page profile-page">
       <TopNav signedIn />
-      <main className="content-wrap">
-        <h1 className="section-title">Profile Settings</h1>
-        <p className="muted" style={{ textAlign: 'center' }}>
-          Easily manage your profile settings right from this page
-        </p>
-
-        {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>{error}</p>}
-
-        <section className="form-panel" style={{ maxWidth: 900 }}>
-          <h2 className="card-title">Personal Information</h2>
-          <div style={{ padding: 14 }}>
-            <p className="muted"><strong>Name:</strong> {fullName}</p>
-            <p className="muted"><strong>Email:</strong> {profile.email || 'Not set'}</p>
-            <p className="muted"><strong>Phone:</strong> {profile.phone || 'Not set'}</p>
+      <main className="content-wrap profile-content-wrap">
+        {/* Hero Header with Animated Background */}
+        <section className="profile-hero">
+          <div className="profile-hero-background">
+            <div className="profile-hero-blob blob-1"></div>
+            <div className="profile-hero-blob blob-2"></div>
+            <div className="profile-hero-blob blob-3"></div>
           </div>
-          <div style={{ padding: '0 14px 14px' }}>
-            <button className="btn-red" onClick={() => navigate('/dashboard')}>
-              Edit Profile
-            </button>
-          </div>
-        </section>
-
-        <section className="form-panel" style={{ maxWidth: 900 }}>
-          <h2 className="card-title">Address Information</h2>
-          <div style={{ padding: 14 }}>
-            <p className="muted">{profile.address || 'Not set'}</p>
-          </div>
-        </section>
-
-        <section className="form-panel" style={{ maxWidth: 900 }}>
-          <h2 className="card-title" style={{ color: '#d32f2f' }}>Danger Zone</h2>
-          <div style={{ padding: '14px 14px 18px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, borderTop: '1px solid #fca5a5', paddingTop: 16 }}>
-              <div>
-                <p style={{ fontWeight: 600, margin: '0 0 4px' }}>Delete Account</p>
-                <p className="muted">Permanently delete your account and all associated data.</p>
+          
+          <div className="profile-hero-content">
+            <div className="profile-hero-avatar-section">
+              <div className="profile-avatar-wrapper">
+                <div className="profile-avatar-circle">
+                  <img src={profileIcon} alt="Profile" className="avatar-icon" />
+                </div>
+                <div className="profile-avatar-status">Online</div>
               </div>
-              <button
-                onClick={() => { setConfirmText(''); setError(''); setShowConfirmModal(true) }}
-                disabled={isDeleting}
-                style={{ padding: '10px 16px', backgroundColor: '#d32f2f', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
-              >
-                Delete Account
-              </button>
+            </div>
+            
+            <div className="profile-hero-info">
+              <h1 className="profile-hero-title">{fullName}</h1>
+              <p className="profile-hero-email">{profile.email}</p>
+              <div className="profile-hero-badges">
+                <span className="profile-badge">Member</span>
+                <span className="profile-badge">Active</span>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* Error Message */}
+        {error && (
+          <div className="profile-error-banner">
+            <span>⚠️ {error}</span>
+          </div>
+        )}
+
+        {/* Profile Stats Grid */}
+        <div className="profile-stats-grid">
+          <div className="profile-stat-card">
+            <div className="profile-stat-icon">📧</div>
+            <div className="profile-stat-content">
+              <p className="profile-stat-label">Email Verified</p>
+              <p className="profile-stat-value">{profile.email ? '✓ Yes' : '✗ No'}</p>
+            </div>
+          </div>
+          <div className="profile-stat-card">
+            <div className="profile-stat-icon">📞</div>
+            <div className="profile-stat-content">
+              <p className="profile-stat-label">Phone Saved</p>
+              <p className="profile-stat-value">{profile.phone ? '✓ Yes' : '✗ No'}</p>
+            </div>
+          </div>
+          <div className="profile-stat-card">
+            <div className="profile-stat-icon">📍</div>
+            <div className="profile-stat-content">
+              <p className="profile-stat-label">Address Saved</p>
+              <p className="profile-stat-value">{profile.address ? '✓ Yes' : '✗ No'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="profile-main-grid">
+          {/* Left Column - Primary Info */}
+          <div className="profile-left-column">
+            {/* Personal Information Card */}
+            <div className="profile-card profile-card-primary">
+              <div className="profile-card-header-new">
+                <div className="profile-card-header-icon">
+                  <img src={emailIcon} alt="Personal" className="profile-card-icon-img" />
+                </div>
+                <div className="profile-card-header-text">
+                  <h2 className="profile-card-title-new">Personal Information</h2>
+                  <p className="profile-card-subtitle-new">Your account details</p>
+                </div>
+              </div>
+              
+              <div className="profile-card-content-new">
+                <div className="profile-info-grid">
+                  <div className="profile-info-field">
+                    <span className="profile-field-label">
+                      <img src={profileIcon} alt="Name" className="profile-field-icon" />
+                      Full Name
+                    </span>
+                    <p className="profile-field-value">{fullName}</p>
+                  </div>
+                  <div className="profile-info-field">
+                    <span className="profile-field-label">
+                      <img src={emailIcon} alt="Email" className="profile-field-icon" />
+                      Email Address
+                    </span>
+                    <p className="profile-field-value">{profile.email || 'Not set'}</p>
+                  </div>
+                  <div className="profile-info-field">
+                    <span className="profile-field-label">
+                      <img src={phoneIcon} alt="Phone" className="profile-field-icon" />
+                      Phone Number
+                    </span>
+                    <p className="profile-field-value">{profile.phone || 'Not set'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="profile-card-footer">
+                <button 
+                  className="profile-btn-primary"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <img src={editIcon} alt="Edit" className="profile-btn-icon" />
+                  Edit Profile
+                </button>
+              </div>
+            </div>
+
+            {/* Address Card */}
+            <div className="profile-card profile-card-accent">
+              <div className="profile-card-header-new">
+                <div className="profile-card-header-icon accent">
+                  <img src={addressIcon} alt="Address" className="profile-card-icon-img" />
+                </div>
+                <div className="profile-card-header-text">
+                  <h2 className="profile-card-title-new">Delivery Address</h2>
+                  <p className="profile-card-subtitle-new">Your saved location</p>
+                </div>
+              </div>
+              
+              <div className="profile-card-content-new">
+                <div className="profile-address-display">
+                  {profile.address ? (
+                    <p className="profile-address-text">{profile.address}</p>
+                  ) : (
+                    <p className="profile-address-empty">No address saved yet</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Account Settings */}
+          <div className="profile-right-column">
+            {/* Account Security Card */}
+            <div className="profile-card profile-card-secondary">
+              <div className="profile-card-header-new">
+                <div className="profile-card-header-icon secondary">
+                  <span className="profile-security-icon">🔒</span>
+                </div>
+                <div className="profile-card-header-text">
+                  <h2 className="profile-card-title-new">Account Security</h2>
+                  <p className="profile-card-subtitle-new">Keep your account safe</p>
+                </div>
+              </div>
+              
+              <div className="profile-card-content-new">
+                <div className="profile-security-item">
+                  <div className="profile-security-check">✓</div>
+                  <span className="profile-security-text">Password protected</span>
+                </div>
+                <div className="profile-security-item">
+                  <div className="profile-security-check">✓</div>
+                  <span className="profile-security-text">Email verified</span>
+                </div>
+                <div className="profile-security-item">
+                  <div className="profile-security-check">✓</div>
+                  <span className="profile-security-text">Active session</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Stats Card */}
+            <div className="profile-card profile-card-stats">
+              <div className="profile-card-header-new">
+                <div className="profile-card-header-icon stats">
+                  <span className="profile-stats-icon">📊</span>
+                </div>
+                <div className="profile-card-header-text">
+                  <h2 className="profile-card-title-new">Account Status</h2>
+                  <p className="profile-card-subtitle-new">Profile completion</p>
+                </div>
+              </div>
+              
+              <div className="profile-card-content-new">
+                <div className="profile-completion-bar">
+                  <div className="profile-completion-fill" style={{ width: '75%' }}></div>
+                </div>
+                <p className="profile-completion-text">75% complete</p>
+              </div>
+            </div>
+
+            {/* Danger Zone Card */}
+            <div className="profile-card profile-card-danger">
+              <div className="profile-card-header-new">
+                <div className="profile-card-header-icon danger">
+                  <img src={dangerIcon} alt="Danger" className="profile-card-icon-img" />
+                </div>
+                <div className="profile-card-header-text">
+                  <h2 className="profile-card-title-new danger-zone-title">Danger Zone</h2>
+                  <p className="profile-card-subtitle-new">Irreversible actions</p>
+                </div>
+              </div>
+              
+              <div className="profile-card-content-new">
+                <p className="profile-danger-warning">⚠️ Permanently delete your account and all data</p>
+              </div>
+
+              <div className="profile-card-footer danger">
+                <button
+                  onClick={() => { setConfirmText(''); setError(''); setShowConfirmModal(true) }}
+                  disabled={isDeleting}
+                  className="profile-btn-danger"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
 
+      {/* Delete Confirmation Modal */}
       {showConfirmModal && (
         <div
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
+          className="profile-modal-overlay"
           onClick={() => { if (!isDeleting) { setShowConfirmModal(false); setConfirmText('') } }}
         >
-          <div
-            style={{ backgroundColor: 'white', padding: '32px 28px', borderRadius: 12, width: '100%', maxWidth: 420 }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h2 style={{ margin: '0 0 8px' }}>Confirm Account Deletion</h2>
-            <p style={{ margin: '0 0 20px', color: '#555' }}>This action cannot be undone.</p>
-            <label style={{ fontWeight: 600, fontSize: 14 }}>
-              Type{' '}
-              <span style={{ fontFamily: 'monospace', background: '#f0f0f0', padding: '1px 5px', borderRadius: 3 }}>DELETE</span>
-              {' '}to confirm
-            </label>
-            <input
-              type="text"
-              value={confirmText}
-              onChange={e => setConfirmText(e.target.value)}
-              placeholder="Type DELETE here"
-              autoFocus
-              style={{ width: '100%', padding: '10px 12px', border: '1px solid #ccc', borderRadius: 6, fontSize: 14, marginTop: 6, marginBottom: 4, boxSizing: 'border-box' }}
-            />
-            {error && <p style={{ color: 'red', fontSize: 13, margin: '4px 0' }}>{error}</p>}
-            <div style={{ display: 'flex', marginTop: 16, gap: 10 }}>
+          <div className="profile-modal-content-new" onClick={e => e.stopPropagation()}>
+            <div className="profile-modal-header-new">
+              <div className="profile-modal-icon">
+                <img src={dangerIcon} alt="Warning" />
+              </div>
+              <h2>Delete Your Account?</h2>
+              <p>This action is permanent and cannot be undone</p>
+            </div>
+            
+            <div className="profile-modal-body-new">
+              <p className="profile-modal-warning-text">
+                Deleting your account will:
+              </p>
+              <ul className="profile-modal-list">
+                <li>Remove all your personal data</li>
+                <li>Cancel any active orders</li>
+                <li>Delete your order history</li>
+                <li>Close your account permanently</li>
+              </ul>
+
+              <label className="profile-modal-label-new">
+                Type <span className="profile-modal-code-new">DELETE</span> to confirm deletion
+              </label>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={e => setConfirmText(e.target.value)}
+                placeholder="Type DELETE here"
+                autoFocus
+                className="profile-modal-input-new"
+              />
+              {error && <p className="profile-modal-error-new">{error}</p>}
+            </div>
+            
+            <div className="profile-modal-footer-new">
               <button
                 onClick={() => { setShowConfirmModal(false); setConfirmText('') }}
                 disabled={isDeleting}
-                style={{ flex: 1, padding: '10px 0', border: '1px solid #ccc', borderRadius: 6, background: '#fff', fontWeight: 600, cursor: 'pointer' }}
+                className="profile-modal-btn-cancel-new"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={isDeleting || confirmText !== 'DELETE'}
-                style={{ flex: 1, padding: '10px 0', border: 'none', borderRadius: 6, background: confirmText === 'DELETE' ? '#d32f2f' : '#cf8181', color: 'white', fontWeight: 700, cursor: confirmText === 'DELETE' && !isDeleting ? 'pointer' : 'not-allowed' }}
+                className={`profile-modal-btn-delete-new ${confirmText === 'DELETE' ? 'enabled' : 'disabled'}`}
               >
-                {isDeleting ? 'Deleting...' : 'Delete Account'}
+                {isDeleting ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
           </div>

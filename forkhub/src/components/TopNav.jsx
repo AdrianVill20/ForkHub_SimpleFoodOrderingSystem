@@ -35,8 +35,8 @@ export default function TopNav({ signedIn = false }) {
 
   return (
     <header className="top-nav">
-      <Link className="top-nav-item" to="/">
-        Order Online
+      <Link className="top-nav-item nav-home" to="/">
+        🍽️ Home
       </Link>
       <Link className="top-nav-item" to="/menu">
         Menu

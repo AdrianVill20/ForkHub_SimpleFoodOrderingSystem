@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import LoginPage from './pages/LoginPage'
 import Register from './pages/Register'
-import DashboardPage from './pages/DashboardPage'
+import ProfilePage from './pages/ProfilePage'
 import MenuPage from './pages/MenuPage'
 import CartPage from './pages/CartPage'
 import OrderPage from './pages/OrderPage'
@@ -113,7 +113,7 @@ function App() {
           path="/dashboard"
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <DashboardPage />
+              <ProfilePage />
             </ProtectedRoute>
           )}
         />
@@ -129,7 +129,7 @@ function App() {
           path="/users"
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <DashboardPage />
+              <ProfilePage />
             </ProtectedRoute>
           )}
         />

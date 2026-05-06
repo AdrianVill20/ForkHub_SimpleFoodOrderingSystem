@@ -17,13 +17,6 @@ export default function DashboardPage() {
     phone: '',
     address: '',
   })
-  const [originalProfile, setOriginalProfile] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-  })
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -61,7 +54,6 @@ export default function DashboardPage() {
           address: payload.user.address || '',
         }
         setProfile(data)
-        setOriginalProfile(data)
         localStorage.setItem('auth_user', JSON.stringify(payload.user))
         window.dispatchEvent(new Event('auth-changed'))
       } catch (error) {
@@ -79,14 +71,6 @@ export default function DashboardPage() {
   }
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim()
-
-  const logout = () => {
-    localStorage.removeItem('login')
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_user')
-    window.dispatchEvent(new Event('auth-changed'))
-    navigate('/login')
-  }
 
   const saveProfile = async () => {
     const token = localStorage.getItem('auth_token')
@@ -121,7 +105,7 @@ export default function DashboardPage() {
         address: payload.user.address || '',
       }
       setProfile(updated)
-      setOriginalProfile(updated)
+
       localStorage.setItem('auth_user', JSON.stringify(payload.user))
       window.dispatchEvent(new Event('auth-changed'))
       setSuccessMessage('Profile updated successfully.')
@@ -383,20 +367,29 @@ export default function DashboardPage() {
               
               <div className="profile-card-content-new">
                 {isEditing ? (
-                  <textarea
-                    value={profile.address}
-                    onChange={e => updateProfileField('address', e.target.value)}
-                    className="field"
-                    placeholder="Enter your delivery address"
-                    rows="3"
-                    style={{ resize: 'vertical' }}
-                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '12px', color: '#999', fontWeight: '700', textTransform: 'uppercase' }}>
+                      <img src={addressIcon} alt="Address" style={{ width: '16px', height: '16px', marginRight: '6px', verticalAlign: 'middle' }} />
+                      Delivery Address
+                    </label>
+                    <textarea
+                      value={profile.address}
+                      onChange={e => updateProfileField('address', e.target.value)}
+                      className="field"
+                      placeholder="Enter your complete delivery address"
+                      rows="4"
+                      style={{ resize: 'vertical', fontFamily: 'inherit', padding: '12px' }}
+                    />
+                    <p style={{ fontSize: '12px', color: '#999', margin: '4px 0 0' }}>Include street, city, and postal code</p>
+                  </div>
                 ) : (
                   <div className="profile-address-display">
                     {profile.address ? (
-                      <p className="profile-address-text">{profile.address}</p>
+                      <>
+                        <p className="profile-address-text">{profile.address}</p>
+                      </>
                     ) : (
-                      <p className="profile-address-empty">No address saved yet</p>
+                      <p className="profile-address-empty">No address saved yet. Click "Edit Profile" to add one.</p>
                     )}
                   </div>
                 )}
@@ -477,7 +470,7 @@ export default function DashboardPage() {
 
               <div className="profile-card-footer danger">
                 <button
-                  onClick={() => { confirmText=''; setErrorMessage(''); setShowConfirmModal(true) }}
+                  onClick={() => { setErrorMessage(''); setShowConfirmModal(true) }}
                   disabled={isDeleting}
                   className="profile-btn-danger"
                 >
