@@ -5,8 +5,17 @@
     "password": "$2b$10$4knsaeYWksvPhJTq6L/p2eXphXJGhHKVBnlkjgHmm4h/lx2kh0KrS",
     "firstName": "Adrian",
     "lastName": "Villarte",
-    "phone": "098765432123434",
-    "address": "Cebu City",
-    "createdAt": "2026-05-02T01:57:29.984Z"
+    "phone": "098765432",
+    "address": "Cebu City"
+  },
+  {
+    "id": "bbf67fc6-fbfc-4f6c-bf12-f6be142b605b",
+    "email": "lykaentera@gmail.com",
+    "password": "$2b$10$AbN.Nu8I8A.5yaN7O8.jnuCVBsvSsGaaG8IK8Fk9xUh6nTNZXggli",
+    "firstName": "Lyka",
+    "lastName": "Entera",
+    "phone": "09215721111",
+    "address": "",
+    "createdAt": "2026-05-02T02:20:18.378Z"
   }
 ]
