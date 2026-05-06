@@ -1,0 +1,8 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <circle cx="32" cy="18" r="10" fill="#ffc97b"/>
+  <!-- Body -->
+  <rect x="20" y="30" width="24" height="28" rx="4" fill="#98008f"/>
+  <!-- Highlight -->
+  <ellipse cx="28" cy="35" rx="4" ry="6" fill="#fff" opacity="0.3"/>
+</svg>
