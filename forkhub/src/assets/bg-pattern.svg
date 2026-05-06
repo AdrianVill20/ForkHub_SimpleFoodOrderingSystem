@@ -1,0 +1,96 @@
+<svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bgGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#98008f;stop-opacity:0.08" />
+      <stop offset="100%" style="stop-color:#7ad8dc;stop-opacity:0.04" />
+    </linearGradient>
+    <linearGradient id="bgGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f01527;stop-opacity:0.06" />
+      <stop offset="100%" style="stop-color:#ef8f2f;stop-opacity:0.03" />
+    </linearGradient>
+    <radialGradient id="bgGradient3">
+      <stop offset="0%" style="stop-color:#7ad8dc;stop-opacity:0.12" />
+      <stop offset="100%" style="stop-color:#7ad8dc;stop-opacity:0" />
+    </radialGradient>
+    <filter id="blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+    </filter>
+  </defs>
+  
+  <!-- Base background -->
+  <rect width="1200" height="1200" fill="#ececec"/>
+  
+  <!-- Gradient overlays -->
+  <rect width="1200" height="1200" fill="url(#bgGradient1)"/>
+  <rect width="1200" height="1200" fill="url(#bgGradient2)"/>
+  
+  <!-- Large decorative circles -->
+  <circle cx="200" cy="150" r="280" fill="url(#bgGradient3)" filter="url(#blur)"/>
+  <circle cx="1000" cy="300" r="320" fill="url(#bgGradient3)" filter="url(#blur)" opacity="0.8"/>
+  <circle cx="150" cy="900" r="250" fill="url(#bgGradient3)" filter="url(#blur)" opacity="0.7"/>
+  <circle cx="1100" cy="1000" r="300" fill="url(#bgGradient3)" filter="url(#blur)" opacity="0.6"/>
+  
+  <!-- Animated geometric shapes -->
+  <g opacity="0.08">
+    <!-- Scattered dots pattern -->
+    <circle cx="100" cy="100" r="2" fill="#98008f"/>
+    <circle cx="250" cy="180" r="1.5" fill="#f01527"/>
+    <circle cx="400" cy="120" r="2" fill="#7ad8dc"/>
+    <circle cx="550" cy="200" r="1.5" fill="#ef8f2f"/>
+    <circle cx="700" cy="150" r="2" fill="#98008f"/>
+    <circle cx="850" cy="220" r="1.5" fill="#f01527"/>
+    <circle cx="1000" cy="100" r="2" fill="#7ad8dc"/>
+    <circle cx="1100" cy="180" r="1.5" fill="#ef8f2f"/>
+    
+    <circle cx="150" cy="400" r="2" fill="#f01527"/>
+    <circle cx="350" cy="450" r="1.5" fill="#7ad8dc"/>
+    <circle cx="600" cy="380" r="2" fill="#98008f"/>
+    <circle cx="800" cy="420" r="1.5" fill="#ef8f2f"/>
+    <circle cx="1050" cy="400" r="2" fill="#f01527"/>
+    
+    <circle cx="200" cy="700" r="2" fill="#7ad8dc"/>
+    <circle cx="450" cy="750" r="1.5" fill="#ef8f2f"/>
+    <circle cx="700" cy="680" r="2" fill="#98008f"/>
+    <circle cx="950" cy="720" r="1.5" fill="#f01527"/>
+    <circle cx="1100" cy="700" r="2" fill="#7ad8dc"/>
+    
+    <circle cx="100" cy="1000" r="2" fill="#ef8f2f"/>
+    <circle cx="300" cy="1050" r="1.5" fill="#98008f"/>
+    <circle cx="550" cy="1000" r="2" fill="#f01527"/>
+    <circle cx="800" cy="1020" r="1.5" fill="#7ad8dc"/>
+    <circle cx="1050" cy="1050" r="2" fill="#ef8f2f"/>
+  </g>
+  
+  <!-- Wave patterns -->
+  <g opacity="0.04" stroke="#98008f" stroke-width="1" fill="none">
+    <path d="M 0 200 Q 300 150 600 200 T 1200 200"/>
+    <path d="M 0 400 Q 300 350 600 400 T 1200 400"/>
+    <path d="M 0 600 Q 300 550 600 600 T 1200 600"/>
+    <path d="M 0 800 Q 300 750 600 800 T 1200 800"/>
+    <path d="M 0 1000 Q 300 950 600 1000 T 1200 1000"/>
+  </g>
+  
+  <!-- Diagonal accent lines -->
+  <g opacity="0.05" stroke="#f01527" stroke-width="2">
+    <line x1="0" y1="0" x2="200" y2="200"/>
+    <line x1="300" y1="0" x2="500" y2="200"/>
+    <line x1="600" y1="0" x2="800" y2="200"/>
+    <line x1="900" y1="0" x2="1100" y2="200"/>
+    <line x1="1200" y1="0" x2="1200" y2="200"/>
+    
+    <line x1="0" y1="400" x2="200" y2="600"/>
+    <line x1="300" y1="400" x2="500" y2="600"/>
+    <line x1="600" y1="400" x2="800" y2="600"/>
+    <line x1="900" y1="400" x2="1100" y2="600"/>
+    <line x1="1200" y1="400" x2="1200" y2="600"/>
+    
+    <line x1="0" y1="800" x2="200" y2="1000"/>
+    <line x1="300" y1="800" x2="500" y2="1000"/>
+    <line x1="600" y1="800" x2="800" y2="1000"/>
+    <line x1="900" y1="800" x2="1100" y2="1000"/>
+    <line x1="1200" y1="800" x2="1200" y2="1000"/>
+  </g>
+  
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="1200" height="60" fill="url(#bgGradient1)" opacity="0.5"/>
+</svg>

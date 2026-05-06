@@ -1,0 +1,10 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Edit pencil -->
+  <g transform="rotate(-45 32 32)">
+    <rect x="28" y="8" width="8" height="40" rx="4" fill="#f01527"/>
+    <!-- Eraser -->
+    <rect x="24" y="44" width="16" height="6" fill="#ffc97b"/>
+  </g>
+  <!-- Highlight -->
+  <line x1="24" y1="12" x2="52" y2="40" stroke="#fff" stroke-width="2" opacity="0.3"/>
+</svg>

@@ -1,0 +1,14 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pizza slice -->
+  <path d="M 32 8 L 56 48 L 8 48 Z" fill="#ef8f2f"/>
+  <!-- Cheese -->
+  <ellipse cx="32" cy="32" rx="18" ry="10" fill="#ffc97b"/>
+  <!-- Toppings -->
+  <circle cx="24" cy="28" r="3" fill="#f01527"/>
+  <circle cx="32" cy="25" r="3" fill="#f01527"/>
+  <circle cx="40" cy="28" r="3" fill="#f01527"/>
+  <circle cx="28" cy="35" r="2.5" fill="#2e2e2e"/>
+  <circle cx="36" cy="36" r="2.5" fill="#2e2e2e"/>
+  <!-- Crust highlight -->
+  <path d="M 32 8 L 56 48 L 8 48 Z" fill="none" stroke="#d67520" stroke-width="1.5" opacity="0.5"/>
+</svg>

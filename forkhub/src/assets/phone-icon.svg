@@ -1,0 +1,10 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phone -->
+  <rect x="14" y="8" width="36" height="48" rx="3" fill="#f01527"/>
+  <!-- Screen -->
+  <rect x="18" y="12" width="28" height="32" rx="1" fill="#fff"/>
+  <!-- Speaker -->
+  <rect x="24" y="50" width="16" height="2" rx="1" fill="#2e2e2e"/>
+  <!-- Camera -->
+  <circle cx="32" cy="14" r="1.5" fill="#2e2e2e"/>
+</svg>
