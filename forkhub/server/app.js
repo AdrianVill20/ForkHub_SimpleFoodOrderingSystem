@@ -21,7 +21,7 @@ app.use((req, res) => {
   res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` })
 })
 
-app.use((error, _req, res, _next) => {
+app.use((error, _req, res) => {
   if (error.code === 'INVALID_USERS_JSON') {
     return res.status(500).json({ message: error.message })
   }

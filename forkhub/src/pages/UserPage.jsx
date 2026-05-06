@@ -5,7 +5,6 @@ import { deleteUser } from '../services/authService'
 
 export default function UserPage() {
   const navigate = useNavigate()
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
   const storedUser = JSON.parse(localStorage.getItem('auth_user') || '{}')
 
   const [profile] = useState({
