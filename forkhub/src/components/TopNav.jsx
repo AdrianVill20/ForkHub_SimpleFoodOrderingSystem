@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuthModal } from '../context/AuthModalContext'
 
 export default function TopNav({ signedIn = false }) {
+  const { openAuthModal } = useAuthModal()
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function TopNav({ signedIn = false }) {
 
   return (
     <header className="top-nav">
-      <Link className="top-nav-item nav-home" to="/">
-        🍽️ Home
+      <Link className="top-nav-item" to="/">
+        Order Online
       </Link>
       <Link className="top-nav-item" to="/menu">
         Menu
@@ -49,9 +51,28 @@ export default function TopNav({ signedIn = false }) {
       </Link>
 
       <div className="top-nav-right">
-        <Link className="top-nav-item" to={signedIn ? '/dashboard' : '/login'}>
-          {signedIn ? `Hi, ${greeting}` : 'Sign In'}
-        </Link>
+        {signedIn ? (
+          <Link className="top-nav-item" to="/dashboard">
+            {`Hi, ${greeting}`}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="top-nav-item"
+            style={{
+              background: 'none',
+              border: 'none',
+              font: 'inherit',
+              color: 'inherit',
+              cursor: 'pointer',
+              padding: 0,
+              textTransform: 'inherit',
+            }}
+            onClick={() => openAuthModal({ view: 'login', nextPath: '/menu' })}
+          >
+            Sign In
+          </button>
+        )}
         <Link className="top-nav-item" to="/cart">
           Cart
         </Link>

@@ -1,9 +1,0 @@
-<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <!-- Envelope -->
-  <rect x="8" y="16" width="48" height="32" rx="2" fill="#7ad8dc"/>
-  <!-- Flap -->
-  <polygon points="8,16 32,32 56,16" fill="#5ab8bc"/>
-  <!-- Letter inside -->
-  <line x1="12" y1="24" x2="28" y2="32" stroke="#fff" stroke-width="1.5"/>
-  <line x1="52" y1="24" x2="36" y2="32" stroke="#fff" stroke-width="1.5"/>
-</svg>

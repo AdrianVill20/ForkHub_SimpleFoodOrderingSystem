@@ -1,21 +1,22 @@
 [
   {
-    "id": "09f1ec02-34bd-4283-aca1-db43c951f77d",
+    "id": "1b2d71ef-83bb-4468-8762-a405b425e4d1",
     "email": "adrianvillarte@gmail.com",
-    "password": "$2b$10$4knsaeYWksvPhJTq6L/p2eXphXJGhHKVBnlkjgHmm4h/lx2kh0KrS",
+    "password": "$2b$10$apOKJ6rj92ZQbHt8INNXDepqUGgshU3qVhigvZz2e71/xrU7n4poa",
+    "createdAt": "2026-05-01T06:50:06.388Z",
     "firstName": "Adrian",
     "lastName": "Villarte",
     "phone": "098765432",
     "address": "Cebu City"
   },
   {
-    "id": "bbf67fc6-fbfc-4f6c-bf12-f6be142b605b",
-    "email": "lykaentera@gmail.com",
-    "password": "$2b$10$AbN.Nu8I8A.5yaN7O8.jnuCVBsvSsGaaG8IK8Fk9xUh6nTNZXggli",
-    "firstName": "Lyka",
-    "lastName": "Entera",
-    "phone": "09215721111",
+    "id": "cb72ecb4-1f74-40a0-bf2e-4c5e64d76a9e",
+    "email": "davetorrefranca@gmail.com",
+    "password": "$2b$10$seTewhEr8B7CSbWLKxaOyeyAPfyakpAvrr3NDXI5OLqZz4Xao/sle",
+    "firstName": "Dave",
+    "lastName": "Torrefranca",
+    "phone": "09514572194",
     "address": "",
-    "createdAt": "2026-05-02T02:20:18.378Z"
+    "createdAt": "2026-05-02T01:48:28.125Z"
   }
 ]
