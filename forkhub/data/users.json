@@ -17,5 +17,15 @@
     "phone": "09215721111",
     "address": "",
     "createdAt": "2026-05-02T02:20:18.378Z"
+  },
+  {
+    "id": "446b31f5-04a3-49ea-b146-0b93c8a71077",
+    "email": "nj@gmail.com",
+    "password": "$2b$10$zIdwNfBnXuYKBccj4R89HeijyV3Y7gcOofNnJbEx9MYjR794A2o8K",
+    "firstName": "Nj",
+    "lastName": "Arnado",
+    "phone": "09786423589",
+    "address": "",
+    "createdAt": "2026-05-06T15:51:06.231Z"
   }
 ]

@@ -2596,3 +2596,250 @@ a {
     font-size: 28px;
   }
 }
+
+
+/* Menu Page */
+.menu-item-clickable {
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.menu-item-clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(152, 0, 143, 0.18);
+}
+.menu-item-clickable:hover h3 {
+  color: #f01527;
+}
+
+/* Cart badge on the CHECKOUT button */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #fff;
+  color: #f01527;
+  border: 2px solid #f01527;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* CATEGORY MODAL */
+.cat-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 1500;
+  padding: 20px 12px;
+  overflow-y: auto;
+  animation: fadeIn 0.22s ease-out;
+  backdrop-filter: blur(3px);
+}
+
+.cat-modal-box {
+  background: #fff;
+  width: min(900px, 100%);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.28s ease-out;
+  overflow: hidden;
+}
+
+.cat-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.cat-modal-title {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0;
+  color: #1d1d1d;
+}
+
+.cat-modal-close {
+  background: #f5f5f5;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #444;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cat-modal-close:hover {
+  background: #f01527;
+  color: #fff;
+}
+
+.cat-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 8px;
+  max-height: 68vh;
+}
+
+.cat-subcategory-bar {
+  background: #98008f;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 20px;
+  letter-spacing: 0.5px;
+}
+
+.cat-items-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: #eee;
+  padding: 1px;
+}
+
+.cat-item-card {
+  background: #fff;
+  padding: 14px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-item-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f4f4f4;
+}
+
+.cat-item-fallback {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.cat-item-name {
+  margin: 0;
+  font-weight: 700;
+  color: #98008f;
+  font-size: 12px;
+  line-height: 1.3;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cat-btn-add {
+  width: 100%;
+  padding: 8px 4px;
+  font-size: 11px;
+  transition: background 0.15s, transform 0.1s;
+}
+.cat-btn-add:hover { transform: scale(1.03); }
+
+.cat-btn-added {
+  background: #28a745 !important;
+}
+
+.cat-btn-customize {
+  width: 100%;
+  padding: 6px 4px;
+  font-size: 11px;
+}
+
+.cat-item-desc {
+  font-size: 10px;
+  color: #777;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cat-item-price {
+  font-size: 11px;
+  font-weight: 700;
+  color: #555;
+  margin: 0;
+}
+
+.cat-modal-footer {
+  border-top: 1px solid #eee;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: flex-end;
+  background: #fafafa;
+}
+
+@media (max-width: 700px) {
+  .cat-items-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cat-modal-title { font-size: 24px; }
+}
+
+/* ========================================
+   ADMIN PAGE — extra styles
+   ======================================== */
+.admin-nav-btn {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 9px 18px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #2e2e2e;
+  transition: background 0.15s;
+}
+.admin-nav-btn:hover {
+  background: #ebebeb;
+}
+
+/* Toast notification */
+.admin-toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 3000;
+  padding: 14px 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+}
+.admin-toast-success {
+  background: #2e7d32;
+  color: #fff;
+}
+.admin-toast-error {
+  background: #d32f2f;
+  color: #fff;
+}
+
+
