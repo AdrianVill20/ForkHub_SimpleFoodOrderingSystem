@@ -39,7 +39,8 @@ export default function LoginPage() {
       localStorage.setItem('auth_token', payload.token)
       localStorage.setItem('auth_user', JSON.stringify(payload.user))
       window.dispatchEvent(new Event('auth-changed'))
-      navigate(nextPath)
+      const role = payload.user?.role
+      navigate(role === 'admin' ? '/admin' : nextPath)
     } catch {
       setErrorMessage('Cannot connect to server. Make sure backend is running.')
     } finally {

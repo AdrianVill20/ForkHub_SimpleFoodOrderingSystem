@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
 import { getCart, getCartTotal, clearCart } from '../services/cartService'
-import { getSavedOrder, saveOrder } from '../services/orderService'
+import { saveOrder, getAllOrders, canCancel, updateOrderStatus } from '../services/orderService'
 
 const BRANCHES = [
   { id: 'puso-village', name: 'Puso Village, Cebu City, PH', lat: 10.2913456, lng: 123.9016386 },
@@ -16,7 +16,6 @@ export default function OrderPage() {
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
   const [destination, setDestination] = useState(null)
-  const [savedOrder, setSavedOrder] = useState(null)
   const [placedOrder, setPlacedOrder] = useState(null)
 
   const [cart, setCart] = useState(getCart())
@@ -24,15 +23,12 @@ export default function OrderPage() {
   const branch = BRANCHES.find((item) => item.id === branchId) || BRANCHES[0]
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
+  const [orderHistory, setOrderHistory] = useState(getAllOrders())
+  const [cancellingId, setCancellingId] = useState(null)
+  const [cancelReason, setCancelReason] = useState('')
 
   useEffect(() => {
-    const latest = getSavedOrder()
-    if (latest) {
-      setSavedOrder(latest)
-      setPlacedOrder(latest)
-    }
-
-    const handleCartUpdated = () => setCart(getCart())
+    const handleCartUpdated = () => { setCart(getCart()); setOrderHistory(getAllOrders()) }
     window.addEventListener('cart-updated', handleCartUpdated)
     return () => window.removeEventListener('cart-updated', handleCartUpdated)
   }, [])
@@ -107,169 +103,257 @@ export default function OrderPage() {
       destination,
     })
     setPlacedOrder(order)
-    setSavedOrder(order)
     clearCart()
   }
 
-  const orderSummary = placedOrder || savedOrder
+  const orderSummary = placedOrder
 
   return (
     <div className="page">
       <TopNav signedIn />
       <main className="content-wrap">
-        <div className="layout-2col">
-          <section className="light-box" style={{ padding: 16 }}>
-            <h2 style={{ margin: '0 0 14px', fontSize: 42 }}>Checkout</h2>
+        <div className="layout-2col order-layout">
+          <section className="order-section">
+            <div className="order-section-header">
+              <h2 className="order-section-title">Checkout</h2>
+              <div className="order-header-glow" />
+            </div>
 
-            {cart.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center' }}>
-                <p className="muted">Your cart is empty. Add some items first.</p>
-                <button className="btn-red" onClick={() => navigate('/menu')} style={{ marginTop: 16 }}>
-                  Go to Menu
-                </button>
-              </div>
-            ) : (
-              <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 18 }}>
-                  <div>
-                    <h3 style={{ marginBottom: 10 }}>Select Service</h3>
-                    <label className="field-label">
-                      <input
-                        type="radio"
-                        name="service-type"
-                        value="Delivery"
-                        checked={serviceType === 'Delivery'}
-                        onChange={() => {
-                          setServiceType('Delivery')
-                        }}
+            <div className="order-section-body">
+              {cart.length === 0 && !orderSummary ? (
+                <div>
+                  <div className="order-empty">
+                    <div className="order-empty-icon"><img src="/favicon.svg" alt="ForkHub" className="order-favicon" /></div>
+                    <p className="order-empty-text">Your cart is empty.</p>
+                    <button className="btn-red order-empty-btn" onClick={() => navigate('/menu')}>
+                      Browse Menu
+                    </button>
+                  </div>
+
+                  {orderHistory.length > 0 && (
+                    <div className="order-history">
+                      <h3 className="order-history-title">Order History</h3>
+                      <div className="order-history-list">
+                        {[...orderHistory].reverse().map((o) => (
+                          <div key={o.id} className="order-history-card">
+                            <div className="order-history-top">
+                              <div>
+                                <span className="order-history-id">{o.id}</span>
+                                <span className={`order-history-status ${o.status === 'Cancelled' ? 'cancelled' : ''}`}>{o.status}</span>
+                              </div>
+                              <span className="order-history-date">{new Date(o.placedAt).toLocaleDateString()}</span>
+                            </div>
+                            <div className="order-history-items">
+                              {o.items?.slice(0, 3).map((i) => (
+                                <span key={i.id} className="order-history-item">{i.name} ×{i.quantity || 1}</span>
+                              ))}
+                              {o.items?.length > 3 && <span className="order-history-more">+{o.items.length - 3} more</span>}
+                            </div>
+                            <div className="order-history-bottom">
+                              <span className="order-history-total">₱{(o.total || 0).toFixed(2)}</span>
+                              <div className="order-history-actions">
+                                {canCancel(o.status) && cancellingId !== o.id && (
+                                  <button className="order-cancel-btn" onClick={() => { setCancellingId(o.id); setCancelReason('') }}>
+                                    Cancel
+                                  </button>
+                                )}
+                                {canCancel(o.status) && cancellingId === o.id && (
+                                  <div className="order-cancel-reason-box">
+                                    <input
+                                      className="order-cancel-reason-input"
+                                      placeholder="Reason for cancellation..."
+                                      value={cancelReason}
+                                      onChange={(e) => setCancelReason(e.target.value)}
+                                      autoFocus
+                                    />
+                                    <button
+                                      className="order-cancel-confirm-btn"
+                                      onClick={() => {
+                                        setOrderHistory(updateOrderStatus(o.id, 'Cancelled', cancelReason))
+                                        setCancellingId(null)
+                                        setCancelReason('')
+                                      }}
+                                    >
+                                      Confirm
+                                    </button>
+                                    <button className="order-cancel-back-btn" onClick={() => setCancellingId(null)}>Back</button>
+                                  </div>
+                                )}
+                                <button className="order-track-btn" onClick={() => navigate('/tracking')}>Track</button>
+                              </div>
+                              {o.status === 'Cancelled' && o.cancelReason && (
+                                <p className="order-cancel-reason-display">Reason: {o.cancelReason}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="order-form-grid">
+                    <div className="order-form-group">
+                      <h3 className="order-label">Select Service</h3>
+                      <div className="order-radio-row">
+                        <label className={`order-radio ${serviceType === 'Delivery' ? 'active' : ''}`}>
+                          <input
+                            type="radio"
+                            name="service-type"
+                            value="Delivery"
+                            checked={serviceType === 'Delivery'}
+                            onChange={() => setServiceType('Delivery')}
+                          />
+                          <span className="order-radio-indicator" />
+                          <span className="order-radio-text">Delivery</span>
+                        </label>
+                        <label className={`order-radio ${serviceType === 'Pick Up' ? 'active' : ''}`}>
+                          <input
+                            type="radio"
+                            name="service-type"
+                            value="Pick Up"
+                            checked={serviceType === 'Pick Up'}
+                            onChange={() => {
+                              setServiceType('Pick Up')
+                              setAddress(branch.name)
+                              setDestination({ lat: branch.lat, lng: branch.lng, name: branch.name })
+                            }}
+                          />
+                          <span className="order-radio-indicator" />
+                          <span className="order-radio-text">Pick Up</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="order-form-group">
+                      <h3 className="order-label">Branch</h3>
+                      <p className="order-value">{branch.name}</p>
+                    </div>
+                  </div>
+
+                  {serviceType === 'Delivery' ? (
+                    <div className="order-delivery-section">
+                      <h3 className="order-label">Delivery Address</h3>
+                      <p className="order-hint">
+                        Type your delivery address to locate it automatically, or click the map to pin your delivery location.
+                      </p>
+                      <textarea
+                        className="field order-field"
+                        rows={3}
+                        placeholder="Enter a complete delivery address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
                       />
-                      Delivery
-                    </label>
-                    <label className="field-label">
-                      <input
-                        type="radio"
-                        name="service-type"
-                        value="Pick Up"
-                        checked={serviceType === 'Pick Up'}
-                        onChange={() => {
-                          setServiceType('Pick Up')
-                          setAddress(branch.name)
-                          setDestination({ lat: branch.lat, lng: branch.lng, name: branch.name })
-                        }}
+                      <p className="order-status-text">
+                        {isSearchingAddress ? 'Searching address…' : searchMessage || 'Address results and pinned location appear on the map below.'}
+                      </p>
+                      <DeliveryMap
+                        branch={branch}
+                        address={address}
+                        destination={destination}
+                        onDestinationChange={setDestination}
+                        onAddressChange={setAddress}
+                        onStatusChange={setSearchMessage}
                       />
-                      Pick Up
-                    </label>
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="order-delivery-section">
+                      <h3 className="order-label">Branch Location</h3>
+                      <p className="order-hint">
+                        Pickup at {branch.name}. The branch location is shown in the sidebar.
+                      </p>
+                    </div>
+                  )}
 
-                  <div>
-                    <h3 style={{ marginBottom: 10 }}>Branch</h3>
-                    <p className="muted">{branch.name}</p>
-                  </div>
-                </div>
-
-                {serviceType === 'Delivery' ? (
-                  <div style={{ marginTop: 24 }}>
-                    <h3 style={{ marginBottom: 12 }}>Delivery Address</h3>
-                    <p className="muted" style={{ marginBottom: 8 }}>
-                      Type your delivery address to locate it automatically, or click the map to pin your delivery location.
-                    </p>
-                    <textarea
-                      className="field"
-                      rows={3}
-                      placeholder="Enter a complete delivery address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      style={{ width: '100%', marginBottom: 12 }}
-                    />
-                    <p className="muted" style={{ margin: '4px 0 12px' }}>
-                      {isSearchingAddress ? 'Searching address…' : searchMessage || 'Address results and pinned location appear on the map below.'}
-                    </p>
-                    <DeliveryMap
-                      branch={branch}
-                      address={address}
-                      destination={destination}
-                      onDestinationChange={setDestination}
-                      onAddressChange={setAddress}
-                      onStatusChange={setSearchMessage}
+                  <div className="order-form-group">
+                    <h3 className="order-label">Phone for Tracking</h3>
+                    <input
+                      className="field order-field"
+                      type="text"
+                      placeholder="09XXXXXXXXX"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
-                ) : (
-                  <div style={{ marginTop: 24 }}>
-                    <h3 style={{ marginBottom: 12 }}>Branch Location</h3>
-                    <p className="muted" style={{ marginBottom: 8 }}>
-                      Pickup at {branch.name}. The branch location is shown in the sidebar.
-                    </p>
+
+                  <div className="order-total-row">
+                    <div>
+                      <p className="order-total-label">Order total</p>
+                      <p className="order-total-price">₱{total.toFixed(2)}</p>
+                    </div>
+                    <button className="order-place-btn" type="button" onClick={handlePlaceOrder}>
+                      Place Order
+                    </button>
                   </div>
-                )}
+                </>
+              )}
 
-                <div style={{ marginTop: 24 }}>
-                  <h3 style={{ marginBottom: 12 }}>Phone for Tracking</h3>
-                  <input
-                    className="field"
-                    type="text"
-                    placeholder="09XXXXXXXXX"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    style={{ width: '100%', maxWidth: 320 }}
-                  />
-                </div>
-
-                <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
-                  <div>
-                    <p className="muted" style={{ margin: 0 }}>Order total</p>
-                    <p style={{ fontSize: 28, fontWeight: 700, margin: '6px 0 0' }}>₱{total.toFixed(2)}</p>
+              {orderSummary && (
+                <div className="order-confirmation">
+                  <div className="order-confirm-icon"><img src="/favicon.svg" alt="Confirmed" className="order-confirm-favicon" /></div>
+                  <h3 className="order-confirm-title">Order Confirmation</h3>
+                  <div className="order-confirm-grid">
+                    <div className="order-confirm-row">
+                      <span className="order-confirm-label">Order Number</span>
+                      <span className="order-confirm-value">{orderSummary.id}</span>
+                    </div>
+                    <div className="order-confirm-row">
+                      <span className="order-confirm-label">Status</span>
+                      <span className="order-confirm-value">{orderSummary.status}</span>
+                    </div>
+                    <div className="order-confirm-row">
+                      <span className="order-confirm-label">Service</span>
+                      <span className="order-confirm-value">{orderSummary.serviceType}</span>
+                    </div>
+                    <div className="order-confirm-row">
+                      <span className="order-confirm-label">Store</span>
+                      <span className="order-confirm-value">{orderSummary.branch.name}</span>
+                    </div>
+                    {orderSummary.serviceType === 'Delivery' && (
+                      <div className="order-confirm-row">
+                        <span className="order-confirm-label">Delivery Address</span>
+                        <span className="order-confirm-value">{orderSummary.address}</span>
+                      </div>
+                    )}
+                    <div className="order-confirm-row">
+                      <span className="order-confirm-label">Phone</span>
+                      <span className="order-confirm-value">{orderSummary.phone}</span>
+                    </div>
                   </div>
-                  <button className="btn-red" type="button" onClick={handlePlaceOrder}>
-                    Place Order
-                  </button>
+                  <div className="order-confirm-actions">
+                    <button className="order-confirm-track-btn" type="button" onClick={() => navigate('/tracking')}>
+                      Track Order
+                    </button>
+                    <button type="button" className="order-confirm-menu-btn" onClick={() => navigate('/menu')}>
+                      Back to Menu
+                    </button>
+                  </div>
                 </div>
-              </>
-            )}
-
-            {orderSummary && (
-              <div style={{ marginTop: 32, padding: 18, background: '#f9f2ff', border: '1px solid #e2cee5', borderRadius: 8 }}>
-                <h3 style={{ marginTop: 0 }}>Order Confirmation</h3>
-                <p style={{ margin: '8px 0' }}><strong>Order Number:</strong> {orderSummary.id}</p>
-                <p style={{ margin: '8px 0' }}><strong>Status:</strong> {orderSummary.status}</p>
-                <p style={{ margin: '8px 0' }}><strong>Service:</strong> {orderSummary.serviceType}</p>
-                <p style={{ margin: '8px 0' }}><strong>Store:</strong> {orderSummary.branch.name}</p>
-                {orderSummary.serviceType === 'Delivery' && (
-                  <p style={{ margin: '8px 0' }}><strong>Delivery Address:</strong> {orderSummary.address}</p>
-                )}
-                <p style={{ margin: '8px 0' }}><strong>Phone:</strong> {orderSummary.phone}</p>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
-                  <button className="btn-purple" type="button" onClick={() => navigate('/tracking')}>
-                    Track Order
-                  </button>
-                  <button type="button" className="btn-red" onClick={() => navigate('/menu')}>
-                    Back to Menu
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </section>
 
-          <aside>
-            <div className="light-box" style={{ padding: 16, marginBottom: 16 }}>
-              <h3 className="card-title">Order Summary</h3>
-              <div style={{ marginTop: 12 }}>
+          <aside className="order-aside">
+            <div className="order-summary-card">
+              <h3 className="order-summary-title">Order Summary</h3>
+              <div className="order-summary-body">
                 {cart.length === 0 ? (
-                  <p className="muted">No items in cart.</p>
+                  <p className="order-summary-empty">No items in cart.</p>
                 ) : (
                   cart.map((item) => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <span>{item.name} × {item.quantity || 1}</span>
-                      <strong>₱{(item.price * (item.quantity || 1)).toFixed(2)}</strong>
+                    <div key={item.id} className="order-summary-item">
+                      <span className="order-summary-item-name">{item.name} <span className="order-summary-item-qty">×{item.quantity || 1}</span></span>
+                      <strong className="order-summary-item-price">₱{(item.price * (item.quantity || 1)).toFixed(2)}</strong>
                     </div>
                   ))
                 )}
               </div>
-              <div style={{ borderTop: '1px solid #ddd', paddingTop: 12, marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
+              <div className="order-summary-total">
                 <span>Total</span>
                 <strong>₱{total.toFixed(2)}</strong>
               </div>
             </div>
-
           </aside>
         </div>
       </main>

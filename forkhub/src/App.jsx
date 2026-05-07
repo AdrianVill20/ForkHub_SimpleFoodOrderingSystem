@@ -12,9 +12,16 @@ import AdminPage from './pages/AdminPage'
 import UserPage from './pages/UserPage'
 import './App.css'
 
-function ProtectedRoute({ isAuthenticated, children }) {
+function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (requireAdmin) {
+    const user = (() => { try { return JSON.parse(localStorage.getItem('auth_user')) } catch { return null } })()
+    if (user?.role !== 'admin') {
+      return <Navigate to="/menu" replace />
+    }
   }
 
   return children
@@ -172,7 +179,7 @@ function App() {
         <Route
           path="/admin"
           element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute isAuthenticated={isAuthenticated} requireAdmin>
               <AdminPage />
             </ProtectedRoute>
           )}

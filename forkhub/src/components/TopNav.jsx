@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import logo from '../assets/logo.png'
 
 export default function TopNav({ signedIn = false }) {
   const [currentUser, setCurrentUser] = useState(null)
@@ -35,24 +36,35 @@ export default function TopNav({ signedIn = false }) {
 
   return (
     <header className="top-nav">
-      <Link className="top-nav-item nav-home" to="/">
-        🍽️ Home
+      <Link className="top-nav-logo-link" to="/">
+        <img src={logo} alt="ForkHub" className="top-nav-logo" />
       </Link>
-      <Link className="top-nav-item" to="/menu">
-        Menu
-      </Link>
-      <Link className="top-nav-item" to="/orders">
-        Promotions & E-Vouchers
-      </Link>
-      <Link className="top-nav-item" to="/tracking">
-        Tracker
-      </Link>
+
+      <nav className="top-nav-links">
+        <Link className="top-nav-item" to="/">
+          Home
+        </Link>
+        <Link className="top-nav-item" to="/menu">
+          Menu
+        </Link>
+        <Link className="top-nav-item" to="/orders">
+          Orders
+        </Link>
+        <Link className="top-nav-item" to="/tracking">
+          Tracker
+        </Link>
+        {currentUser?.role === 'admin' && (
+          <Link className="top-nav-item" to="/admin" style={{ color: '#7ad8dc' }}>
+            Admin
+          </Link>
+        )}
+      </nav>
 
       <div className="top-nav-right">
         <Link className="top-nav-item" to={signedIn ? '/dashboard' : '/login'}>
           {signedIn ? `Hi, ${greeting}` : 'Sign In'}
         </Link>
-        <Link className="top-nav-item" to="/cart">
+        <Link className="top-nav-item top-nav-cart" to="/cart">
           Cart
         </Link>
       </div>

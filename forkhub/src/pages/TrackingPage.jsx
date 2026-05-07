@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
-import { findOrder, getSavedOrder } from '../services/orderService'
+import { findOrder } from '../services/orderService'
 
 export default function TrackingPage() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [order, setOrder] = useState(getSavedOrder())
+  const [order, setOrder] = useState(null)
   const [message, setMessage] = useState('')
 
   const handleSearch = () => {
@@ -24,44 +24,74 @@ export default function TrackingPage() {
     <div className="page">
       <TopNav signedIn />
       <main className="content-wrap">
-        <section className="form-panel" style={{ maxWidth: 920 }}>
-          <h2 className="card-title">Track Your Order</h2>
-          <div style={{ padding: 16 }}>
-            <p className="muted">Enter your order number or phone number to check the latest status.</p>
-            <label>Order # or Phone:</label>
-            <input
-              className="field"
-              style={{ maxWidth: 500, marginBottom: 12 }}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="FH-1234567-89 or 09171234567"
-            />
-            <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-              <button className="btn-red" type="button" onClick={handleSearch}>
-                Track Your Order
-              </button>
-              <button className="btn-purple" type="button" onClick={() => navigate('/orders')}>
-                Place New Order
-              </button>
+        <div className="tracking-layout">
+          <section className="tracking-section">
+            <div className="tracking-header">
+              <h2 className="tracking-title">Track Your Order</h2>
+              <div className="tracking-header-glow" />
             </div>
+            <div className="tracking-body">
+              <p className="tracking-description">Enter your order number or phone number to check the latest status.</p>
 
-            {message && <p className="muted" style={{ marginBottom: 16 }}>{message}</p>}
-
-            {order ? (
-              <div style={{ background: '#f9f2ff', border: '1px solid #e2cee5', padding: 18, borderRadius: 8 }}>
-                <p><strong>Order Number:</strong> {order.id}</p>
-                <p><strong>Status:</strong> {order.status}</p>
-                <p><strong>Service:</strong> {order.serviceType}</p>
-                <p><strong>Store:</strong> {order.branch.name}</p>
-                {order.serviceType === 'Delivery' && (
-                  <p><strong>Delivery Address:</strong> {order.address}</p>
-                )}
-                <p><strong>Phone:</strong> {order.phone}</p>
-                <p><strong>Order Placed:</strong> {new Date(order.placedAt).toLocaleString()}</p>
+              <div className="tracking-search-row">
+                <input
+                  className="field tracking-field"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="FH-1234567-89 or 09171234567"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <button className="tracking-search-btn" type="button" onClick={handleSearch}>
+                  Track
+                </button>
+                <button className="tracking-new-btn" type="button" onClick={() => navigate('/orders')}>
+                  Place New Order
+                </button>
               </div>
-            ) : null}
-          </div>
-        </section>
+
+              {message && <p className={`tracking-message ${order ? 'found' : 'not-found'}`}>{message}</p>}
+
+              {order && (
+                <div className="tracking-result">
+                  <div className="tracking-result-icon"><img src="/favicon.svg" alt="Order" className="tracking-favicon" /></div>
+                  <h3 className="tracking-result-title">Order Details</h3>
+                  <div className="tracking-result-grid">
+                    <div className="tracking-result-row">
+                      <span className="tracking-result-label">Order Number</span>
+                      <span className="tracking-result-value">{order.id}</span>
+                    </div>
+                    <div className="tracking-result-row">
+                      <span className="tracking-result-label">Status</span>
+                      <span className="tracking-result-value">{order.status}</span>
+                    </div>
+                    <div className="tracking-result-row">
+                      <span className="tracking-result-label">Service</span>
+                      <span className="tracking-result-value">{order.serviceType}</span>
+                    </div>
+                    <div className="tracking-result-row">
+                      <span className="tracking-result-label">Store</span>
+                      <span className="tracking-result-value">{order.branch.name}</span>
+                    </div>
+                    {order.serviceType === 'Delivery' && (
+                      <div className="tracking-result-row">
+                        <span className="tracking-result-label">Delivery Address</span>
+                        <span className="tracking-result-value">{order.address}</span>
+                      </div>
+                    )}
+                    <div className="tracking-result-row">
+                      <span className="tracking-result-label">Phone</span>
+                      <span className="tracking-result-value">{order.phone}</span>
+                    </div>
+                    <div className="tracking-result-row">
+                      <span className="tracking-result-label">Order Placed</span>
+                      <span className="tracking-result-value">{new Date(order.placedAt).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   )

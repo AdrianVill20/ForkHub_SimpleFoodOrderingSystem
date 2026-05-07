@@ -478,6 +478,21 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
+
+            {/* Logout Card */}
+            <div className="profile-card profile-card-logout">
+              <div className="profile-card-content-new" style={{ padding: 16, textAlign: 'center' }}>
+                <button className="profile-btn-logout" onClick={() => {
+                  localStorage.removeItem('login')
+                  localStorage.removeItem('auth_token')
+                  localStorage.removeItem('auth_user')
+                  window.dispatchEvent(new Event('auth-changed'))
+                  navigate('/login')
+                }}>
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </main>

@@ -37,5 +37,16 @@
     "phone": "09215721111",
     "address": "",
     "createdAt": "2026-05-07T04:16:33.270Z"
+  },
+  {
+    "id": "fc6ae6ae-b5fb-4de1-ac30-e39fc8a8a963",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$rZSmuWLlzk4CLWIroWP37eg6z.MTah7PUYezCUosVfOOpySJxnmLS",
+    "firstName": "admin",
+    "lastName": "admin",
+    "phone": "0987654321",
+    "address": "",
+    "role": "admin",
+    "createdAt": "2026-05-07T15:41:36.928Z"
   }
 ]

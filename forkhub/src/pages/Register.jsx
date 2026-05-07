@@ -10,6 +10,8 @@ export default function Register() {
   const [confirmEmail, setConfirmEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [adminCode, setAdminCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
@@ -40,7 +42,10 @@ export default function Register() {
       const registerResponse = await fetch(`${apiBaseUrl}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, phone, email, password }),
+        body: JSON.stringify({
+          firstName, lastName, phone, email, password,
+          ...(isAdmin ? { adminCode } : {}),
+        }),
       })
       const registerPayload = await registerResponse.json().catch(() => ({}))
 
@@ -66,7 +71,8 @@ export default function Register() {
       localStorage.setItem('auth_token', loginPayload.token)
       localStorage.setItem('auth_user', JSON.stringify(loginPayload.user))
       window.dispatchEvent(new Event('auth-changed'))
-      navigate(nextPath)
+      const role = loginPayload.user?.role
+      navigate(role === 'admin' ? '/admin' : nextPath)
     } catch {
       setErrorMessage('Cannot connect to server. Make sure backend is running.')
     } finally {
@@ -98,6 +104,21 @@ export default function Register() {
           <input className="field" type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
           <label>Confirm Password</label>
           <input className="field" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
+
+          <label className="field-label" style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input type="checkbox" checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} />
+            Register as Admin
+          </label>
+          {isAdmin && (
+            <input
+              className="field"
+              type="password"
+              placeholder="Admin secret code"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value)}
+              style={{ marginTop: 8 }}
+            />
+          )}
 
           {errorMessage ? (
             <p className="muted" style={{ color: '#c62828', marginTop: 10, textAlign: 'center' }}>

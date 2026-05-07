@@ -11,6 +11,8 @@ import { minimumPasswordLength, normalizeEmail, validateEmail, validatePassword 
 const router = Router()
 const saltRounds = 10
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin123'
+
 function withoutPassword(user) {
   return {
     id: user.id,
@@ -19,6 +21,7 @@ function withoutPassword(user) {
     lastName: user.lastName || '',
     phone: user.phone || '',
     address: user.address || '',
+    role: user.role || 'customer',
     createdAt: user.createdAt,
   }
 }
@@ -61,6 +64,8 @@ router.post('/register', async (req, res, next) => {
     }
 
     const passwordHash = await bcrypt.hash(password, saltRounds)
+    const adminCode = req.body?.adminCode?.trim()
+    const role = adminCode === ADMIN_SECRET ? 'admin' : 'customer'
     const user = {
       id: uuidv4(),
       email,
@@ -69,6 +74,7 @@ router.post('/register', async (req, res, next) => {
       lastName,
       phone,
       address,
+      role,
       createdAt: new Date().toISOString(),
     }
 

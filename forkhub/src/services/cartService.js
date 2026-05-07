@@ -8,13 +8,13 @@ export function getCart() {
   }
 }
 
-export function addToCart(item) {
+export function addToCart(item, qty = 1) {
   const cart = getCart()
   const existing = cart.find((c) => c.id === item.id)
   if (existing) {
-    existing.quantity = (existing.quantity || 1) + 1
+    existing.quantity = (existing.quantity || 1) + qty
   } else {
-    cart.push({ ...item, quantity: 1 })
+    cart.push({ ...item, quantity: qty })
   }
   localStorage.setItem(CART_KEY, JSON.stringify(cart))
   window.dispatchEvent(new Event('cart-updated'))

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import TopNav from '../components/TopNav'
 import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService'
+import { getAllOrders, deleteOrder, updateOrderStatus } from '../services/orderService'
 
 const CATEGORIES = ['Pizza','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
 const EMPTY_FORM  = { name:'', category:'Pizza', subcategory:'Classic', description:'', price:'', image:'' }
@@ -15,6 +16,7 @@ export default function AdminPage() {
   const [search, setSearch]           = useState('')
   const [filterCat, setFilterCat]     = useState('All')
   const [toast, setToast]             = useState(null)
+  const [orders, setOrders]           = useState([])
 
   async function reload() {
     setLoading(true)
@@ -149,110 +151,192 @@ export default function AdminPage() {
       )}
 
       <main className="content-wrap">
-        <section className="form-panel" style={{ maxWidth:960 }}>
-
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
-            <h2 className="card-title" style={{ flex:1, margin:0 }}>
-              {view === 'list'   && 'Menu Management'}
-              {view === 'add'    && 'Add Menu Item'}
-              {view === 'edit'   && 'Edit Menu Item'}
-              {view === 'delete' && 'Delete Menu Item'}
-            </h2>
-          </div>
-
-          <div style={{ display:'flex', gap:8, padding:'12px 0', flexWrap:'wrap' }}>
-            <button className={view === 'list' ? 'btn-purple' : 'admin-nav-btn'} onClick={() => setView('list')}>📋 List Items</button>
-            <button className={view === 'add'  ? 'btn-purple' : 'admin-nav-btn'} onClick={() => { setForm(EMPTY_FORM); setView('add') }}>＋ Add Item</button>
-          </div>
-
-          {/* LIST */}
-          {view === 'list' && (
-            <div style={{ padding:'0 0 16px' }}>
-              <div style={{ display:'flex', gap:10, marginBottom:14, flexWrap:'wrap' }}>
-                <input className="field" style={{ flex:1, minWidth:180, margin:0 }} placeholder="Search items…" value={search} onChange={(e) => setSearch(e.target.value)} />
-                <select className="select-field" value={filterCat} onChange={(e) => setFilterCat(e.target.value)}>
-                  <option value="All">All Categories</option>
-                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-
-              <p className="muted" style={{ marginBottom:10 }}>
-                {loading ? 'Loading…' : `Showing ${filtered.length} of ${items.length} items`}
-              </p>
-
-              <div style={{ overflowX:'auto' }}>
-                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
-                  <thead>
-                    <tr style={{ background:'#98008f', color:'#fff', textAlign:'left' }}>
-                      <th style={th}>Image</th>
-                      <th style={th}>Name</th>
-                      <th style={th}>Category</th>
-                      <th style={th}>Sub</th>
-                      <th style={th}>Price</th>
-                      <th style={th}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.length === 0 && !loading && (
-                      <tr><td colSpan={6} style={{ textAlign:'center', padding:24, color:'#999' }}>No items found.</td></tr>
-                    )}
-                    {filtered.map((item, i) => (
-                      <tr key={item.id} style={{ background: i%2===0 ? '#fff' : '#fafafa', borderBottom:'1px solid #eee' }}>
-                        <td style={td}>
-                          <img src={item.image} alt={item.name} style={{ width:44, height:44, borderRadius:'50%', objectFit:'cover' }} onError={(e) => { e.target.style.display='none' }} />
-                        </td>
-                        <td style={{ ...td, fontWeight:700, color:'#98008f' }}>{item.name}</td>
-                        <td style={td}>{item.category}</td>
-                        <td style={td}>{item.subcategory}</td>
-                        <td style={{ ...td, fontWeight:700 }}>₱{item.price}</td>
-                        <td style={td}>
-                          <button className="btn-purple" style={{ padding:'5px 12px', fontSize:11, marginRight:6 }} onClick={() => openEdit(item)}>Edit</button>
-                          <button className="btn-red"    style={{ padding:'5px 12px', fontSize:11 }}               onClick={() => openDelete(item)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+        <div className="admin-layout">
+          <section className="admin-section">
+            <div className="admin-section-header">
+              <h2 className="admin-section-title">
+                {view === 'list'   && 'Menu Management'}
+                {view === 'add'    && 'Add Menu Item'}
+                {view === 'edit'   && 'Edit Menu Item'}
+                {view === 'delete' && 'Delete Menu Item'}
+                {view === 'orders' && 'Orders'}
+              </h2>
+              <div className="admin-header-glow" />
             </div>
-          )}
 
-          {/* ADD */}
-          {view === 'add' && (
-            <form onSubmit={handleAdd} style={{ padding:'0 0 16px' }}>
-              <FormFields />
-              <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                <button type="submit" className="btn-red" style={{ flex:1 }}>ADD ITEM</button>
-                <button type="button" className="admin-nav-btn" onClick={() => setView('list')}>CANCEL</button>
+            <div className="admin-section-body">
+              <div className="admin-tabs">
+                <button className={`admin-tab ${view === 'list' ? 'active' : ''}`} onClick={() => setView('list')}>
+                  <img src="/favicon.svg" alt="" className="admin-tab-icon" /> List Items
+                </button>
+                <button className={`admin-tab ${view === 'add'  ? 'active' : ''}`} onClick={() => { setForm(EMPTY_FORM); setView('add') }}>
+                  <span className="admin-tab-plus">+</span> Add Item
+                </button>
+                <button className={`admin-tab ${view === 'orders' ? 'active' : ''}`} onClick={() => { setOrders(getAllOrders()); setView('orders') }}>
+                  <img src="/favicon.svg" alt="" className="admin-tab-icon" /> Orders
+                </button>
               </div>
-            </form>
-          )}
 
-          {/* EDIT */}
-          {view === 'edit' && (
-            <form onSubmit={handleEdit} style={{ padding:'0 0 16px' }}>
-              <FormFields />
-              <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                <button type="submit" className="btn-purple" style={{ flex:1 }}>SAVE CHANGES</button>
-                <button type="button" className="admin-nav-btn" onClick={() => { setView('list'); setForm(EMPTY_FORM) }}>CANCEL</button>
-              </div>
-            </form>
-          )}
+              {/* LIST */}
+              {view === 'list' && (
+                <div className="admin-view-body">
+                  <div className="admin-search-row">
+                    <input className="field admin-search-field" placeholder="Search items…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                    <select className="select-field admin-filter-select" value={filterCat} onChange={(e) => setFilterCat(e.target.value)}>
+                      <option value="All">All Categories</option>
+                      {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <p className="admin-count">{loading ? 'Loading…' : `Showing ${filtered.length} of ${items.length} items`}</p>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Image</th>
+                          <th>Name</th>
+                          <th>Category</th>
+                          <th>Sub</th>
+                          <th>Price</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtered.length === 0 && !loading && (
+                          <tr><td colSpan={6} className="admin-empty-row">No items found.</td></tr>
+                        )}
+                        {filtered.map((item, i) => (
+                          <tr key={item.id}>
+                            <td>
+                              <img src={item.image} alt={item.name} className="admin-item-img" onError={(e) => { e.target.style.display='none' }} />
+                            </td>
+                            <td className="admin-item-name">{item.name}</td>
+                            <td>{item.category}</td>
+                            <td>{item.subcategory}</td>
+                            <td className="admin-item-price">₱{item.price}</td>
+                            <td className="admin-actions">
+                              <button className="admin-edit-btn" onClick={() => openEdit(item)}>Edit</button>
+                              <button className="admin-delete-btn" onClick={() => openDelete(item)}>Delete</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
-          {/* DELETE CONFIRM */}
-          {view === 'delete' && deleteTarget && (
-            <div style={{ padding:'24px 0', textAlign:'center' }}>
-              <div style={{ width:80, height:80, margin:'0 auto 16px', borderRadius:'50%', background:'#ffebee', display:'flex', alignItems:'center', justifyContent:'center', fontSize:36 }}>🗑️</div>
-              <h3 style={{ color:'#d32f2f', margin:'0 0 8px' }}>Delete "{deleteTarget.name}"?</h3>
-              <p className="muted" style={{ marginBottom:24 }}>This action cannot be undone. The item will be permanently removed.</p>
-              <div style={{ display:'flex', gap:12, justifyContent:'center' }}>
-                <button className="btn-red"       style={{ minWidth:140 }} onClick={confirmDelete}>YES, DELETE</button>
-                <button className="admin-nav-btn" style={{ minWidth:140 }} onClick={() => { setDeleteTarget(null); setView('list') }}>CANCEL</button>
-              </div>
+              {/* ADD */}
+              {view === 'add' && (
+                <form onSubmit={handleAdd} className="admin-form">
+                  <FormFields />
+                  <div className="admin-form-actions">
+                    <button type="submit" className="admin-submit-btn">ADD ITEM</button>
+                    <button type="button" className="admin-cancel-btn" onClick={() => setView('list')}>CANCEL</button>
+                  </div>
+                </form>
+              )}
+
+              {/* EDIT */}
+              {view === 'edit' && (
+                <form onSubmit={handleEdit} className="admin-form">
+                  <FormFields />
+                  <div className="admin-form-actions">
+                    <button type="submit" className="admin-save-btn">SAVE CHANGES</button>
+                    <button type="button" className="admin-cancel-btn" onClick={() => { setView('list'); setForm(EMPTY_FORM) }}>CANCEL</button>
+                  </div>
+                </form>
+              )}
+
+              {/* DELETE CONFIRM */}
+              {view === 'delete' && deleteTarget && (
+                <div className="admin-delete-modal">
+                  <div className="admin-delete-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                  </div>
+                  <h3 className="admin-delete-title">Delete "{deleteTarget.name}"?</h3>
+                  <p className="admin-delete-desc">This action cannot be undone. The item will be permanently removed.</p>
+                  <div className="admin-delete-actions">
+                    <button className="admin-delete-confirm-btn" onClick={confirmDelete}>YES, DELETE</button>
+                    <button className="admin-cancel-btn" onClick={() => { setDeleteTarget(null); setView('list') }}>CANCEL</button>
+                  </div>
+                </div>
+              )}
+
+              {/* ORDERS */}
+              {view === 'orders' && (
+                <div className="admin-view-body">
+                  <p className="admin-count">{orders.length === 0 ? 'No orders placed yet.' : `${orders.length} order(s)`}</p>
+                  {orders.length > 0 && (
+                    <div className="admin-table-wrap">
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Order #</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                            <th>Service</th>
+                            <th>Phone</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...orders].reverse().map((order, i) => (
+                            <tr key={order.id}>
+                              <td className="admin-order-id">{order.id}</td>
+                              <td>
+                                <select
+                                  className="admin-status-select"
+                                  value={order.status}
+                                  onChange={(e) => {
+                                    const updated = updateOrderStatus(order.id, e.target.value)
+                                    setOrders(updated)
+                                    showToast(`Order ${order.id} status updated.`)
+                                  }}
+                                >
+                                  <option value="Pending">Pending</option>
+                                  <option value="Preparing">Preparing</option>
+                                  <option value="Out for delivery">Out for delivery</option>
+                                  <option value="Ready for pickup">Ready for pickup</option>
+                                  <option value="Delivered">Delivered</option>
+                                  <option value="Completed">Completed</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                              </td>
+                              <td className="admin-reason-cell">{order.status === 'Cancelled' ? (order.cancelReason || '—') : '—'}</td>
+                              <td>{order.serviceType}</td>
+                              <td>{order.phone}</td>
+                              <td>{order.items?.length || 0} item(s)</td>
+                              <td className="admin-order-total">₱{(order.total || 0).toFixed(2)}</td>
+                              <td>{new Date(order.placedAt).toLocaleDateString()}</td>
+                              <td>
+                                <button
+                                  className="admin-delete-btn"
+                                  onClick={() => {
+                                    if (window.confirm(`Delete order ${order.id}?`)) {
+                                      const updated = deleteOrder(order.id)
+                                      setOrders(updated)
+                                      showToast(`Order ${order.id} deleted.`, 'error')
+                                    }
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
-          )}
-
-        </section>
+          </section>
+        </div>
       </main>
     </div>
   )
