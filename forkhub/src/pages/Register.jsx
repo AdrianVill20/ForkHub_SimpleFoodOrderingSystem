@@ -43,7 +43,7 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
         setErrorMessage(registerPayload.message || 'Registration failed.')
         return
       }
-
+      
       const loginResponse = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
