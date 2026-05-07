@@ -27,5 +27,15 @@
     "phone": "09786423589",
     "address": "C. Padilla Street, Cebu City",
     "createdAt": "2026-05-06T15:51:06.231Z"
+  },
+  {
+    "id": "17409213-5946-4ea0-a9b0-adc09899badc",
+    "email": "lykamae.entera.23@usjr.edu.ph",
+    "password": "$2b$10$lRCGjh52/pNZG9tc6M60i.Sm6ZeUpGnJf2nKx89umN0V6MNW0sX3G",
+    "firstName": "LYKA",
+    "lastName": "ENTERA",
+    "phone": "09215721111",
+    "address": "",
+    "createdAt": "2026-05-07T04:16:33.270Z"
   }
 ]

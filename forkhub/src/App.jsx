@@ -39,9 +39,13 @@ function App() {
       return
     }
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+
     try {
       const response = await fetch(`${apiBaseUrl}/api/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
       })
 
       if (!response.ok) {
@@ -57,6 +61,8 @@ function App() {
       localStorage.removeItem('auth_token')
       localStorage.removeItem('auth_user')
       setIsAuthenticated(false)
+    } finally {
+      clearTimeout(timeoutId)
     }
   }, [apiBaseUrl])
 
@@ -86,7 +92,15 @@ function App() {
   }, [verifySession])
 
   if (isCheckingAuth) {
-    return null
+    return (
+      <div className="page">
+        <main className="content-wrap">
+          <div style={{ padding: 40, textAlign: 'center' }}>
+            <p style={{ fontSize: 18, color: '#555' }}>Loading your session…</p>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -144,9 +158,7 @@ function App() {
         <Route
           path="/orders"
           element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <OrderPage />
-            </ProtectedRoute>
+            <OrderPage />
           )}
         />
         <Route

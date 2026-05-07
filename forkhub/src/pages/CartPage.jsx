@@ -102,7 +102,7 @@ export default function CartPage() {
               <h3 className="card-title" style={{ fontSize: 18 }}>Review Order Settings</h3>
               <div style={{ padding: 12 }}>
                 <p className="muted">Location: {userAddress}</p>
-                <p className="muted">Store: Espana Boulevard, Sampaloc, PH</p>
+                <p className="muted">Store: Puso Village, Cebu City, PH</p>
                 <p className="muted">Service: {serviceType}</p>
                 <p className="muted">Timing: Now</p>
               </div>

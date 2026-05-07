@@ -59,10 +59,10 @@ export default function Home() {
             </button>
             <button 
               className="btn-large btn-takeout" 
-              onClick={() => startOrder('Take Out')}
+              onClick={() => startOrder('Pick Up')}
             >
-              <img src={takeoutIcon} alt="Take Out" className="btn-icon-img" />
-              <span className="btn-text">Take Out</span>
+              <img src={takeoutIcon} alt="Pick Up" className="btn-icon-img" />
+              <span className="btn-text">Pick Up</span>
             </button>
           </div>
         </section>

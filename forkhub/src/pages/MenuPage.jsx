@@ -96,7 +96,7 @@ export default function MenuPage() {
                 <p style={{ marginTop: 10 }}><strong>Service</strong></p>
                 <p className="muted">{serviceType}</p>
                 <p style={{ marginTop: 10 }}><strong>My Store</strong></p>
-                <p className="muted">Espana Boulevard, Sampaloc, PH</p>
+                <p className="muted">Puso Village, Cebu City, PH</p>
               </div>
             </div>
           </aside>
