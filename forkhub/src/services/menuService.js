@@ -1,312 +1,45 @@
-const MENU_KEY = 'fh_menu_items'
+const BASE = '/api/menu'
 
-const DEFAULT_MENU = [
-  // PIZZA
-  {
-    id: 'pizza_1',
-    name: 'Beef & Mushroom Melt',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Creamy Overload Sauce, Garlic Seasoning, Mushrooms, Beef Toppings, Mozzarella Cheese, Cheese Sauce, Shredded Cheddar Cheese',
-    price: 169,
-    image: '/images/pizza/Beef&MushroomMelt.jpg',
-  },
-  {
-    id: 'pizza_2',
-    name: 'Cheese Mania',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Pizza Sauce, Mozzarella Cheese',
-    price: 169,
-    image: '/images/pizza/CheeseMania.jpg',
-  },
-  {
-    id: 'pizza_3',
-    name: 'Ham & Cheese',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Pizza Sauce, Mozzarella Cheese, Ham',
-    price: 169,
-    image: '/images/pizza/Ham&Cheese.jpg',
-  },
-  {
-    id: 'pizza_4',
-    name: 'Hawaiian Classic',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Pizza Sauce, Mozzarella Cheese, Ham, Pineapple',
-    price: 169,
-    image: '/images/pizza/HawaiianClassic.jpg',
-  },
-  {
-    id: 'pizza_5',
-    name: 'Pepperoni',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Pizza Sauce, Mozzarella Cheese, Pepperoni',
-    price: 169,
-    image: '/images/pizza/Pepperoni.jpg',
-  },
-  {
-    id: 'pizza_6',
-    name: 'Bacon & Mushroom',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Tomato Ketchup, Mozzarella Cheese, Mayonnaise, Mushrooms, Diced Bacon, Garlic Seasoning',
-    price: 169,
-    image: '/images/pizza/Bacon&Mushroom.jpg',
-  },
-  {
-    id: 'pizza_7',
-    name: 'Spinach & Feta',
-    category: 'Pizzas',
-    subcategory: 'Classic',
-    description: 'Pizza Sauce, Spinach, Feta Cheese, Mozzarella Cheese',
-    price: 179,
-    image: '/images/pizza/Spinach&Feta.jpg',
-  },
-
-  // PASTA
-  {
-    id: 'pasta_1',
-    name: 'Spaghetti',
-    category: 'Pasta',
-    subcategory: 'Classic',
-    description: 'Classic spaghetti with tomato meat sauce',
-    price: 129,
-    image: '/images/pasta/Spaghetti.jpg',
-  },
-  {
-    id: 'pasta_2',
-    name: 'Chicken Alfredo',
-    category: 'Pasta',
-    subcategory: 'Classic',
-    description: 'Creamy Alfredo sauce with grilled chicken',
-    price: 149,
-    image: '/images/pasta/ChickenAlfredo.jpg',
-  },
-  {
-    id: 'pasta_3',
-    name: 'Lasagna',
-    category: 'Pasta',
-    subcategory: 'Classic',
-    description: 'Layers of pasta, meat sauce, and cheese',
-    price: 159,
-    image: '/images/pasta/Lasagna.jpg',
-  },
-  {
-    id: 'pasta_4',
-    name: 'Mac & Cheese',
-    category: 'Pasta',
-    subcategory: 'Classic',
-    description: 'Creamy macaroni with rich cheese sauce',
-    price: 119,
-    image: '/images/pasta/Mac&Cheese.jpg',
-  },
-
-  // SIDES
-  {
-    id: 'sides_1',
-    name: 'French Fries',
-    category: 'Sides',
-    subcategory: 'Classic',
-    description: 'Crispy golden french fries with seasoning',
-    price: 59,
-    image: '/images/sides/fries.jpg',
-  },
-  {
-    id: 'sides_2',
-    name: 'Potato Wedges',
-    category: 'Sides',
-    subcategory: 'Classic',
-    description: 'Thick-cut seasoned potato wedges',
-    price: 79,
-    image: '/images/sides/potatowedges.jpg',
-  },
-  {
-    id: 'sides_3',
-    name: 'Cheesy Bread (Spinach & Feta)',
-    category: 'Sides',
-    subcategory: 'Classic',
-    description: 'Garlic bread topped with spinach, feta, and mozzarella',
-    price: 99,
-    image: '/images/sides/cheesybread(spinach&feta).jpg',
-  },
-  {
-    id: 'sides_4',
-    name: 'Tuna Melt Calzone',
-    category: 'Sides',
-    subcategory: 'Classic',
-    description: 'Tuna melt folded inside a golden calzone',
-    price: 109,
-    image: '/images/sides/tunameltCalzone.jpg',
-  },
-
-  // CHICKEN
-  {
-    id: 'chicken_1',
-    name: 'Chicken',
-    category: 'Chicken',
-    subcategory: 'Classic',
-    description: 'Classic fried chicken piece, crispy on the outside',
-    price: 99,
-    image: '/images/chicken/chicken.jpg',
-  },
-  {
-    id: 'chicken_2',
-    name: 'Chicken Fillet',
-    category: 'Chicken',
-    subcategory: 'Classic',
-    description: 'Juicy chicken fillet, perfectly seasoned',
-    price: 119,
-    image: '/images/chicken/chickenFillet.jpg',
-  },
-  {
-    id: 'chicken_3',
-    name: 'Chicken Lollipop',
-    category: 'Chicken',
-    subcategory: 'Specialty',
-    description: 'Crispy chicken lollipops with dipping sauce',
-    price: 129,
-    image: '/images/chicken/chickenLollipop.jpg',
-  },
-  {
-    id: 'chicken_4',
-    name: 'Chicken Popcorn',
-    category: 'Chicken',
-    subcategory: 'Specialty',
-    description: 'Bite-sized crispy chicken bites',
-    price: 89,
-    image: '/images/chicken/chickenPopcorn.jpg',
-  },
-  {
-    id: 'chicken_5',
-    name: 'Nuggets',
-    category: 'Chicken',
-    subcategory: 'Classic',
-    description: 'Golden chicken nuggets, 6-piece serving',
-    price: 79,
-    image: '/images/chicken/nuggets.jpg',
-  },
-
-  // DESSERTS
-  {
-    id: 'dessert_1',
-    name: 'Brownie',
-    category: 'Desserts',
-    subcategory: 'Baked',
-    description: 'Rich, fudgy chocolate brownie',
-    price: 59,
-    image: '/images/desserts/brownie.jpg',
-  },
-  {
-    id: 'dessert_2',
-    name: 'Lava Cake',
-    category: 'Desserts',
-    subcategory: 'Baked',
-    description: 'Warm chocolate cake with molten center',
-    price: 79,
-    image: '/images/desserts/lavacake.jpg',
-  },
-  {
-    id: 'dessert_3',
-    name: 'Peach Mango Pie',
-    category: 'Desserts',
-    subcategory: 'Baked',
-    description: 'Flaky pastry filled with sweet peach and mango',
-    price: 49,
-    image: '/images/desserts/peachmangopie.jpg',
-  },
-
-  // BEVERAGES
-  {
-    id: 'bev_1',
-    name: 'Coke',
-    category: 'Beverages',
-    subcategory: 'Soft Drinks',
-    description: 'Classic Coca-Cola, ice cold',
-    price: 45,
-    image: '/images/beverages/coke.jpg',
-  },
-  {
-    id: 'bev_2',
-    name: 'Coke Zero',
-    category: 'Beverages',
-    subcategory: 'Soft Drinks',
-    description: 'Zero sugar Coca-Cola',
-    price: 45,
-    image: '/images/beverages/cokeZero.jpg',
-  },
-  {
-    id: 'bev_3',
-    name: 'Sprite',
-    category: 'Beverages',
-    subcategory: 'Soft Drinks',
-    description: 'Crisp lemon-lime soft drink',
-    price: 45,
-    image: '/images/beverages/sprite.jpg',
-  },
-  {
-    id: 'bev_4',
-    name: 'Minute Maid',
-    category: 'Beverages',
-    subcategory: 'Juice',
-    description: 'Fresh orange juice drink',
-    price: 49,
-    image: '/images/beverages/minuteMaid.jpg',
-  },
-  {
-    id: 'bev_5',
-    name: 'Water',
-    category: 'Beverages',
-    subcategory: 'Water',
-    description: 'Bottled mineral water',
-    price: 25,
-    image: '/images/beverages/water.jpg',
-  },
-]
-
-export function initMenu() {
-  if (!localStorage.getItem(MENU_KEY)) {
-    localStorage.setItem(MENU_KEY, JSON.stringify(DEFAULT_MENU))
+async function request(path = '', options = {}) {
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.message || `Request failed: ${res.status}`)
   }
+  return res.json()
 }
 
-export function getMenuItems() {
-  initMenu()
-  try {
-    return JSON.parse(localStorage.getItem(MENU_KEY)) || []
-  } catch {
-    return DEFAULT_MENU
-  }
+/* ── Read ── */
+export async function getMenuItems() {
+  return request()
 }
 
-export function getItemsByCategory(category) {
-  return getMenuItems().filter((item) => item.category === category)
+export async function getItemsByCategory(category) {
+  return request(`?category=${encodeURIComponent(category)}`)
 }
 
-export function addMenuItem(item) {
-  const items = getMenuItems()
-  const newItem = { ...item, id: `item_${Date.now()}` }
-  items.push(newItem)
-  localStorage.setItem(MENU_KEY, JSON.stringify(items))
-  return newItem
+/* ── Admin CRUD ── */
+export async function addMenuItem(item) {
+  return request('', {
+    method: 'POST',
+    body: JSON.stringify(item),
+  })
 }
 
-export function updateMenuItem(id, updates) {
-  const items = getMenuItems()
-  const idx = items.findIndex((i) => i.id === id)
-  if (idx === -1) return null
-  items[idx] = { ...items[idx], ...updates }
-  localStorage.setItem(MENU_KEY, JSON.stringify(items))
-  return items[idx]
+export async function updateMenuItem(id, updates) {
+  return request(`/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  })
 }
 
-export function deleteMenuItem(id) {
-  const items = getMenuItems().filter((i) => i.id !== id)
-  localStorage.setItem(MENU_KEY, JSON.stringify(items))
+export async function deleteMenuItem(id) {
+  return request(`/${id}`, { method: 'DELETE' })
 }
 
-export function resetMenu() {
-  localStorage.setItem(MENU_KEY, JSON.stringify(DEFAULT_MENU))
-}
+/* ── Legacy no-ops kept so nothing breaks if still imported ── */
+export function initMenu() { return Promise.resolve() }
+export function resetMenu() { return Promise.resolve() }
