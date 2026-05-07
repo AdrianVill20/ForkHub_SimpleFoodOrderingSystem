@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import TopNav from '../components/TopNav'
 import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService'
 
-const CATEGORIES = ['Pizzas','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
-const EMPTY_FORM  = { name:'', category:'Pizzas', subcategory:'Classic', description:'', price:'', image:'' }
+const CATEGORIES = ['Pizza','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
+const EMPTY_FORM  = { name:'', category:'Pizza', subcategory:'Classic', description:'', price:'', image:'' }
 
 export default function AdminPage() {
   const [view, setView]               = useState('list')
