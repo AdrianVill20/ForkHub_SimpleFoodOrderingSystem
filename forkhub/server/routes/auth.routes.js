@@ -21,7 +21,7 @@ function withoutPassword(user) {
     lastName: user.lastName || '',
     phone: user.phone || '',
     address: user.address || '',
-    role: user.role || 'customer',
+    role: user.role || 'member',
     createdAt: user.createdAt,
   }
 }
@@ -64,8 +64,8 @@ router.post('/register', async (req, res, next) => {
     }
 
     const passwordHash = await bcrypt.hash(password, saltRounds)
-    const adminCode = req.body?.adminCode?.trim()
-    const role = adminCode === ADMIN_SECRET ? 'admin' : 'customer'
+    const adminCode = req.body?.adminCode?.trim() || ''
+    const role = adminCode === ADMIN_SECRET ? 'admin' : 'member'
     const user = {
       id: uuidv4(),
       email,
