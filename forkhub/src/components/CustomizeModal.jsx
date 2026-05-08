@@ -3,7 +3,7 @@ import { addToCart } from '../services/cartService'
 
 /* Config per category — drives what the modal shows */
 const CONFIG = {
-  Pizzas: {
+  Pizza: {
     sectionLabel: 'Choose Size',
     options: [
       { label: 'Personal', detail: '6" · 1–2 people',  modifier: 0   },
