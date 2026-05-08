@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuthModal } from '../context/AuthModalContext'
+import logo from '../assets/logo.png'
 
 export default function TopNav({ signedIn = false }) {
-  const { openAuthModal } = useAuthModal()
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
@@ -37,43 +36,35 @@ export default function TopNav({ signedIn = false }) {
 
   return (
     <header className="top-nav">
-      <Link className="top-nav-item" to="/">
-        Order Online
-      </Link>
-      <Link className="top-nav-item" to="/menu">
-        Menu
-      </Link>
-      <Link className="top-nav-item" to="/orders">
-        Promotions & E-Vouchers
-      </Link>
-      <Link className="top-nav-item" to="/tracking">
-        Tracker
+      <Link className="top-nav-logo-link" to="/">
+        <img src={logo} alt="ForkHub" className="top-nav-logo" />
       </Link>
 
-      <div className="top-nav-right">
-        {signedIn ? (
-          <Link className="top-nav-item" to="/dashboard">
-            {`Hi, ${greeting}`}
+      <nav className="top-nav-links">
+        <Link className="top-nav-item" to="/">
+          Home
+        </Link>
+        <Link className="top-nav-item" to="/menu">
+          Menu
+        </Link>
+        <Link className="top-nav-item" to="/orders">
+          Orders
+        </Link>
+        <Link className="top-nav-item" to="/tracking">
+          Tracker
+        </Link>
+        {currentUser?.role === 'admin' && (
+          <Link className="top-nav-item" to="/admin" style={{ color: '#7ad8dc' }}>
+            Admin
           </Link>
-        ) : (
-          <button
-            type="button"
-            className="top-nav-item"
-            style={{
-              background: 'none',
-              border: 'none',
-              font: 'inherit',
-              color: 'inherit',
-              cursor: 'pointer',
-              padding: 0,
-              textTransform: 'inherit',
-            }}
-            onClick={() => openAuthModal({ view: 'login', nextPath: '/menu' })}
-          >
-            Sign In
-          </button>
         )}
-        <Link className="top-nav-item" to="/cart">
+      </nav>
+
+      <div className="top-nav-right">
+        <Link className="top-nav-item" to={signedIn ? '/dashboard' : '/login'}>
+          {signedIn ? `Hi, ${greeting}` : 'Sign In'}
+        </Link>
+        <Link className="top-nav-item top-nav-cart" to="/cart">
           Cart
         </Link>
       </div>

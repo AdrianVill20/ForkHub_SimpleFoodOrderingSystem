@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import TopNav from '../components/TopNav'
 
-export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onClose }) {
+export default function Register() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
@@ -8,9 +10,14 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
   const [confirmEmail, setConfirmEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [adminCode, setAdminCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
+  const location = useLocation()
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+  const nextPath = location.state?.nextPath || '/menu'
 
   const register = async () => {
     if (!email.trim() || !confirmEmail.trim() || !password || !confirmPassword) {
@@ -35,7 +42,10 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
       const registerResponse = await fetch(`${apiBaseUrl}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, phone, email, password }),
+        body: JSON.stringify({
+          firstName, lastName, phone, email, password,
+          ...(isAdmin ? { adminCode } : {}),
+        }),
       })
       const registerPayload = await registerResponse.json().catch(() => ({}))
 
@@ -43,7 +53,7 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
         setErrorMessage(registerPayload.message || 'Registration failed.')
         return
       }
-      
+
       const loginResponse = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,7 +63,7 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
 
       if (!loginResponse.ok) {
         setErrorMessage('Account created, but auto-login failed. Please sign in.')
-        onRequestLogin()
+        navigate('/login')
         return
       }
 
@@ -61,7 +71,8 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
       localStorage.setItem('auth_token', loginPayload.token)
       localStorage.setItem('auth_user', JSON.stringify(loginPayload.user))
       window.dispatchEvent(new Event('auth-changed'))
-      onSuccess(nextPath)
+      const role = loginPayload.user?.role
+      navigate(role === 'admin' ? '/admin' : nextPath)
     } catch {
       setErrorMessage('Cannot connect to server. Make sure backend is running.')
     } finally {
@@ -70,61 +81,58 @@ export default function RegisterForm({ nextPath, onSuccess, onRequestLogin, onCl
   }
 
   return (
-    <div className="modal-card register-modal-card">
-      <button type="button" className="auth-modal-close" onClick={onClose} aria-label="Close">
-        ×
-      </button>
-      <h1 className="register-modal-title">Create ForkHub&apos;s Profile</h1>
-      <p className="muted register-modal-lead">
-        Create a profile to start ordering.
-      </p>
+    <div className="page">
+      <TopNav />
+      <main className="content-wrap">
+        <h1 className="section-title">Create ForkHub&apos;s Profile</h1>
+        <p className="muted" style={{ textAlign: 'center', marginBottom: 24 }}>
+          Fill out the form below to create a ForkHub profile and start ordering.
+        </p>
 
-      <div className="register-modal-fields">
-        <div className="register-modal-name-row">
-          <div>
-            <label>First Name</label>
-            <input className="field" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
-          </div>
-          <div>
-            <label>Last Name</label>
-            <input className="field" value={lastName} onChange={(event) => setLastName(event.target.value)} />
+        <div className="form-panel" style={{ maxWidth: 700 }}>
+          <label>First Name</label>
+          <input className="field" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+          <label>Last Name</label>
+          <input className="field" value={lastName} onChange={(event) => setLastName(event.target.value)} />
+          <label>Email Address</label>
+          <input className="field" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <label>Confirm Email Address</label>
+          <input className="field" value={confirmEmail} onChange={(event) => setConfirmEmail(event.target.value)} />
+          <label>Primary Phone Number</label>
+          <input className="field" value={phone} onChange={(event) => setPhone(event.target.value)} />
+          <label>Password</label>
+          <input className="field" type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+          <label>Confirm Password</label>
+          <input className="field" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
+
+          <label className="field-label" style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input type="checkbox" checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} />
+            Register as Admin
+          </label>
+          {isAdmin && (
+            <input
+              className="field"
+              type="password"
+              placeholder="Admin secret code"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value)}
+              style={{ marginTop: 8 }}
+            />
+          )}
+
+          {errorMessage ? (
+            <p className="muted" style={{ color: '#c62828', marginTop: 10, textAlign: 'center' }}>
+              {errorMessage}
+            </p>
+          ) : null}
+
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            <button className="btn-red" onClick={register} disabled={isSubmitting}>
+              {isSubmitting ? 'Creating Account...' : 'Continue'}
+            </button>
           </div>
         </div>
-        <label>Email Address</label>
-        <input className="field" value={email} onChange={(event) => setEmail(event.target.value)} />
-        <label>Confirm Email Address</label>
-        <input className="field" value={confirmEmail} onChange={(event) => setConfirmEmail(event.target.value)} />
-        <label>Primary Phone Number</label>
-        <input className="field" value={phone} onChange={(event) => setPhone(event.target.value)} />
-        <label>Password</label>
-        <input className="field" type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-        <label>Confirm Password</label>
-        <input className="field" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
-
-        {errorMessage ? (
-          <p className="muted" style={{ color: '#c62828', marginTop: 10, textAlign: 'center' }}>
-            {errorMessage}
-          </p>
-        ) : null}
-
-        <div className="register-modal-actions">
-          <p className="muted register-modal-switch">
-            Already have an account?{' '}
-            <span
-              style={{ color: '#98008f', fontWeight: 700, cursor: 'pointer' }}
-              onClick={onRequestLogin}
-              onKeyDown={(e) => e.key === 'Enter' && onRequestLogin()}
-              role="button"
-              tabIndex={0}
-            >
-              Sign In
-            </span>
-          </p>
-          <button type="button" className="btn-red register-modal-submit" onClick={register} disabled={isSubmitting}>
-            {isSubmitting ? 'Creating Account...' : 'Continue'}
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   )
 }

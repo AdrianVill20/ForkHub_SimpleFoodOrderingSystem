@@ -1,32 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
-import DashboardPage from './pages/DashboardPage'
+import LoginPage from './pages/LoginPage'
+import Register from './pages/Register'
+import ProfilePage from './pages/ProfilePage'
 import MenuPage from './pages/MenuPage'
 import CartPage from './pages/CartPage'
 import OrderPage from './pages/OrderPage'
 import TrackingPage from './pages/TrackingPage'
 import AdminPage from './pages/AdminPage'
 import UserPage from './pages/UserPage'
-import { AuthModalProvider, useAuthModal } from './context/AuthModalContext'
-import AuthModal from './components/AuthModal'
 import './App.css'
 
-function ProtectedRoute({ isAuthenticated, children }) {
-  const location = useLocation()
-  const { openAuthModal } = useAuthModal()
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      openAuthModal({
-        view: 'login',
-        nextPath: `${location.pathname}${location.search}`,
-      })
-    }
-  }, [isAuthenticated, location.pathname, location.search, openAuthModal])
-
+function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/login" replace />
+  }
+
+  if (requireAdmin) {
+    const user = (() => { try { return JSON.parse(localStorage.getItem('auth_user')) } catch { return null } })()
+    if (user?.role !== 'admin') {
+      return <Navigate to="/menu" replace />
+    }
   }
 
   return children
@@ -40,118 +35,6 @@ function PublicOnlyRoute({ isAuthenticated, children }) {
   return children
 }
 
-/** Opens the auth modal then replaces URL with home (bookmarkable /login still works). */
-function OpenAuthFromRoute({ view }) {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { openAuthModal } = useAuthModal()
-
-  useEffect(() => {
-    openAuthModal({
-      view,
-      nextPath: location.state?.nextPath || '/menu',
-    })
-    navigate('/', { replace: true })
-    // Intentionally run once when entering /login or /register
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return null
-}
-
-function AppRoutes({ isAuthenticated }) {
-  return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? <Navigate to="/menu" replace /> : <Home />
-        }
-      />
-      <Route
-        path="/login"
-        element={(
-          <PublicOnlyRoute isAuthenticated={isAuthenticated}>
-            <OpenAuthFromRoute view="login" />
-          </PublicOnlyRoute>
-        )}
-      />
-      <Route
-        path="/register"
-        element={(
-          <PublicOnlyRoute isAuthenticated={isAuthenticated}>
-            <OpenAuthFromRoute view="register" />
-          </PublicOnlyRoute>
-        )}
-      />
-      <Route
-        path="/dashboard"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <DashboardPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/menu"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <MenuPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/users"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <DashboardPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/cart"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <CartPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/orders"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <OrderPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/tracking"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <TrackingPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/admin"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <AdminPage />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/profile"
-        element={(
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <UserPage />
-          </ProtectedRoute>
-        )}
-      />
-    </Routes>
-  )
-}
-
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
@@ -163,9 +46,13 @@ function App() {
       return
     }
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+
     try {
       const response = await fetch(`${apiBaseUrl}/api/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
       })
 
       if (!response.ok) {
@@ -181,6 +68,8 @@ function App() {
       localStorage.removeItem('auth_token')
       localStorage.removeItem('auth_user')
       setIsAuthenticated(false)
+    } finally {
+      clearTimeout(timeoutId)
     }
   }, [apiBaseUrl])
 
@@ -197,11 +86,6 @@ function App() {
   useEffect(() => {
     const handleAuthChanged = () => {
       const token = localStorage.getItem('auth_token')
-      // Login dispatches auth-changed then navigates to /menu before verifySession resolves.
-      // Without this optimistic update, ProtectedRoute briefly sees false and sends users back to /.
-      if (token) {
-        setIsAuthenticated(true)
-      }
       verifySession(token)
     }
 
@@ -215,15 +99,100 @@ function App() {
   }, [verifySession])
 
   if (isCheckingAuth) {
-    return null
+    return (
+      <div className="page">
+        <main className="content-wrap">
+          <div style={{ padding: 40, textAlign: 'center' }}>
+            <p style={{ fontSize: 18, color: '#555' }}>Loading your session…</p>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
     <BrowserRouter>
-      <AuthModalProvider>
-        <AuthModal />
-        <AppRoutes isAuthenticated={isAuthenticated} />
-      </AuthModalProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/login"
+          element={(
+            <PublicOnlyRoute isAuthenticated={isAuthenticated}>
+              <LoginPage />
+            </PublicOnlyRoute>
+          )}
+        />
+        <Route
+          path="/register"
+          element={(
+            <PublicOnlyRoute isAuthenticated={isAuthenticated}>
+              <Register />
+            </PublicOnlyRoute>
+          )}
+        />
+        <Route
+          path="/dashboard"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProfilePage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/menu"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MenuPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/users"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProfilePage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/cart"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CartPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/orders"
+          element={(
+            <OrderPage />
+          )}
+        />
+        <Route
+          path="/tracking"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <TrackingPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/admin"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated} requireAdmin>
+              <AdminPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/profile"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <UserPage />
+            </ProtectedRoute>
+          )}
+        />
+      </Routes>
     </BrowserRouter>
   )
 }

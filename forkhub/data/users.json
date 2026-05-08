@@ -1,22 +1,52 @@
 [
   {
-    "id": "1b2d71ef-83bb-4468-8762-a405b425e4d1",
+    "id": "09f1ec02-34bd-4283-aca1-db43c951f77d",
     "email": "adrianvillarte@gmail.com",
-    "password": "$2b$10$apOKJ6rj92ZQbHt8INNXDepqUGgshU3qVhigvZz2e71/xrU7n4poa",
-    "createdAt": "2026-05-01T06:50:06.388Z",
+    "password": "$2b$10$4knsaeYWksvPhJTq6L/p2eXphXJGhHKVBnlkjgHmm4h/lx2kh0KrS",
     "firstName": "Adrian",
     "lastName": "Villarte",
     "phone": "098765432",
     "address": "Cebu City"
   },
   {
-    "id": "cb72ecb4-1f74-40a0-bf2e-4c5e64d76a9e",
-    "email": "davetorrefranca@gmail.com",
-    "password": "$2b$10$seTewhEr8B7CSbWLKxaOyeyAPfyakpAvrr3NDXI5OLqZz4Xao/sle",
-    "firstName": "Dave",
-    "lastName": "Torrefranca",
-    "phone": "09514572194",
+    "id": "bbf67fc6-fbfc-4f6c-bf12-f6be142b605b",
+    "email": "lykaentera@gmail.com",
+    "password": "$2b$10$AbN.Nu8I8A.5yaN7O8.jnuCVBsvSsGaaG8IK8Fk9xUh6nTNZXggli",
+    "firstName": "Lyka",
+    "lastName": "Entera",
+    "phone": "09215721111",
     "address": "",
-    "createdAt": "2026-05-02T01:48:28.125Z"
+    "createdAt": "2026-05-02T02:20:18.378Z"
+  },
+  {
+    "id": "446b31f5-04a3-49ea-b146-0b93c8a71077",
+    "email": "nj@gmail.com",
+    "password": "$2b$10$zIdwNfBnXuYKBccj4R89HeijyV3Y7gcOofNnJbEx9MYjR794A2o8K",
+    "firstName": "Nj",
+    "lastName": "Arnado",
+    "phone": "09786423589",
+    "address": "C. Padilla Street, Cebu City",
+    "createdAt": "2026-05-06T15:51:06.231Z"
+  },
+  {
+    "id": "17409213-5946-4ea0-a9b0-adc09899badc",
+    "email": "lykamae.entera.23@usjr.edu.ph",
+    "password": "$2b$10$lRCGjh52/pNZG9tc6M60i.Sm6ZeUpGnJf2nKx89umN0V6MNW0sX3G",
+    "firstName": "LYKA",
+    "lastName": "ENTERA",
+    "phone": "09215721111",
+    "address": "",
+    "createdAt": "2026-05-07T04:16:33.270Z"
+  },
+  {
+    "id": "fc6ae6ae-b5fb-4de1-ac30-e39fc8a8a963",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$rZSmuWLlzk4CLWIroWP37eg6z.MTah7PUYezCUosVfOOpySJxnmLS",
+    "firstName": "admin",
+    "lastName": "admin",
+    "phone": "0987654321",
+    "address": "",
+    "role": "admin",
+    "createdAt": "2026-05-07T15:41:36.928Z"
   }
 ]
