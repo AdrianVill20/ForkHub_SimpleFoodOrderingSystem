@@ -25,7 +25,7 @@ export default function CartPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap">
         <div className="layout-2col cart-layout">
           <section className="cart-section">

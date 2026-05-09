@@ -142,7 +142,7 @@ export default function AdminPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
 
       {toast && (
         <div className={`admin-toast ${toast.type === 'error' ? 'admin-toast-error' : 'admin-toast-success'}`}>

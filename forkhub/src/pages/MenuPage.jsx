@@ -42,7 +42,7 @@ export default function MenuPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap">
         <div className="layout-2col menu-layout">
 

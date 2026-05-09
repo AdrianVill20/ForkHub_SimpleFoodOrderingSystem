@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom'
+import { AuthModalProvider, useAuthModal } from './contexts/AuthModalContext'
 import Home from './pages/Home'
-import LoginPage from './pages/LoginPage'
-import Register from './pages/Register'
 import ProfilePage from './pages/ProfilePage'
 import MenuPage from './pages/MenuPage'
 import CartPage from './pages/CartPage'
@@ -13,8 +12,16 @@ import UserPage from './pages/UserPage'
 import './App.css'
 
 function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
+  const location = useLocation()
+
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ nextPath: `${location.pathname}${location.search}` }}
+      />
+    )
   }
 
   if (requireAdmin) {
@@ -33,6 +40,23 @@ function PublicOnlyRoute({ isAuthenticated, children }) {
   }
 
   return children
+}
+
+function LoginBookmarkRoute({ registerPreferred }) {
+  const location = useLocation()
+  const { openAuth } = useAuthModal()
+  const ran = useRef(false)
+
+  useLayoutEffect(() => {
+    if (ran.current) return
+    ran.current = true
+    openAuth({
+      nextPath: location.state?.nextPath || '/menu',
+      mode: registerPreferred ? 'register' : 'login',
+    })
+  }, [location.state?.nextPath, openAuth, registerPreferred])
+
+  return <Navigate to="/" replace />
 }
 
 function App() {
@@ -84,8 +108,28 @@ function App() {
   }, [verifySession])
 
   useEffect(() => {
-    const handleAuthChanged = () => {
-      const token = localStorage.getItem('auth_token')
+    const handleAuthChanged = (event) => {
+      const token = event?.detail?.token ?? localStorage.getItem('auth_token')
+
+      if (event?.detail?.authenticated) {
+        const user = event.detail.user ?? (() => {
+          try {
+            return JSON.parse(localStorage.getItem('auth_user'))
+          } catch {
+            return null
+          }
+        })()
+
+        if (user) {
+          localStorage.setItem('auth_user', JSON.stringify(user))
+          if (token) {
+            localStorage.setItem('auth_token', token)
+          }
+          setIsAuthenticated(true)
+          return
+        }
+      }
+
       verifySession(token)
     }
 
@@ -112,13 +156,14 @@ function App() {
 
   return (
     <BrowserRouter>
+      <AuthModalProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
           path="/login"
           element={(
             <PublicOnlyRoute isAuthenticated={isAuthenticated}>
-              <LoginPage />
+              <LoginBookmarkRoute registerPreferred={false} />
             </PublicOnlyRoute>
           )}
         />
@@ -126,7 +171,7 @@ function App() {
           path="/register"
           element={(
             <PublicOnlyRoute isAuthenticated={isAuthenticated}>
-              <Register />
+              <LoginBookmarkRoute registerPreferred />
             </PublicOnlyRoute>
           )}
         />
@@ -165,7 +210,9 @@ function App() {
         <Route
           path="/orders"
           element={(
-            <OrderPage />
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <OrderPage />
+            </ProtectedRoute>
           )}
         />
         <Route
@@ -193,6 +240,7 @@ function App() {
           )}
         />
       </Routes>
+      </AuthModalProvider>
     </BrowserRouter>
   )
 }

@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
+import { useAuthModal } from '../contexts/AuthModalContext'
 import heroImage from '../assets/hero.png'
 import deliveryIcon from '../assets/delivery-icon.svg'
 import takeoutIcon from '../assets/takeout-icon.svg'
@@ -9,10 +9,11 @@ import dealsIcon from '../assets/deals-icon.svg'
 import trackingIcon from '../assets/tracking-icon.svg'
 
 export default function Home() {
-  const navigate = useNavigate()
+  const { openAuth } = useAuthModal()
+
   const startOrder = (serviceType) => {
     localStorage.setItem('order_service_type', serviceType)
-    navigate('/login', { state: { nextPath: '/menu' } })
+    openAuth({ nextPath: '/menu' })
   }
 
   return (
@@ -132,7 +133,7 @@ export default function Home() {
           <h2>Get Started Now</h2>
           <button 
             className="btn-purple btn-cta" 
-            onClick={() => navigate('/login', { state: { nextPath: '/menu' } })}
+            onClick={() => openAuth({ nextPath: '/menu' })}
           >
             Sign In To Continue
           </button>

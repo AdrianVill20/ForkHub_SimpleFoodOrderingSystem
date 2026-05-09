@@ -38,7 +38,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const token = localStorage.getItem('auth_token')
     if (!token) {
-      navigate('/login')
+      navigate('/')
       return
     }
 
@@ -85,12 +85,12 @@ export default function DashboardPage() {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
     window.dispatchEvent(new Event('auth-changed'))
-    navigate('/login')
+    navigate('/')
   }
 
   const saveProfile = async () => {
     const token = localStorage.getItem('auth_token')
-    if (!token) { navigate('/login'); return }
+    if (!token) { navigate('/'); return }
 
     setErrorMessage('')
     setSuccessMessage('')
@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
   return (
     <div className="page profile-page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap profile-content-wrap">
         {/* Hero Header with Animated Background */}
         <section className="profile-hero">

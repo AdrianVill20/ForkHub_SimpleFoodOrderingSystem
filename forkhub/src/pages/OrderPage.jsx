@@ -110,7 +110,7 @@ export default function OrderPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap">
         <div className="layout-2col order-layout">
           <section className="order-section">

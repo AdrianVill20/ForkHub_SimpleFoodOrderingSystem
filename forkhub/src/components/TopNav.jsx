@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useAuthModal } from '../contexts/AuthModalContext'
 import logo from '../assets/logo.png'
 
-export default function TopNav({ signedIn = false }) {
+export default function TopNav() {
   const [currentUser, setCurrentUser] = useState(null)
+  const location = useLocation()
+  const { openAuth } = useAuthModal()
 
   useEffect(() => {
     const syncUser = () => {
@@ -33,6 +36,7 @@ export default function TopNav({ signedIn = false }) {
   const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ').trim()
   const emailName = currentUser?.email ? currentUser.email.split('@')[0] : ''
   const greeting = displayName || emailName || 'User'
+  const isSignedIn = Boolean(currentUser)
 
   return (
     <header className="top-nav">
@@ -61,9 +65,23 @@ export default function TopNav({ signedIn = false }) {
       </nav>
 
       <div className="top-nav-right">
-        <Link className="top-nav-item" to={signedIn ? '/dashboard' : '/login'}>
-          {signedIn ? `Hi, ${greeting}` : 'Sign In'}
-        </Link>
+        {isSignedIn ? (
+          <Link className="top-nav-item" to="/dashboard">
+            {`Hi, ${greeting}`}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="top-nav-item auth-topnav-signin"
+            onClick={() =>
+              openAuth({
+                nextPath: `${location.pathname}${location.search}`,
+              })
+            }
+          >
+            Sign In
+          </button>
+        )}
         <Link className="top-nav-item top-nav-cart" to="/cart">
           Cart
         </Link>

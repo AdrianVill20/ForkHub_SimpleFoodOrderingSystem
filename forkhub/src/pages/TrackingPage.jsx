@@ -22,7 +22,7 @@ export default function TrackingPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap">
         <div className="tracking-layout">
           <section className="tracking-section">
