@@ -7,6 +7,7 @@ export default function CategoryModal({ category, onClose }) {
   const [items, setItems]             = useState([])
   const [loading, setLoading]         = useState(true)
   const [addedIds, setAddedIds]       = useState({})
+  const [quantities, setQuantities]   = useState({})
   const [customizeItem, setCustomizeItem] = useState(null)
 
   useEffect(() => {
@@ -19,9 +20,18 @@ export default function CategoryModal({ category, onClose }) {
     return () => { document.body.style.overflow = '' }
   }, [category])
 
+  function handleQty(itemId, delta) {
+    setQuantities((prev) => ({
+      ...prev,
+      [itemId]: Math.max(1, (prev[itemId] || 1) + delta),
+    }))
+  }
+
   function handleAddToOrder(item) {
-    addToCart(item)
+    const qty = quantities[item.id] || 1
+    addToCart(item, qty)
     setAddedIds((prev) => ({ ...prev, [item.id]: true }))
+    setQuantities((prev) => ({ ...prev, [item.id]: 1 }))
     setTimeout(() => setAddedIds((prev) => ({ ...prev, [item.id]: false })), 1500)
   }
 
@@ -67,6 +77,11 @@ export default function CategoryModal({ category, onClose }) {
                         />
                         <div className="menu-thumb cat-item-fallback" style={{ display: 'none' }} />
                         <p className="cat-item-name">{item.name.toUpperCase()}</p>
+                        <div className="cat-qty-row">
+                          <button className="cat-qty-btn" onClick={() => handleQty(item.id, -1)}>−</button>
+                          <span className="cat-qty-value">{quantities[item.id] || 1}</span>
+                          <button className="cat-qty-btn" onClick={() => handleQty(item.id, 1)}>+</button>
+                        </div>
                         <button
                           className={`btn-red cat-btn-add ${addedIds[item.id] ? 'cat-btn-added' : ''}`}
                           onClick={() => handleAddToOrder(item)}

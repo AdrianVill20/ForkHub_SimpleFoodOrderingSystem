@@ -25,100 +25,85 @@ export default function CartPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap">
-        <div className="layout-2col">
-          <section className="light-box" style={{ padding: 10 }}>
-            <h2 style={{ margin: '0 0 10px', fontSize: 44 }}>Cart</h2>
-            <div style={{ borderTop: '1px solid #ddd', paddingTop: 12 }}>
+        <div className="layout-2col cart-layout">
+          <section className="cart-section">
+            <div className="cart-header">
+              <h2 className="cart-title">Cart</h2>
+              <div className="cart-header-glow" />
+            </div>
+            <div className="cart-items-wrap">
               {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                  <p style={{ fontSize: 18, color: '#999' }}>Your cart is empty.</p>
-                  <button className="btn-red" style={{ marginTop: 16 }} onClick={() => navigate('/menu')}>
+                <div className="cart-empty">
+                  <div className="cart-empty-icon"><img src="/favicon.svg" alt="ForkHub" className="cart-favicon" /></div>
+                  <p className="cart-empty-text">Your cart is empty.</p>
+                  <button className="btn-red cart-empty-btn" onClick={() => navigate('/menu')}>
                     BROWSE MENU
                   </button>
                 </div>
               ) : (
                 <>
-                  <p style={{ fontWeight: 700 }}>Review and modify your items here.</p>
+                  <p className="cart-review-hint">Review and modify your items here.</p>
                   {cart.map((item) => (
-                    <div
-                      key={item.id}
-                      style={{ marginTop: 10, border: '1px solid #ddd', padding: 12, display: 'grid', gridTemplateColumns: '80px 1fr auto', gap: 12, alignItems: 'center' }}
-                    >
-                      {/* Thumbnail */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid #f4f4f4' }}
-                        onError={(e) => { e.target.style.display = 'none' }}
-                      />
-
-                      {/* Info */}
-                      <div>
-                        <p style={{ color: '#98008f', fontWeight: 700, margin: '0 0 4px' }}>{item.name}</p>
-                        <p className="muted" style={{ margin: '0 0 8px' }}>₱{item.price}.00 each</p>
-                        {/* Qty controls */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <button
-                            onClick={() => updateCartQty(item.id, (item.quantity || 1) - 1)}
-                            style={{ width: 28, height: 28, border: '1px solid #ddd', background: '#f5f5f5', cursor: 'pointer', fontWeight: 700, fontSize: 16 }}
-                          >−</button>
-                          <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{item.quantity || 1}</span>
-                          <button
-                            onClick={() => updateCartQty(item.id, (item.quantity || 1) + 1)}
-                            style={{ width: 28, height: 28, border: '1px solid #ddd', background: '#f5f5f5', cursor: 'pointer', fontWeight: 700, fontSize: 16 }}
-                          >+</button>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            style={{ marginLeft: 8, background: 'none', border: 'none', color: '#f01527', cursor: 'pointer', fontWeight: 700, fontSize: 12 }}
-                          >REMOVE</button>
+                    <div key={item.id} className="cart-item">
+                      <div className="cart-item-img-wrap">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="cart-item-img"
+                          onError={(e) => { e.target.style.display = 'none' }}
+                        />
+                      </div>
+                      <div className="cart-item-info">
+                        <p className="cart-item-name">{item.name}</p>
+                        <p className="cart-item-price">₱{item.price}.00 each</p>
+                        <div className="cart-qty-row">
+                          <button className="cart-qty-btn" onClick={() => updateCartQty(item.id, (item.quantity || 1) - 1)}>−</button>
+                          <span className="cart-qty-value">{item.quantity || 1}</span>
+                          <button className="cart-qty-btn" onClick={() => updateCartQty(item.id, (item.quantity || 1) + 1)}>+</button>
+                          <button className="cart-remove-btn" onClick={() => removeFromCart(item.id)}>REMOVE</button>
                         </div>
                       </div>
-
-                      {/* Subtotal */}
-                      <p style={{ textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      <div className="cart-item-subtotal">
                         ₱{(item.price * (item.quantity || 1)).toFixed(2)}
-                      </p>
+                      </div>
                     </div>
                   ))}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
-                    <button
-                      onClick={clearCart}
-                      style={{ background: 'none', border: '1px solid #ddd', padding: '8px 16px', cursor: 'pointer', color: '#666', fontWeight: 700, fontSize: 12 }}
-                    >
-                      CLEAR CART
-                    </button>
-                    <p style={{ fontSize: 22, fontWeight: 700 }}>Order Total: ₱{total.toFixed(2)}</p>
+                  <div className="cart-footer">
+                    <button className="cart-clear-btn" onClick={clearCart}>CLEAR CART</button>
+                    <p className="cart-total">Order Total: <span>₱{total.toFixed(2)}</span></p>
                   </div>
                 </>
               )}
             </div>
           </section>
-
-          <aside>
-            <div className="light-box" style={{ marginBottom: 10 }}>
-              <h3 className="card-title" style={{ fontSize: 18 }}>Review Order Settings</h3>
-              <div style={{ padding: 12 }}>
-                <p className="muted">Location: {userAddress}</p>
-                <p className="muted">Store: Espana Boulevard, Sampaloc, PH</p>
-                <p className="muted">Service: {serviceType}</p>
-                <p className="muted">Timing: Now</p>
+          <aside className="cart-aside">
+            <div className="cart-sidebar-card">
+              <h3 className="cart-sidebar-title">Review Order Settings</h3>
+              <div className="cart-sidebar-body">
+                <div className="cart-sidebar-row">
+                  <span className="cart-sidebar-label">Location</span>
+                  <span className="cart-sidebar-value">{userAddress}</span>
+                </div>
+                <div className="cart-sidebar-row">
+                  <span className="cart-sidebar-label">Store</span>
+                  <span className="cart-sidebar-value">Puso Village, Cebu City, PH</span>
+                </div>
+                <div className="cart-sidebar-row">
+                  <span className="cart-sidebar-label">Service</span>
+                  <span className="cart-sidebar-value">{serviceType}</span>
+                </div>
+                <div className="cart-sidebar-row">
+                  <span className="cart-sidebar-label">Timing</span>
+                  <span className="cart-sidebar-value">Now</span>
+                </div>
               </div>
             </div>
-            <button
-              className="btn-red"
-              style={{ width: '100%' }}
-              disabled={cart.length === 0}
-              onClick={() => navigate('/orders')}
-            >
+            <button className="cart-checkout-btn" disabled={cart.length === 0} onClick={() => navigate('/orders')}>
               CONTINUE CHECKOUT
             </button>
-            <button
-              style={{ width: '100%', marginTop: 8, background: 'none', border: '1px solid #ddd', padding: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, color: '#98008f' }}
-              onClick={() => navigate('/menu')}
-            >
+            <button className="cart-back-btn" onClick={() => navigate('/menu')}>
               ← BACK TO MENU
             </button>
           </aside>

@@ -42,61 +42,76 @@ export default function MenuPage() {
 
   return (
     <div className="page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap">
-        <div className="layout-2col">
+        <div className="layout-2col menu-layout">
 
           {/* ── Category grid ── */}
-          <section className="light-box" style={{ padding: 10 }}>
-            <h2 style={{ margin: '0 0 12px', fontSize: 44 }}>Menu</h2>
-
-            {!ready ? (
-              <p className="muted" style={{ padding: 24, textAlign: 'center' }}>Loading menu…</p>
-            ) : (
-              <div className="menu-grid">
-                {CATEGORIES.map((cat) => (
-                  <article
-                    key={cat.title}
-                    className="menu-item menu-item-clickable"
-                    onClick={() => setSelectedCategory(cat.title)}
-                  >
-                    <img
-                      src={cat.image}
-                      alt={cat.title}
-                      className="menu-thumb"
-                      style={{ borderRadius: '50%', objectFit: 'cover' }}
-                      onError={(e) => {
-                        e.target.style.display = 'none'
-                        e.target.nextSibling.style.display = 'block'
-                      }}
-                    />
-                    <div className="menu-thumb" style={{ display: 'none' }} />
-                    <h3>{cat.title}</h3>
-                  </article>
-                ))}
-              </div>
-            )}
+          <section className="menu-section">
+            <div className="menu-section-header">
+              <h2 className="menu-section-title">Menu</h2>
+              <div className="menu-header-glow" />
+            </div>
+            <div className="menu-section-body">
+              {!ready ? (
+                <div className="menu-loading">
+                  <div className="menu-loading-spinner" />
+                  <p>Loading menu…</p>
+                </div>
+              ) : (
+                <div className="menu-grid-new">
+                  {CATEGORIES.map((cat, i) => (
+                    <article
+                      key={cat.title}
+                      className="menu-card menu-card-clickable"
+                      onClick={() => setSelectedCategory(cat.title)}
+                      style={{ animationDelay: `${i * 0.06}s` }}
+                    >
+                      <div className="menu-card-img-wrap">
+                        <img
+                          src={cat.image}
+                          alt={cat.title}
+                          className="menu-card-img"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                            e.target.nextSibling.style.display = 'block'
+                          }}
+                        />
+                        <div className="menu-card-img-fallback" style={{ display: 'none' }} />
+                      </div>
+                      <h3 className="menu-card-title">{cat.title}</h3>
+                      <div className="menu-card-shimmer" />
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
 
           {/* ── Sidebar ── */}
-          <aside>
+          <aside className="menu-aside">
             <button
-              className="btn-red"
-              style={{ width: '100%', marginBottom: 10, position: 'relative' }}
+              className="menu-checkout-btn"
               onClick={() => navigate('/cart')}
             >
               CHECKOUT
-              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+              {cartCount > 0 && <span className="cart-badge menu-cart-badge">{cartCount}</span>}
             </button>
-            <div className="light-box">
-              <h3 className="card-title" style={{ fontSize: 18 }}>Order Settings</h3>
-              <div style={{ padding: 12 }}>
-                <p><strong>My Location</strong></p>
-                <p className="muted">{userAddress}</p>
-                <p style={{ marginTop: 10 }}><strong>Service</strong></p>
-                <p className="muted">{serviceType}</p>
-                <p style={{ marginTop: 10 }}><strong>My Store</strong></p>
-                <p className="muted">Espana Boulevard, Sampaloc, PH</p>
+            <div className="menu-settings-card">
+              <h3 className="menu-settings-title">Order Settings</h3>
+              <div className="menu-settings-body">
+                <div className="menu-settings-row">
+                  <span className="menu-settings-label">My Location</span>
+                  <span className="menu-settings-value">{userAddress}</span>
+                </div>
+                <div className="menu-settings-row">
+                  <span className="menu-settings-label">Service</span>
+                  <span className="menu-settings-value">{serviceType}</span>
+                </div>
+                <div className="menu-settings-row">
+                  <span className="menu-settings-label">My Store</span>
+                  <span className="menu-settings-value">Puso Village, Cebu City, PH</span>
+                </div>
               </div>
             </div>
           </aside>

@@ -6,7 +6,8 @@
     "firstName": "Adrian",
     "lastName": "Villarte",
     "phone": "098765432",
-    "address": "Cebu City"
+    "address": "Cebu City",
+    "role": "member"
   },
   {
     "id": "bbf67fc6-fbfc-4f6c-bf12-f6be142b605b",
@@ -16,6 +17,7 @@
     "lastName": "Entera",
     "phone": "09215721111",
     "address": "",
+    "role": "member",
     "createdAt": "2026-05-02T02:20:18.378Z"
   },
   {
@@ -26,6 +28,40 @@
     "lastName": "Arnado",
     "phone": "09786423589",
     "address": "C. Padilla Street, Cebu City",
+    "role": "member",
     "createdAt": "2026-05-06T15:51:06.231Z"
+  },
+  {
+    "id": "17409213-5946-4ea0-a9b0-adc09899badc",
+    "email": "lykamae.entera.23@usjr.edu.ph",
+    "password": "$2b$10$lRCGjh52/pNZG9tc6M60i.Sm6ZeUpGnJf2nKx89umN0V6MNW0sX3G",
+    "firstName": "LYKA",
+    "lastName": "ENTERA",
+    "phone": "09215721111",
+    "address": "",
+    "role": "member",
+    "createdAt": "2026-05-07T04:16:33.270Z"
+  },
+  {
+    "id": "fc6ae6ae-b5fb-4de1-ac30-e39fc8a8a963",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$rZSmuWLlzk4CLWIroWP37eg6z.MTah7PUYezCUosVfOOpySJxnmLS",
+    "firstName": "admin",
+    "lastName": "admin",
+    "phone": "0987654321",
+    "address": "",
+    "role": "admin",
+    "createdAt": "2026-05-07T15:41:36.928Z"
+  },
+  {
+    "id": "4b5348a7-2b27-483b-8fd8-bc4b0c79763e",
+    "email": "dave@gmail.com",
+    "password": "$2b$10$BJK1HKtHIoS98ZeTewK6pO.NtFub2iYscHGc6PiTSQv8m/oVMz8lS",
+    "firstName": "Dave",
+    "lastName": "Torreranca",
+    "phone": "09514572194",
+    "address": "",
+    "role": "customer",
+    "createdAt": "2026-05-09T01:59:48.214Z"
   }
 ]

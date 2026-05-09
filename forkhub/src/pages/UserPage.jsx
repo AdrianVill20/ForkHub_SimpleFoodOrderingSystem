@@ -47,7 +47,7 @@ export default function UserPage() {
 
   return (
     <div className="page profile-page">
-      <TopNav signedIn />
+      <TopNav />
       <main className="content-wrap profile-content-wrap">
         {/* Hero Header with Animated Background */}
         <section className="profile-hero">
