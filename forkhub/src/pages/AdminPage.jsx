@@ -6,6 +6,85 @@ import { getAllOrders, deleteOrder, updateOrderStatus } from '../services/orderS
 const CATEGORIES = ['Pizza','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
 const EMPTY_FORM  = { name:'', category:'Pizza', subcategory:'Classic', description:'', price:'', image:'' }
 
+function FormFields({ form, setForm }) {
+  const lbl = { fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }
+
+  return (
+    <>
+      <label style={lbl}>Item Name *</label>
+      <input 
+        className="field" 
+        value={form.name} 
+        onChange={(e) => setForm({...form, name: e.target.value})} 
+        placeholder="e.g. Pepperoni Pizza" 
+        required 
+      />
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+        <div>
+          <label style={lbl}>Category *</label>
+          <select className="select-field" value={form.category} onChange={(e) => setForm({...form, category: e.target.value})}>
+            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <label style={lbl}>Subcategory</label>
+          <input 
+            className="field" 
+            value={form.subcategory} 
+            onChange={(e) => setForm({...form, subcategory: e.target.value})} 
+            placeholder="e.g. Classic" 
+          />
+        </div>
+      </div>
+
+      <label style={lbl}>Description</label>
+      <textarea 
+        className="field" 
+        rows={3} 
+        value={form.description} 
+        onChange={(e) => setForm({...form, description: e.target.value})} 
+        placeholder="Ingredients / description" 
+      />
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+        <div>
+          <label style={lbl}>Price (₱) *</label>
+          <input 
+            className="field" 
+            type="number" 
+            min="1" 
+            value={form.price} 
+            onChange={(e) => setForm({...form, price: e.target.value})} 
+            placeholder="169" 
+            required 
+          />
+        </div>
+        <div>
+          <label style={lbl}>Image Path</label>
+          <input 
+            className="field" 
+            value={form.image} 
+            onChange={(e) => setForm({...form, image: e.target.value})} 
+            placeholder="/images/pizza/CheeseMania.jpg" 
+          />
+        </div>
+      </div>
+
+      {form.image && (
+        <div style={{ textAlign:'center', margin:'8px 0' }}>
+          <img 
+            src={form.image} 
+            alt="preview" 
+            style={{ width:80, height:80, borderRadius:'50%', objectFit:'cover', border:'2px solid #ddd' }} 
+            onError={(e) => (e.target.style.display='none')} 
+          />
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function AdminPage() {
   const [view, setView]               = useState('list')
   const [items, setItems]             = useState([])
@@ -84,56 +163,20 @@ export default function AdminPage() {
 
   async function confirmDelete() {
     try {
-      await deleteMenuItem(deleteTarget.id)
+      // Toggle unavailable status instead of deleting
+      const newStatus = !deleteTarget.unavailable
+      await updateMenuItem(deleteTarget.id, { unavailable: newStatus })
       await reload()
-      showToast(`"${deleteTarget.name}" deleted.`, 'error')
+      if (newStatus) {
+        showToast(`"${deleteTarget.name}" marked as unavailable.`, 'error')
+      } else {
+        showToast(`"${deleteTarget.name}" is now available again.`, 'success')
+      }
       setDeleteTarget(null)
       setView('list')
     } catch (err) {
       showToast(err.message, 'error')
     }
-  }
-
-  function FormFields() {
-    return (
-      <>
-        <label style={lbl}>Item Name *</label>
-        <input className="field" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} placeholder="e.g. Pepperoni Pizza" required />
-
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-          <div>
-            <label style={lbl}>Category *</label>
-            <select className="select-field" value={form.category} onChange={(e) => setForm({...form, category: e.target.value})}>
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={lbl}>Subcategory</label>
-            <input className="field" value={form.subcategory} onChange={(e) => setForm({...form, subcategory: e.target.value})} placeholder="e.g. Classic" />
-          </div>
-        </div>
-
-        <label style={lbl}>Description</label>
-        <textarea className="field" rows={3} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} placeholder="Ingredients / description" />
-
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-          <div>
-            <label style={lbl}>Price (₱) *</label>
-            <input className="field" type="number" min="1" value={form.price} onChange={(e) => setForm({...form, price: e.target.value})} placeholder="169" required />
-          </div>
-          <div>
-            <label style={lbl}>Image Path</label>
-            <input className="field" value={form.image} onChange={(e) => setForm({...form, image: e.target.value})} placeholder="/images/pizza/Item.jpg" />
-          </div>
-        </div>
-
-        {form.image && (
-          <div style={{ textAlign:'center', margin:'8px 0' }}>
-            <img src={form.image} alt="preview" style={{ width:80, height:80, borderRadius:'50%', objectFit:'cover', border:'2px solid #ddd' }} onError={(e) => (e.target.style.display='none')} />
-          </div>
-        )}
-      </>
-    )
   }
 
   const lbl = { fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }
@@ -205,17 +248,29 @@ export default function AdminPage() {
                           <tr><td colSpan={6} className="admin-empty-row">No items found.</td></tr>
                         )}
                         {filtered.map((item, i) => (
-                          <tr key={item.id}>
+                          <tr key={item.id} style={{ opacity: item.unavailable ? 0.6 : 1, backgroundColor: item.unavailable ? '#fafafa' : 'transparent' }}>
                             <td>
-                              <img src={item.image} alt={item.name} className="admin-item-img" onError={(e) => { e.target.style.display='none' }} />
+                              <img src={item.image} alt={item.name} className="admin-item-img" onError={(e) => { e.target.style.display='none' }} style={{ filter: item.unavailable ? 'grayscale(100%)' : 'none', opacity: item.unavailable ? 0.5 : 1 }} />
                             </td>
-                            <td className="admin-item-name">{item.name}</td>
+                            <td className="admin-item-name">
+                              {item.name}
+                              {item.unavailable && (
+                                <span style={{ marginLeft: 8, color: '#d32f2f', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
+                                  [UNAVAILABLE]
+                                </span>
+                              )}
+                            </td>
                             <td>{item.category}</td>
                             <td>{item.subcategory}</td>
                             <td className="admin-item-price">₱{item.price}</td>
                             <td className="admin-actions">
                               <button className="admin-edit-btn" onClick={() => openEdit(item)}>Edit</button>
-                              <button className="admin-delete-btn" onClick={() => openDelete(item)}>Delete</button>
+                              <button 
+                                className={`admin-delete-btn ${item.unavailable ? 'admin-enable-btn' : ''}`}
+                                onClick={() => openDelete(item)}
+                              >
+                                {item.unavailable ? 'Enable' : 'Unavailable'}
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -228,7 +283,7 @@ export default function AdminPage() {
               {/* ADD */}
               {view === 'add' && (
                 <form onSubmit={handleAdd} className="admin-form">
-                  <FormFields />
+                  <FormFields form={form} setForm={setForm} />
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-submit-btn">ADD ITEM</button>
                     <button type="button" className="admin-cancel-btn" onClick={() => setView('list')}>CANCEL</button>
@@ -239,7 +294,7 @@ export default function AdminPage() {
               {/* EDIT */}
               {view === 'edit' && (
                 <form onSubmit={handleEdit} className="admin-form">
-                  <FormFields />
+                  <FormFields form={form} setForm={setForm} />
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-save-btn">SAVE CHANGES</button>
                     <button type="button" className="admin-cancel-btn" onClick={() => { setView('list'); setForm(EMPTY_FORM) }}>CANCEL</button>
@@ -251,12 +306,20 @@ export default function AdminPage() {
               {view === 'delete' && deleteTarget && (
                 <div className="admin-delete-modal">
                   <div className="admin-delete-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={deleteTarget.unavailable ? '#4caf50' : '#d32f2f'} strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                   </div>
-                  <h3 className="admin-delete-title">Delete "{deleteTarget.name}"?</h3>
-                  <p className="admin-delete-desc">This action cannot be undone. The item will be permanently removed.</p>
+                  <h3 className="admin-delete-title">
+                    {deleteTarget.unavailable ? 'Re-enable' : 'Mark as Unavailable'} "{deleteTarget.name}"?
+                  </h3>
+                  <p className="admin-delete-desc">
+                    {deleteTarget.unavailable 
+                      ? 'This item will be available for customers to order again.' 
+                      : 'This item will be hidden from customers but can be re-enabled later.'}
+                  </p>
                   <div className="admin-delete-actions">
-                    <button className="admin-delete-confirm-btn" onClick={confirmDelete}>YES, DELETE</button>
+                    <button className="admin-delete-confirm-btn" onClick={confirmDelete}>
+                      {deleteTarget.unavailable ? 'YES, ENABLE' : 'YES, MAKE UNAVAILABLE'}
+                    </button>
                     <button className="admin-cancel-btn" onClick={() => { setDeleteTarget(null); setView('list') }}>CANCEL</button>
                   </div>
                 </div>
@@ -275,6 +338,7 @@ export default function AdminPage() {
                             <th>Status</th>
                             <th>Reason</th>
                             <th>Service</th>
+                            <th>Address</th>
                             <th>Phone</th>
                             <th>Items</th>
                             <th>Total</th>
@@ -307,6 +371,9 @@ export default function AdminPage() {
                               </td>
                               <td className="admin-reason-cell">{order.status === 'Cancelled' ? (order.cancelReason || '—') : '—'}</td>
                               <td>{order.serviceType}</td>
+                              <td style={{ fontSize: 12, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {order.address || '—'}
+                              </td>
                               <td>{order.phone}</td>
                               <td>{order.items?.length || 0} item(s)</td>
                               <td className="admin-order-total">₱{(order.total || 0).toFixed(2)}</td>

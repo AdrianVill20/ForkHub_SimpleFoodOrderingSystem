@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
@@ -12,20 +12,33 @@ const BRANCHES = [
 export default function OrderPage() {
   const navigate = useNavigate()
   const [serviceType, setServiceType] = useState(localStorage.getItem('order_service_type') || 'Delivery')
-  const [branchId, setBranchId] = useState(BRANCHES[0].id)
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
   const [destination, setDestination] = useState(null)
   const [placedOrder, setPlacedOrder] = useState(null)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [phoneEditable, setPhoneEditable] = useState(false)
 
   const [cart, setCart] = useState(getCart())
   const total = getCartTotal()
-  const branch = BRANCHES.find((item) => item.id === branchId) || BRANCHES[0]
+  const branch = BRANCHES[0]
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
   const [orderHistory, setOrderHistory] = useState(getAllOrders())
   const [cancellingId, setCancellingId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
+
+  // Auto-fill phone from user data on mount
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('auth_user') || '{}')
+      if (user.phone) {
+        setPhone(user.phone)
+      }
+    } catch {
+      // keep empty
+    }
+  }, [])
 
   useEffect(() => {
     const handleCartUpdated = () => { setCart(getCart()); setOrderHistory(getAllOrders()) }
@@ -66,7 +79,7 @@ export default function OrderPage() {
       setDestination(nextDestination)
       setSearchMessage('Location found and shown on the map.')
       setAddress(result.display_name)
-    } catch (error) {
+    } catch {
       setSearchMessage('Unable to locate address. Please try a different query.')
     } finally {
       setIsSearchingAddress(false)
@@ -103,6 +116,7 @@ export default function OrderPage() {
       destination,
     })
     setPlacedOrder(order)
+    setShowConfirmation(true)
     clearCart()
   }
 
@@ -267,14 +281,39 @@ export default function OrderPage() {
                   )}
 
                   <div className="order-form-group">
-                    <h3 className="order-label">Phone for Tracking</h3>
-                    <input
-                      className="field order-field"
-                      type="text"
-                      placeholder="09XXXXXXXXX"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
+                    <h3 className="order-label">
+                      Phone for Tracking
+                      {!phoneEditable && (
+                        <button
+                          className="order-edit-phone-btn"
+                          onClick={() => setPhoneEditable(true)}
+                          style={{
+                            marginLeft: 10,
+                            padding: '4px 8px',
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            background: 'none',
+                            border: 'none',
+                            color: '#7c3aed',
+                            textDecoration: 'underline',
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </h3>
+                    {phoneEditable ? (
+                      <input
+                        className="field order-field"
+                        type="text"
+                        placeholder="09XXXXXXXXX"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        autoFocus
+                      />
+                    ) : (
+                      <p className="order-value">{phone || 'No phone number saved'}</p>
+                    )}
                   </div>
 
                   <div className="order-total-row">
@@ -283,13 +322,13 @@ export default function OrderPage() {
                       <p className="order-total-price">₱{total.toFixed(2)}</p>
                     </div>
                     <button className="order-place-btn" type="button" onClick={handlePlaceOrder}>
-                      Place Order
+                      Add to Cart
                     </button>
                   </div>
                 </>
               )}
 
-              {orderSummary && (
+              {orderSummary && !showConfirmation && (
                 <div className="order-confirmation">
                   <div className="order-confirm-icon"><img src="/favicon.svg" alt="Confirmed" className="order-confirm-favicon" /></div>
                   <h3 className="order-confirm-title">Order Confirmation</h3>
@@ -358,6 +397,76 @@ export default function OrderPage() {
         </div>
       </main>
 
+      {/* Order Confirmation Modal */}
+      {showConfirmation && orderSummary && (
+        <div
+          className="cat-modal-overlay"
+          style={{ zIndex: 1000 }}
+          onClick={() => setShowConfirmation(false)}
+        >
+          <div className="order-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="order-confirm-modal-icon">
+              <img src="/favicon.svg" alt="Confirmed" />
+            </div>
+            <h3 className="order-confirm-modal-title">Order Confirmed!</h3>
+            <p className="order-confirm-modal-subtitle">Your order has been successfully placed</p>
+            
+            <div className="order-confirm-modal-grid">
+              <div className="order-confirm-modal-row">
+                <span className="order-confirm-modal-label">Order Number</span>
+                <span className="order-confirm-modal-value">{orderSummary.id}</span>
+              </div>
+              <div className="order-confirm-modal-row">
+                <span className="order-confirm-modal-label">Status</span>
+                <span className="order-confirm-modal-value">{orderSummary.status}</span>
+              </div>
+              <div className="order-confirm-modal-row">
+                <span className="order-confirm-modal-label">Service</span>
+                <span className="order-confirm-modal-value">{orderSummary.serviceType}</span>
+              </div>
+              <div className="order-confirm-modal-row">
+                <span className="order-confirm-modal-label">Branch</span>
+                <span className="order-confirm-modal-value">{orderSummary.branch.name}</span>
+              </div>
+              {orderSummary.serviceType === 'Delivery' && (
+                <div className="order-confirm-modal-row">
+                  <span className="order-confirm-modal-label">Address</span>
+                  <span className="order-confirm-modal-value">{orderSummary.address}</span>
+                </div>
+              )}
+              <div className="order-confirm-modal-row">
+                <span className="order-confirm-modal-label">Phone</span>
+                <span className="order-confirm-modal-value">{orderSummary.phone}</span>
+              </div>
+              <div className="order-confirm-modal-row">
+                <span className="order-confirm-modal-label">Total</span>
+                <span className="order-confirm-modal-value highlight">₱{(orderSummary.total || 0).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="order-confirm-modal-buttons">
+              <button
+                className="order-confirm-modal-btn order-confirm-modal-btn-secondary"
+                onClick={() => {
+                  setShowConfirmation(false)
+                  navigate('/menu')
+                }}
+              >
+                Back to Menu
+              </button>
+              <button
+                className="order-confirm-modal-btn order-confirm-modal-btn-primary"
+                onClick={() => {
+                  setShowConfirmation(false)
+                  navigate('/tracking')
+                }}
+              >
+                Track Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

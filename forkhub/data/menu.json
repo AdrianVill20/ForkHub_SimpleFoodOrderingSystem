@@ -6,7 +6,8 @@
     "subcategory": "Classic",
     "description": "Creamy Overload Sauce, Garlic Seasoning, Mushrooms, Beef Toppings, Mozzarella Cheese, Cheese Sauce, Shredded Cheddar Cheese",
     "price": 169,
-    "image": "/images/pizza/Beef&MushroomMelt.jpg"
+    "image": "/images/pizza/Beef&MushroomMelt.jpg",
+    "unavailable": false
   },
   {
     "id": "pizza_2",
@@ -304,5 +305,14 @@
     "description": "Warm melted cheese dipping sauce",
     "price": 20,
     "image": "/images/extras/cheese.jpg"
+  },
+  {
+    "id": "aeb56e58-9cda-4817-9b81-eb09f381d661",
+    "name": "BBQ Pizza",
+    "category": "Pizza",
+    "subcategory": "Classic",
+    "description": "Pizza",
+    "price": 200,
+    "image": "D:\\School_Doc\\College_3rd_Year\\2nd_sem\\allaince\\ForkHub_SimpleFoodOrderingSystem\\forkhub\\public\\images\\pizza\\bbqpizza"
   }
 ]

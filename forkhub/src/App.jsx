@@ -159,6 +159,8 @@ function App() {
       <AuthModalProvider>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/menu" element={<MenuPage />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route
           path="/login"
           element={(
@@ -184,26 +186,10 @@ function App() {
           )}
         />
         <Route
-          path="/menu"
-          element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <MenuPage />
-            </ProtectedRoute>
-          )}
-        />
-        <Route
           path="/users"
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <ProfilePage />
-            </ProtectedRoute>
-          )}
-        />
-        <Route
-          path="/cart"
-          element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <CartPage />
             </ProtectedRoute>
           )}
         />

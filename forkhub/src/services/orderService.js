@@ -28,7 +28,7 @@ export function getAllOrders() {
 export function saveOrder(order) {
   const preparedOrder = {
     id: createOrderNumber(),
-    status: order.serviceType === 'Delivery' ? 'Out for delivery' : 'Ready for pickup',
+    status: 'Pending',
     placedAt: new Date().toISOString(),
     items: getCart(),
     total: getCartTotal(),

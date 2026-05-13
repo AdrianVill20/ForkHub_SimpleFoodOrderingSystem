@@ -25,6 +25,7 @@ router.get('/:id', async (req, res, next) => {
     const items = await readMenu()
     const item  = items.find((i) => i.id === req.params.id)
     if (!item) throw createHttpError(404, 'Menu item not found')
+
     return res.json(item)
   } catch (error) {
     return next(error)
@@ -66,7 +67,7 @@ router.put('/:id', async (req, res, next) => {
     const idx   = items.findIndex((i) => i.id === req.params.id)
     if (idx === -1) throw createHttpError(404, 'Menu item not found')
 
-    const { name, category, subcategory, description, price, image } = req.body
+    const { name, category, subcategory, description, price, image, unavailable } = req.body
 
     items[idx] = {
       ...items[idx],
@@ -76,6 +77,7 @@ router.put('/:id', async (req, res, next) => {
       ...(description !== undefined && { description: String(description).trim() }),
       ...(price       !== undefined && { price:       Number(price)              }),
       ...(image       !== undefined && { image:       String(image).trim()       }),
+      ...(unavailable !== undefined && { unavailable: Boolean(unavailable)       }),
     }
 
     await writeMenu(items)

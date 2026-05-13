@@ -5,11 +5,22 @@ import { RegisterModal } from '../pages/Register'
 export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
   const [registerOpen, setRegisterOpen] = useState(initialMode === 'register')
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+
+  useEffect(() => {
+    // Load saved credentials if remember me was checked
+    const savedEmail = localStorage.getItem('fh_remember_email')
+    if (savedEmail) {
+      setEmail(savedEmail)
+      setRememberMe(true)
+    }
+  }, [])
 
   useEffect(() => {
     if (registerOpen) return undefined
@@ -36,6 +47,13 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
 
     setErrorMessage('')
     setIsSubmitting(true)
+
+    // Save email if remember me is checked
+    if (rememberMe) {
+      localStorage.setItem('fh_remember_email', email)
+    } else {
+      localStorage.removeItem('fh_remember_email')
+    }
 
     try {
       const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
@@ -117,8 +135,42 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
         <label>Email</label>
         <input className="field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-        <label>Password</label>
-        <input className="field" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
+          <span>Password</span>
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#7c3aed',
+              fontSize: 16,
+              padding: 0,
+              fontWeight: 500,
+            }}
+            title={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? '👁️ Hide' : '👁️ Show'}
+          </button>
+        </label>
+        <input
+          className="field"
+          type={showPassword ? 'text' : 'password'}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            style={{ cursor: 'pointer', width: 18, height: 18 }}
+          />
+          <span style={{ fontSize: 14 }}>Remember me</span>
+        </label>
 
         {errorMessage ? (
           <p className="muted" style={{ color: '#c62828', marginTop: 10 }}>

@@ -92,6 +92,7 @@ export default function CustomizeModal({ item, onClose, onAdded }) {
   const [selectedOption, setSelectedOption] = useState(cfg.defaultOption)
   const [ice, setIce]                       = useState('Regular Ice')
   const [note, setNote]                     = useState('')
+  const [quantity, setQuantity]             = useState(1)
   const [added, setAdded]                   = useState(false)
 
   const chosen      = cfg.options.find((o) => o.label === selectedOption)
@@ -109,7 +110,7 @@ export default function CustomizeModal({ item, onClose, onAdded }) {
       name:  `${sizePart}${item.name}`,
       price: finalPrice,
       note:  [icePart ? ice : null, notePart || null].filter(Boolean).join(', ') || null,
-    })
+    }, quantity)
     setAdded(true)
     setTimeout(() => { onAdded?.(); onClose() }, 900)
   }
@@ -208,14 +209,34 @@ export default function CustomizeModal({ item, onClose, onAdded }) {
         <div className="cust-footer">
           <div className="cust-total">
             <span className="muted" style={{ fontSize: 13 }}>Total</span>
-            <span className="cust-total-price">₱{finalPrice}.00</span>
+            <span className="cust-total-price">₱{(finalPrice * quantity).toFixed(2)}</span>
           </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button className="admin-nav-btn" onClick={onClose}>CANCEL</button>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div className="cart-qty-row" style={{ gap: 8 }}>
+              <button 
+                className="cart-qty-btn" 
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              >
+                −
+              </button>
+              <span className="cart-qty-value" style={{ minWidth: 30, textAlign: 'center' }}>
+                {quantity}
+              </span>
+              <button 
+                className="cart-qty-btn" 
+                onClick={() => setQuantity(quantity + 1)}
+              >
+                +
+              </button>
+            </div>
+            <button className="admin-nav-btn" onClick={onClose} style={{ flex: 1 }}>
+              CANCEL
+            </button>
             <button
               className={`btn-red cust-add-btn ${added ? 'cat-btn-added' : ''}`}
               onClick={handleAdd}
               disabled={added}
+              style={{ flex: 1 }}
             >
               {added ? '✓ ADDED TO CART!' : 'ADD TO CART'}
             </button>
