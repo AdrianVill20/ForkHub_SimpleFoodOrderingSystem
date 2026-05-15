@@ -12,10 +12,9 @@ export default function TopNav() {
 
   useEffect(() => {
     const syncUser = () => {
-      const raw = localStorage.getItem('auth_user')
-      if (!raw) {
-        setCurrentUser(null)
-        return
+      const token = localStorage.getItem('auth_token')
+      const raw   = localStorage.getItem('auth_user')
+      if (!token || !raw) { setCurrentUser(null); return 
       }
 
       try {
