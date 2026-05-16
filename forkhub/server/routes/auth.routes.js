@@ -13,6 +13,8 @@ const saltRounds = 10
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin123'
 
+const DELETION_GRACE_DAYS = 5
+
 function withoutPassword(user) {
   return {
     id: user.id,
@@ -21,17 +23,44 @@ function withoutPassword(user) {
     lastName: user.lastName || '',
     phone: user.phone || '',
     address: user.address || '',
-    role: user.role || 'member',
+    role: user.role || 'customer',
     createdAt: user.createdAt,
+    isDeleted: user.isDeleted || false,
+    scheduledDeletionDate: user.scheduledDeletionDate || null,
+  }
+}
+
+function withoutPasswordAdmin(user){
+  return {
+    ...withoutPassword(user),
+    deletedAt: user.deletedAt || null,
   }
 }
 
 function issueToken(user) {
-  return jwt.sign({ email: user.email }, jwtSecret, {
+  return jwt.sign({ email: user.email, role: user.role || 'customer' }, jwtSecret, {
     subject: user.id,
     expiresIn: jwtExpiresIn,
   })
 }
+
+async function purgeExpiredAccounts(){
+  try{
+    const users = await readUsers()
+    const now = new Date()
+    const kept = users.filter((u) => {
+      if(u.isDeleted || !u.scheduledDeletionDate) return true
+      return new Date(u.scheduledDeletionDate) > now
+  })
+  if (kept.length !== users.length) {
+    await writeUsers(kept)
+    console.log(`[auth] Purged ${users.length - kept.length} expired account(s)`)
+  }
+ }catch{}
+}
+purgeExpiredAccounts()
+setInterval(purgeExpiredAccounts, 24 * 60 * 60 * 1000) // Run once a day
+
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -65,7 +94,7 @@ router.post('/register', async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, saltRounds)
     const adminCode = req.body?.adminCode?.trim() || ''
-    const role = adminCode === ADMIN_SECRET ? 'admin' : 'member'
+    const role = adminCode === ADMIN_SECRET ? 'admin' : 'customer'
     const user = {
       id: uuidv4(),
       email,
@@ -106,8 +135,14 @@ router.post('/login', async (req, res, next) => {
     const users = await readUsers()
     const user = users.find((item) => item.email === email)
 
+    
     if (!user) {
       throw createHttpError(401, 'Invalid email or password')
+    }
+
+    if (user.isDeleted && user.sceduleDeletionAt && new Date(user.scheduledDeletionAt) <= new Date()) {
+      await writeUsers(users.filter((u) => u.id !== user.id))
+      throw createHttpError(401, 'This account has been permanently deleted')
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
@@ -173,19 +208,72 @@ router.put('/profile', requireAuth, async (req, res, next) => {
 router.delete('/profile', requireAuth, async (req, res, next) => {
   try {
     const users = await readUsers()
-    const userIndex = users.findIndex((item) => item.id === req.user.id)
+    const idx = users.findIndex((u) => u.id === req.user.id)
+    if (idx === -1) throw createHttpError(404, 'User not found')
+    
+    const deletedAt = new Date()
+    const scheduledDeletionAt = new Date(deletedAt.getTime() + DELETION_GRACE_DAYS)
 
-    if (userIndex === -1) {
-      throw createHttpError(404, 'User not found')
-    }
+   users[idx] = {
+    ...users[idx],
+    isDeleted: true,
+    deletedAt: deletedAt.toISOString(),
+    scheduledDeletionAt: scheduledDeletionAt.toISOString(),
+   }
+   await writeUsers(users)
 
-    users.splice(userIndex, 1)
+   return res.json({
+    message: `Account scheduled for permanent deletion in ${DELETION_GRACE_DAYS} days`,
+    scheduledDeletionAt: scheduledDeletionAt.toISOString(),
+    graceDays: DELETION_GRACE_DAYS,
+   })
+  } catch (e) {return next(e)}
+})
+
+router.post('/profile/restore', requireAuth, async (req, res, next) => {
+  try {
+    const users = await readUsers()
+    const idx = users.findIndex((u) => u.id === req.user.id)
+    if (idx === -1) throw createHttpError(404, 'User not found')
+    
+    const { isDeleted: _d, deletedAt: _da, scheduleDeletionAt: _s, ...rest} = users[idx]
+    users[idx] = rest
     await writeUsers(users)
+    return res.json({ user: withoutPassword(users[idx]), message: 'Account deletion cancelled' })
+  } catch (e) { return next(e)}
+})
 
-    return res.json({ message: 'User account deleted successfully' })
-  } catch (error) {
-    return next(error)
-  }
+router.get('/users', requireAuth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') throw createHttpError(403, 'Access denied')
+    const users = await readUsers()
+    return res.json(users.map(withoutPasswordAdmin))
+  } catch (e) { return next(e) }
+})
+
+router.delete('/users/:id', requireAuth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') throw createHttpError(403, 'Admin access required')
+    const users   = await readUsers()
+    const target  = users.find((u) => u.id === req.params.id)
+    if (!target)  throw createHttpError(404, 'User not found')
+    if (target.role === 'admin') throw createHttpError(403, 'Cannot delete admin accounts')
+    await writeUsers(users.filter((u) => u.id !== req.params.id))
+    return res.json({ message: `Account "${target.email}" permanently deleted` })
+  } catch (e) { return next(e) }
+})
+
+router.post('/users/:id/restore', requireAuth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') throw createHttpError(403, 'Admin access required')
+    const users = await readUsers()
+    const idx   = users.findIndex((u) => u.id === req.params.id)
+    if (idx === -1) throw createHttpError(404, 'User not found')
+    const { isDeleted: _d, deletedAt: _da, scheduledDeletionAt: _s, ...rest } = users[idx]
+    users[idx] = rest
+    await writeUsers(users)
+    return res.json({ user: withoutPasswordAdmin(users[idx]), message: 'Account restored' })
+  } catch (e) { return next(e) }
 })
 
 export default router
