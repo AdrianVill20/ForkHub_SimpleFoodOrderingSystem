@@ -1,0 +1,10 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Lightning bolt -->
+  <polygon points="32,8 48,32 36,32 32,56 16,32 28,32" fill="#f01527"/>
+  <!-- Highlight -->
+  <polygon points="32,12 42,28 34,28 32,48 24,32 30,32" fill="#fff" opacity="0.4"/>
+  <!-- Speed lines -->
+  <line x1="12" y1="24" x2="4" y2="24" stroke="#98008f" stroke-width="2" stroke-linecap="round"/>
+  <line x1="52" y1="32" x2="60" y2="32" stroke="#98008f" stroke-width="2" stroke-linecap="round"/>
+  <line x1="48" y1="44" x2="56" y2="44" stroke="#7ad8dc" stroke-width="2" stroke-linecap="round"/>
+</svg>

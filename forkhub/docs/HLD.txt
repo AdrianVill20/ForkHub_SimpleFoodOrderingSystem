@@ -1,0 +1,339 @@
+    FORKHUB - SIMPLE FOOD ORDERING SYSTEM
+HIGH-LEVEL DESIGN (HLD) DOCUMENT
+=====================================================================================================
+
+PROJECT OVERVIEW
+=====================================================================================================
+ForkHub is a food ordering system with a React frontend and Node.js/Express backend.
+It supports multiple user roles (Customer/User and Admin) with authentication, menu browsing, 
+order management, and order tracking capabilities.
+
+
+SCREENS & COMPONENTS SPECIFICATION
+=====================================================================================================
+
+0.0 PUBLIC/GENERAL NAVIGATION
+Description: Provides public navigation from the landing page for both user roles.
+Remarks: Includes sign-in and sign-up buttons, logo button for quick landing page access. 
+         Part of the Navbar component used throughout the application.
+
+
+1.0 HOME PAGE
+Description: Landing page displaying the main entry point for the ForkHub application with 
+             featured content, promotions, or food categories.
+Remarks: First screen users see when accessing the application. Contains call-to-action buttons 
+         for login/register. May include featured meals, restaurant information, or promotional banners.
+
+
+2.0 AUTHENTICATION SCREENS
+
+2.1 LOGIN PAGE
+Description: Allows existing users to authenticate into the system using credentials.
+Remarks: Collects email/username and password. Sends credentials to backend for JWT token generation.
+         On success, redirects to dashboard/home. Includes "forgot password" and "sign up" links.
+         Uses Input component for email field and password field.
+         Uses Button component for submit action.
+
+
+2.2 REGISTER PAGE
+Description: Enables new users to create an account in the ForkHub system.
+Remarks: Collects user information (name, email, password, phone, address, etc.).
+         Validates input data on frontend before submission.
+         Backend performs additional validation and stores user data using bcrypt password hashing.
+         Includes terms & conditions acceptance checkbox.
+         Success redirects to login or auto-login to dashboard.
+
+
+3.0 USER DASHBOARD (AFTER AUTHENTICATION)
+Description: Main hub for authenticated regular users showing order history, quick actions, 
+             and personalized recommendations.
+Remarks: Serves as the primary interface after login for customers.
+         Displays dashboard statistics, quick action buttons to browse menu or track orders.
+         May include order history summary and recommendations.
+
+
+4.0 MENU PAGE
+Description: Displays all available food items/meals with filters, search, and sorting options.
+Remarks: Customers browse menu items by category (appetizers, mains, desserts, beverages, etc.).
+         Each menu item shows: name, description, price, image, and dietary information.
+         Includes add-to-cart functionality for each item.
+         Features filtering by category, price range, dietary preferences.
+         Includes search bar for quick item lookup.
+
+
+5.0 CART PAGE
+Description: Shows all items added to the shopping cart with quantity adjustment and removal options.
+Remarks: Displays cart items with: item name, quantity, unit price, and line total.
+         Includes modify quantity buttons (+ / -) and remove item buttons.
+         Shows subtotal, taxes (if applicable), and total amount.
+         Includes discount/promo code input field.
+         Contains "Proceed to Checkout" and "Continue Shopping" buttons.
+         Handles empty cart state with message and link back to menu.
+
+
+6.0 ORDER PAGE (CHECKOUT)
+Description: Captures delivery/billing information and processes payment for food orders.
+Remarks: Collects: delivery address, phone number, special instructions, estimated delivery time.
+         Displays order summary with items, quantities, and total cost.
+         Payment method selection (if applicable).
+         Includes order confirmation and generates order ID.
+         After successful order, redirects to order tracking page.
+
+
+7.0 ORDER TRACKING PAGE
+Description: Allows customers to track the status and estimated delivery time of their orders.
+Remarks: Displays: Order ID, order date/time, current status (preparing, out for delivery, delivered).
+         Shows real-time/estimated delivery time and delivery address.
+         May include order timeline visualization showing progression through stages.
+         Includes customer support contact option.
+         Allows view of order details (items ordered, receipt, price breakdown).
+
+
+8.0 PROFILE PAGE
+Description: User profile management screen where customers can view and update personal information.
+Remarks: Displays and allows editing of: name, email, phone, address, payment methods.
+         Includes password change functionality.
+         Shows preferences (dietary restrictions, delivery preferences, notification settings).
+         Displays order history with links to order details.
+         Includes logout button.
+
+
+9.0 USER PAGE (GENERAL USER INFORMATION)
+Description: Read-only user information display page.
+Remarks: Shows user basic information: name, email, phone, registered date.
+         May include membership tier or loyalty program information.
+         Navigation link to profile page for editing.
+
+
+10.0 ADMIN DASHBOARD / ADMIN PAGE
+Description: Administrative control panel for managing restaurant operations and orders.
+Remarks: Admin-only access page (role-based authentication).
+         Displays: Total orders, revenue, pending orders, customer count (KPIs).
+         Includes: New orders list, order status update controls.
+         Features: Menu management (add/edit/delete food items).
+         Includes: User management (view/deactivate customer accounts).
+         Analytics and reporting section.
+         Inventory management tracking.
+
+
+COMPONENT SPECIFICATIONS
+=====================================================================================================
+
+NAVBAR COMPONENT
+Description: Top navigation bar visible on most pages.
+Remarks: Contains: ForkHub logo, navigation links (Home, Menu, Orders, Profile).
+         Includes user authentication state indicator (logged-in user name vs. Login/Sign Up buttons).
+         Responsive design collapses to hamburger menu on mobile.
+         Uses TopNav component for layout support.
+
+
+SIDEBAR COMPONENT
+Description: Secondary navigation or filter panel, potentially used on menu or dashboard pages.
+Remarks: May contain: Category filters, sorting options, dietary preference filters.
+         Collapsible on mobile devices.
+         Sticky positioning for easy access while scrolling.
+
+
+BUTTON COMPONENT
+Description: Reusable button component used throughout the application.
+Remarks: Variants: Primary (action), Secondary (cancel), Danger (delete).
+         States: normal, hover, disabled, loading.
+         Supports: text, icons, and rounded variants.
+         Accessible with proper ARIA labels.
+
+
+INPUT COMPONENT
+Description: Reusable form input field used in login, register, and checkout forms.
+Remarks: Supports: text, email, password, tel, number input types.
+         Includes: validation feedback, error messages, placeholder text.
+         Integrates with form validation service.
+
+
+FEATURECARD COMPONENT
+Description: Card component for displaying promotional content or featured menu items.
+Remarks: Contains: Image, title, description, call-to-action button.
+         Used on home page for promotions.
+         Responsive grid layout.
+
+
+TOPNAV COMPONENT
+Description: Header component providing consistent top navigation structure.
+Remarks: Wraps Navbar component.
+         Manages responsive behavior.
+
+
+ROUTING & NAVIGATION FLOW
+=====================================================================================================
+
+PUBLIC ROUTES:
+- / (Home Page)
+- /login (Login Page)
+- /register (Register Page)
+
+
+PROTECTED ROUTES (Requires Authentication):
+- /dashboard (User Dashboard)
+- /menu (Menu Page)
+- /cart (Cart Page)
+- /order (Order Page / Checkout)
+- /tracking (Order Tracking Page)
+- /profile (Profile Page)
+- /user (User Page)
+
+
+ADMIN ROUTES (Requires Admin Role):
+- /admin (Admin Dashboard / Admin Page)
+
+
+SERVICES LAYER
+=====================================================================================================
+
+authService.js
+Description: Handles authentication operations for users.
+Remarks: Methods: login(credentials), register(userInfo), logout(), getToken(), isAuthenticated().
+         Stores JWT token in localStorage.
+         Handles token validation and refresh.
+         Manages user state/context.
+
+
+orderService.js
+Description: Manages order-related operations.
+Remarks: Methods: placeOrder(orderData), getOrderHistory(), trackOrder(orderId), updateOrderStatus().
+         Communicates with backend API endpoints for order management.
+         Handles order data caching.
+
+
+BACKEND SERVICES LAYER
+=====================================================================================================
+
+userStore.js
+Description: Backend service for user data persistence and retrieval.
+Remarks: Handles: User registration, user lookup, user updates.
+         Uses JSON file storage or database.
+         Integrates with bcrypt for password hashing/verification.
+
+
+AUTH MIDDLEWARE
+Description: Validates JWT tokens and enforces authentication on protected routes.
+Remarks: Middleware function that checks for valid token in request headers.
+         Verifies token signature and expiration.
+         Attaches user information to request object for downstream handlers.
+         Rejects requests with invalid/missing tokens with 401/403 status.
+
+
+VALIDATORS
+Description: Input validation utilities for forms and API requests.
+Remarks: Validates: email format, password strength, phone number format, address data.
+         Used on both frontend and backend for data integrity.
+         Provides consistent error messages.
+
+
+HTTP ERRORS UTILITY
+Description: Centralized error response handling.
+Remarks: Defines custom HTTP error classes for consistent error responses.
+         Used in route handlers to return standardized error format.
+         Includes error codes and descriptive messages.
+
+
+DATA MODELS & STORAGE
+=====================================================================================================
+
+USER MODEL
+Fields: userId (UUID), name, email, hashedPassword, phone, address, role (user/admin), 
+        createdDate, lastLogin
+Storage: users.json file in data directory
+
+
+ORDER MODEL
+Fields: orderId (UUID), userId, items (array of {itemId, quantity, price}), 
+        totalAmount, status (pending/preparing/out_for_delivery/delivered), 
+        deliveryAddress, specialInstructions, createdDate, estimatedDeliveryTime
+Storage: Likely in memory or database (structure TBD)
+
+
+MENU ITEM MODEL
+Fields: itemId, name, description, price, category, image, dietary_info, available
+Storage: Configuration or database (structure TBD)
+
+
+SYSTEM ARCHITECTURE SUMMARY
+=====================================================================================================
+
+FRONTEND (React + Vite):
+- Single Page Application (SPA) with client-side routing
+- Component-based UI architecture
+- Context/State management for user authentication
+- Service layer for API communication
+- Responsive design supporting desktop and mobile
+
+BACKEND (Node.js + Express):
+- RESTful API endpoints for authentication, orders, menu, users
+- JWT-based authentication
+- Middleware for request validation and authentication
+- Service layer for business logic
+- JSON file-based storage (can be upgraded to database)
+
+COMMUNICATION:
+- HTTP/HTTPS REST API
+- Request/Response format: JSON
+- Authentication: JWT tokens in Authorization header
+
+SECURITY CONSIDERATIONS:
+- Password hashing with bcrypt
+- JWT token validation
+- CORS enabled for frontend communication
+- Input validation on both frontend and backend
+- Protected routes with role-based access control
+
+
+KEY WORKFLOWS
+=====================================================================================================
+
+USER REGISTRATION FLOW:
+1. User navigates to /register
+2. Enters: name, email, password, phone, address
+3. Frontend validates input
+4. Submit to backend /auth/register endpoint
+5. Backend validates and creates user (password hashed with bcrypt)
+6. User stored in users.json
+7. Redirect to login or auto-login
+8. JWT token generated and stored
+
+USER LOGIN FLOW:
+1. User navigates to /login
+2. Enters: email and password
+3. Submit to backend /auth/login endpoint
+4. Backend verifies credentials against stored hashed password
+5. JWT token generated and sent to frontend
+6. Frontend stores token in localStorage
+7. Redirect to /dashboard
+8. Navbar updates to show logged-in user
+
+FOOD ORDERING FLOW:
+1. User navigates to /menu
+2. Browses food items (filter, search, sort available)
+3. Clicks "Add to Cart" for desired items
+4. Cart updates with item and quantity
+5. User navigates to /cart
+6. Reviews cart, can modify quantities
+7. Clicks "Proceed to Checkout"
+8. Navigates to /order page
+9. Enters delivery address and special instructions
+10. Reviews order summary and confirms
+11. Order submitted to backend POST /orders
+12. Backend creates order record with status "pending"
+13. Frontend receives orderId and redirects to /tracking
+14. User can track order status in real-time
+
+ORDER MANAGEMENT (ADMIN):
+1. Admin logs in to system
+2. Navigates to /admin dashboard
+3. Views new orders, order statistics, KPIs
+4. Can update order status: pending → preparing → out_for_delivery → delivered
+5. Can access menu management: add/edit/delete items
+6. Can view user list and manage customer accounts
+
+
+=====================================================================================================
+END OF HLD DOCUMENT
+=====================================================================================================
