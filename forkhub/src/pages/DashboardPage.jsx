@@ -177,7 +177,7 @@ export default function DashboardPage() {
               <h1 className="profile-hero-title">{fullName}</h1>
               <p className="profile-hero-email">{profile.email}</p>
               <div className="profile-hero-badges">
-                <span className="profile-badge">Member</span>
+                <span className="profile-badge">Customer</span>
                 <span className="profile-badge">Active</span>
               </div>
             </div>
