@@ -5,6 +5,48 @@ import { createHttpError } from '../utils/httpErrors.js'
 
 const router = Router()
 
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import { requireAuth } from '../middleware/auth.middleware.js'
+import { rootDir } from '../config.js'
+
+let _multer = null
+async function getUpload() {
+  if (_multer) return _multer
+  try {
+    const { default: multer } = await import('multer')
+    _multer = multer({
+      storage: multer.diskStorage({
+        destination: async (req, _f, cb) => {
+          const cat = (req.body?.category || 'misc').toLowerCase().replace(/\s+/g, '-')
+          const dir = path.join(rootDir, 'public', 'images', cat)
+          await fs.mkdir(dir, { recursive: true })
+          cb(null, dir)
+        },
+        filename: (_req, file, cb) => {
+          const ext  = path.extname(file.originalname) || '.jpg'
+          const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_')
+          cb(null, `${base}_${Date.now()}${ext}`)
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    })
+    return _multer
+  } catch { return null }
+}
+
+router.post('/upload', requireAuth, async (req, res, next) => {
+  const u = await getUpload()
+  if (!u) return res.status(500).json({ message: 'multer not installed — run: npm install' })
+  u.single('image')(req, res, async (err) => {
+    if (err)       return next(err)
+    if (!req.file) return res.status(400).json({ message: 'No file received' })
+    const cat  = (req.body?.category || 'misc').toLowerCase().replace(/\s+/g, '-')
+    const imgPath = `/images/${cat}/${req.file.filename}`
+    res.json({ path: imgPath })
+  })
+})
+
 /* ── GET /api/menu  */
 router.get('/', async (req, res, next) => {
   try {
@@ -33,7 +75,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 /* ── POST /api/menu  — add new item  */
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, async (req, res, next) => {
   try {
     const { name, category, subcategory, description, price, image } = req.body
 
@@ -61,7 +103,7 @@ router.post('/', async (req, res, next) => {
 })
 
 /* ── PUT /api/menu/:id  — edit existing item  */
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAuth, async (req, res, next) => {
   try {
     const items = await readMenu()
     const idx   = items.findIndex((i) => i.id === req.params.id)
@@ -88,7 +130,7 @@ router.put('/:id', async (req, res, next) => {
 })
 
 /* ── DELETE /api/menu/:id  */
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const items = await readMenu()
     const idx   = items.findIndex((i) => i.id === req.params.id)

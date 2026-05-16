@@ -1,7 +1,11 @@
 import express    from 'express'
 import cors       from 'cors'
+import path       from 'node:path'
+import { fileURLToPath } from 'node:url'
 import authRoutes from './routes/auth.routes.js'
 import menuRoutes from './routes/menu.routes.js'
+import orderRoutes from './routes/order.routes.js'
+import { rootDir } from './config.js'
 
 const app = express()
 
@@ -12,12 +16,15 @@ app.use(cors({
 }))
 app.use(express.json())
 
+app.use('/images', express.static(path.join(rootDir, 'public', 'images')))
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
 
 app.use('/api/auth', authRoutes)
 app.use('/api/menu', menuRoutes)
+app.use('/api/orders', orderRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` })
