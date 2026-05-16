@@ -100,7 +100,7 @@ export default function CartPage() {
                 </div>
               </div>
             </div>
-            <button className="cart-checkout-btn" disabled={cart.length === 0} onClick={() => navigate('/orders')}>
+            <button className="cart-checkout-btn" disabled={cart.length === 0}  onClick={() => { window.location.href = '/orders' }}>
               CONTINUE CHECKOUT
             </button>
             <button className="cart-back-btn" onClick={() => navigate('/menu')}>

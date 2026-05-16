@@ -2,18 +2,19 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthModal } from '../contexts/AuthModalContext'
 import logo from '../assets/logo.png'
+import { getCartCount } from '../services/cartService'
 
 export default function TopNav() {
   const [currentUser, setCurrentUser] = useState(null)
+  const [cartCount, setCartCount] = useState(getCartCount())
   const location = useLocation()
   const { openAuth } = useAuthModal()
 
   useEffect(() => {
     const syncUser = () => {
-      const raw = localStorage.getItem('auth_user')
-      if (!raw) {
-        setCurrentUser(null)
-        return
+      const token = localStorage.getItem('auth_token')
+      const raw   = localStorage.getItem('auth_user')
+      if (!token || !raw) { setCurrentUser(null); return 
       }
 
       try {
@@ -31,6 +32,12 @@ export default function TopNav() {
       window.removeEventListener('auth-changed', syncUser)
       window.removeEventListener('storage', syncUser)
     }
+  }, [])
+
+  useEffect(() => {
+    const onCart = () => setCartCount(getCartCount())
+    window.addEventListener('cart-updated', onCart)
+    return () => window.removeEventListener('cart-updated', onCart)
   }, [])
 
   const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ').trim()
@@ -82,8 +89,20 @@ export default function TopNav() {
             Sign In
           </button>
         )}
-        <Link className="top-nav-item top-nav-cart" to="/cart">
+        <Link className="top-nav-item top-nav-cart" to="/cart" style={{ position: 'relative' }}>
           Cart
+          {cartCount > 0 && (
+            <span style={{
+             position: 'absolute', top: -8, right: -12,
+              background: '#e53e3e', color: '#fff',
+              borderRadius: '50%', fontSize: 10, fontWeight: 800,
+              minWidth: 18, height: 18,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 3px', pointerEvents: 'none',
+            }}>
+              {cartCount}
+            </span>
+          )}
         </Link>
       </div>
     </header>

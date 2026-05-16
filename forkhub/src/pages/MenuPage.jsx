@@ -95,7 +95,6 @@ export default function MenuPage() {
               onClick={() => navigate('/cart')}
             >
               CHECKOUT
-              {cartCount > 0 && <span className="cart-badge menu-cart-badge">{cartCount}</span>}
             </button>
             <div className="menu-settings-card">
               <h3 className="menu-settings-title">Order Settings</h3>

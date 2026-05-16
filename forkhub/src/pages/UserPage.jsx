@@ -71,7 +71,7 @@ export default function UserPage() {
               <h1 className="profile-hero-title">{fullName}</h1>
               <p className="profile-hero-email">{profile.email}</p>
               <div className="profile-hero-badges">
-                <span className="profile-badge">Member</span>
+                <span className="profile-badge">Costumer</span>
                 <span className="profile-badge">Active</span>
               </div>
             </div>

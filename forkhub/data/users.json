@@ -7,7 +7,7 @@
     "lastName": "Villarte",
     "phone": "098765432",
     "address": "Cebu City",
-    "role": "member"
+    "role": "customer"
   },
   {
     "id": "bbf67fc6-fbfc-4f6c-bf12-f6be142b605b",
@@ -17,7 +17,7 @@
     "lastName": "Entera",
     "phone": "09215721111",
     "address": "",
-    "role": "member",
+    "role": "customer",
     "createdAt": "2026-05-02T02:20:18.378Z"
   },
   {
@@ -28,7 +28,7 @@
     "lastName": "Arnado",
     "phone": "09786423589",
     "address": "C. Padilla Street, Cebu City",
-    "role": "member",
+    "role": "customer",
     "createdAt": "2026-05-06T15:51:06.231Z"
   },
   {
@@ -39,7 +39,7 @@
     "lastName": "ENTERA",
     "phone": "09215721111",
     "address": "",
-    "role": "member",
+    "role": "customer",
     "createdAt": "2026-05-07T04:16:33.270Z"
   },
   {

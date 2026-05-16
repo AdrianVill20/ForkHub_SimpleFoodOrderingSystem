@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
+import { useAuthModal } from '../contexts/AuthModalContext'
 import { deleteUser } from '../services/authService'
 import profileIcon from '../assets/profile-icon.svg'
 import emailIcon from '../assets/email-icon.svg'
@@ -16,6 +17,7 @@ export default function DashboardPage() {
     email: '',
     phone: '',
     address: '',
+    role: 'customer',
   })
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -25,13 +27,15 @@ export default function DashboardPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [confirmText, setConfirmText] = useState('')
+  const [scheduledDeletion, setScheduledDeletion] = useState(null)
+  const [showDeletionScheduled, setShowDeletionScheduled] = useState(false)
   const navigate = useNavigate()
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token')
     if (!token) {
-      navigate('/')
+      openAuth({ nextPath: '/profile' })
       return
     }
 
@@ -52,6 +56,7 @@ export default function DashboardPage() {
           email: payload.user.email || '',
           phone: payload.user.phone || '',
           address: payload.user.address || '',
+          role: payload.user.role || 'customer',
         }
         setProfile(data)
         localStorage.setItem('auth_user', JSON.stringify(payload.user))
@@ -74,7 +79,7 @@ export default function DashboardPage() {
 
   const saveProfile = async () => {
     const token = localStorage.getItem('auth_token')
-    if (!token) { navigate('/'); return }
+    if (!token) { navigate('/profile'); return }
 
     setErrorMessage('')
     setSuccessMessage('')
@@ -103,6 +108,7 @@ export default function DashboardPage() {
         email: payload.user.email || '',
         phone: payload.user.phone || '',
         address: payload.user.address || '',
+        role: payload.user.role || 'customer',
       }
       setProfile(updated)
 
@@ -123,21 +129,38 @@ export default function DashboardPage() {
     try {
       const token = localStorage.getItem('auth_token')
       if (!token) throw new Error('No authentication token found')
-      await deleteUser(token)
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('auth_user')
-      localStorage.removeItem('login')
-      window.dispatchEvent(new Event('auth-changed'))
-      navigate('/')
+      const result = await deleteUser(token)
+      setShowConfirmModal(false)
+      setConfirmText('')
+      setScheduledDeletion(result.scheduledDeletionAt)
+      setShowDeletionScheduled(true)
     } catch (err) {
       setErrorMessage(err.message || 'Failed to delete account')
+    } finally {
       setIsDeleting(false)
     }
   }
 
+  const handleCancelDeletion = async () => {
+    try {
+      const token = localStorage.getItem('auth_token')
+      await fetch('/api/auth/profile/restore', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setShowDeletionScheduled(false)
+      setScheduledDeletion(null)
+      // Refresh user info
+      const res  = await fetch('/api/auth/profile', { headers: { Authorization: `Bearer ${token}` } })
+      const data = await res.json()
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
+      window.dispatchEvent(new Event('auth-changed'))
+    } catch { /* ignore */ }
+  }
+
   return (
     <div className="page profile-page">
-      <TopNav />
+      <TopNav signedIn />
       <main className="content-wrap profile-content-wrap">
         {/* Hero Header with Animated Background */}
         <section className="profile-hero">
@@ -161,7 +184,7 @@ export default function DashboardPage() {
               <h1 className="profile-hero-title">{fullName}</h1>
               <p className="profile-hero-email">{profile.email}</p>
               <div className="profile-hero-badges">
-                <span className="profile-badge">Member</span>
+                <span className="profile-badge">Customer</span>
                 <span className="profile-badge">Active</span>
               </div>
             </div>
@@ -497,7 +520,89 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Delete Confirmation Modal */}
+      {/* Deletion Scheduled Notice — shows after soft delete */}
+      {showDeletionScheduled && scheduledDeletion && (
+        <div className="profile-modal-overlay" style={{ zIndex: 1000 }}>
+          <div className="profile-modal-content-new" onClick={(e) => e.stopPropagation()}>
+            <div className="profile-modal-header-new">
+              <div className="profile-modal-icon" style={{ fontSize: 32 }}>⏳</div>
+              <h2>Deletion Scheduled</h2>
+              <p>Your account is scheduled for permanent deletion</p>
+            </div>
+            <div className="profile-modal-body-new">
+              <p style={{ textAlign: 'center', marginBottom: 12, color: '#555' }}>
+                Your account and all data will be <strong>permanently deleted on</strong>:
+              </p>
+              <p style={{
+                textAlign: 'center', fontWeight: 700, fontSize: 18,
+                color: '#d32f2f', background: '#fdecea',
+                padding: '10px 16px', borderRadius: 8, marginBottom: 16,
+              }}>
+                {new Date(scheduledDeletion).toLocaleDateString('en-PH', {
+                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                })}
+              </p>
+              <p style={{ textAlign: 'center', color: '#666', fontSize: 13 }}>
+                You can cancel this deletion anytime before that date by logging back in and clicking <strong>Cancel Deletion</strong> on your profile.
+              </p>
+            </div>
+            <div className="profile-modal-footer-new">
+              <button
+                onClick={handleCancelDeletion}
+                className="profile-modal-btn-cancel-new"
+                style={{ background: '#4caf50', color: '#fff', border: 'none' }}
+              >
+                Cancel Deletion
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('auth_token')
+                  localStorage.removeItem('auth_user')
+                  localStorage.removeItem('login')
+                  window.dispatchEvent(new Event('auth-changed'))
+                  navigate('/')
+                }}
+                className="profile-modal-btn-delete-new enabled"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pending Deletion Banner */}
+      {!showDeletionScheduled && (() => {
+        try {
+          const u = JSON.parse(localStorage.getItem('auth_user') || '{}')
+          if (!u.isDeleted || !u.scheduledDeletionAt) return null
+          return (
+            <div style={{
+              position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+              background: '#d32f2f', color: '#fff', borderRadius: 12,
+              padding: '14px 24px', zIndex: 999, maxWidth: 480, width: '90%',
+              display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 4px 20px rgba(0,0,0,.25)',
+            }}>
+              <div style={{ flex: 1 }}>
+                <strong>Account pending deletion</strong>
+                <p style={{ margin: '4px 0 0', fontSize: 13 }}>
+                  Scheduled for {new Date(u.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              <button
+                onClick={handleCancelDeletion}
+                style={{
+                  background: '#fff', color: '#d32f2f', border: 'none',
+                  borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          )
+        } catch { return null }
+      })()}
+     {/* Delete Confirmation Modal */}
       {showConfirmModal && (
         <div
           className="profile-modal-overlay"

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
@@ -24,7 +24,7 @@ export default function OrderPage() {
   const branch = BRANCHES[0]
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
-  const [orderHistory, setOrderHistory] = useState(getAllOrders())
+  const [orderHistory, setOrderHistory] = useState([])
   const [cancellingId, setCancellingId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
 
@@ -41,7 +41,11 @@ export default function OrderPage() {
   }, [])
 
   useEffect(() => {
-    const handleCartUpdated = () => { setCart(getCart()); setOrderHistory(getAllOrders()) }
+    getAllOrders().then(setOrderHistory).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const handleCartUpdated = () => { setCart(getCart()); getAllOrders().then(setOrderHistory).catch(() => {}) }
     window.addEventListener('cart-updated', handleCartUpdated)
     return () => window.removeEventListener('cart-updated', handleCartUpdated)
   }, [])
@@ -96,7 +100,7 @@ export default function OrderPage() {
     return () => clearTimeout(timer)
   }, [address, geocodeAddress])
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!cart || cart.length === 0) return
     if (serviceType === 'Delivery' && !address && !destination) {
       alert('Please enter a delivery address or pin a delivery location on the map.')
@@ -108,7 +112,7 @@ export default function OrderPage() {
     }
 
     localStorage.setItem('order_service_type', serviceType)
-    const order = saveOrder({
+    const order = await saveOrder({
       serviceType,
       branch,
       address: address.trim() || 'Delivery location set on map',
