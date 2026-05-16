@@ -9,15 +9,14 @@ export default function TrackingPage() {
   const [order, setOrder] = useState(null)
   const [message, setMessage] = useState('')
 
-  const handleSearch = () => {
-    const found = findOrder(query)
-    if (found) {
-      setOrder(found)
-      setMessage('Order found.')
-    } else {
-      setOrder(null)
-      setMessage('No order found. Check your order number or phone.')
-    }
+   const handleSearch = async () => {
+    if (!query.trim()) return
+    setOrder(null); setMessage('')
+    try {
+      const found = await findOrder(query)
+      if (found) { setOrder(found); setMessage('Order found.') }
+      else        { setMessage('No order found. Check your order number or phone.') }
+    } catch { setMessage('No order found. Check your order number or phone.') }
   }
 
   return (

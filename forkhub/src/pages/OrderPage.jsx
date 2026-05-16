@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
@@ -24,7 +24,7 @@ export default function OrderPage() {
   const branch = BRANCHES[0]
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
-  const [orderHistory, setOrderHistory] = useState(getAllOrders())
+  const [orderHistory, setOrderHistory] = useState([])
   const [cancellingId, setCancellingId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
 
@@ -38,6 +38,10 @@ export default function OrderPage() {
     } catch {
       // keep empty
     }
+  }, [])
+
+  useEffect(() => {
+    getAllOrders().then(setOrderHistory).catch(() => {})
   }, [])
 
   useEffect(() => {
