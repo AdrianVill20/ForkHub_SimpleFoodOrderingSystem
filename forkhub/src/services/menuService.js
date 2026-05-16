@@ -1,8 +1,12 @@
 const BASE = '/api/menu'
 
 async function request(path = '', options = {}) {
+  const token = localStorage.getItem('auth_token') || ''
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     ...options,
   })
   if (!res.ok) {
