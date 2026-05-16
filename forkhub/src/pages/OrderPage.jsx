@@ -45,7 +45,7 @@ export default function OrderPage() {
   }, [])
 
   useEffect(() => {
-    const handleCartUpdated = () => { setCart(getCart()); setOrderHistory(getAllOrders()) }
+    const handleCartUpdated = () => { setCart(getCart()); getAllOrders().then(setOrderHistory).catch(() => {}) }
     window.addEventListener('cart-updated', handleCartUpdated)
     return () => window.removeEventListener('cart-updated', handleCartUpdated)
   }, [])
@@ -100,7 +100,7 @@ export default function OrderPage() {
     return () => clearTimeout(timer)
   }, [address, geocodeAddress])
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!cart || cart.length === 0) return
     if (serviceType === 'Delivery' && !address && !destination) {
       alert('Please enter a delivery address or pin a delivery location on the map.')
@@ -112,7 +112,7 @@ export default function OrderPage() {
     }
 
     localStorage.setItem('order_service_type', serviceType)
-    const order = saveOrder({
+    const order = await saveOrder({
       serviceType,
       branch,
       address: address.trim() || 'Delivery location set on map',
