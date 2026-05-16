@@ -1,10 +1,81 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect,  useRef, useCallback } from 'react'
 import TopNav from '../components/TopNav'
 import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService'
 import { getAllOrders, deleteOrder, updateOrderStatus } from '../services/orderService'
+import { Form } from 'react-router-dom'
 
 const CATEGORIES = ['Pizza','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
 const EMPTY_FORM  = { name:'', category:'Pizza', subcategory:'Classic', description:'', price:'', image:'' }
+
+
+function ImageUpload({ category, value, onChange }) {
+  const [dragOver, setDragOver] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef()
+
+  const upload = useCallback(async (file) => {
+    if (!file?.type?.startsWith('image/')) { alert('Please select an image file.'); return }
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('category', category) 
+      fd.append('image', file)
+      const token = localStorage.getItem('auth_token') || ''
+      const res = await fetch('/api/menu/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Upload failed')
+      onChange(data.path)
+    } catch (err) { alert(`Upload failed: ${err.message}`) }
+    finally { setUploading(false) }
+  }, [category, onChange])
+
+  return (
+    <>
+      <label style={{ fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }}>
+        Food Image
+      </label>
+      <div
+        onDragOver={(e)=>{ e.preventDefault(); setDragOver(true) }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => { e.preventDefault(); setDragOver(false); upload(e.dataTransfer.files[0]) }}
+        onClick={() => fileRef.current?.click()}
+        style={{
+          border: `2px dashed ${dragOver ? '#1976d2' : '#ccc'}`,
+          borderRadius: 10, padding: '18px 12px', textAlign: 'center',
+          cursor: 'pointer', color: '#555', backgroundColor: dragOver ? '#e3f2fd' : 'transparent',
+          transition: 'all .2s', marginTop: 4,
+        }}
+      >
+        {uploading ? (
+          <p style={{ color:'#7c3aed', fontWeight:600, margin:0 }}>Uploading…</p>
+        ) : value ? (
+          <>
+            <img
+              src={value}
+              alt="preview"
+              onError={(e) => (e.target.style.display = 'none')}
+              style={{ width:80, height:80, borderRadius:'50%', objectFit:'cover', border:'2px solid #ddd', display:'block', margin:'0 auto 8px' }}
+            />
+            <p style={{ fontSize:12, color:'#666', margin:0 }}>Drop a new image to replace, or click to browse</p>
+            <p style={{ fontSize:11, color:'#aaa', margin:'4px 0 0', wordBreak:'break-all' }}>{value}</p>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize:26, margin:0 }}>🖼️</p>
+            <p style={{ fontSize:13, color:'#666', marginTop:6 }}>Drag &amp; drop food image here, or <u>click to browse</u></p>
+            <p style={{ fontSize:11, color:'#aaa' }}>PNG · JPG · WebP · max 5 MB</p>
+          </>
+        )}
+        <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={(e) => upload(e.target.files?.[0])} />
+      </div>
+    </>
+) 
+
+}
 
 function FormFields({ form, setForm }) {
   const lbl = { fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }
@@ -47,40 +118,22 @@ function FormFields({ form, setForm }) {
         placeholder="Ingredients / description" 
       />
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-        <div>
-          <label style={lbl}>Price (₱) *</label>
-          <input 
-            className="field" 
-            type="number" 
-            min="1" 
-            value={form.price} 
-            onChange={(e) => setForm({...form, price: e.target.value})} 
-            placeholder="169" 
-            required 
-          />
-        </div>
-        <div>
-          <label style={lbl}>Image Path</label>
-          <input 
-            className="field" 
-            value={form.image} 
-            onChange={(e) => setForm({...form, image: e.target.value})} 
-            placeholder="/images/pizza/CheeseMania.jpg" 
-          />
-        </div>
-      </div>
+      <label style={lbl}>Price (₱) *</label>
+      <input 
+        className="field" 
+        type="number" 
+        min="1" 
+        value={form.price} 
+        onChange={(e) => setForm({...form, price: e.target.value})} 
+        placeholder="169" 
+        required 
+        />
 
-      {form.image && (
-        <div style={{ textAlign:'center', margin:'8px 0' }}>
-          <img 
-            src={form.image} 
-            alt="preview" 
-            style={{ width:80, height:80, borderRadius:'50%', objectFit:'cover', border:'2px solid #ddd' }} 
-            onError={(e) => (e.target.style.display='none')} 
-          />
-        </div>
-      )}
+         <ImageUpload
+        category={form.category}
+        value={form.image}
+        onChange={(path) => setForm({...form, image: path})}
+      />
     </>
   )
 }
@@ -96,6 +149,7 @@ export default function AdminPage() {
   const [filterCat, setFilterCat]     = useState('All')
   const [toast, setToast]             = useState(null)
   const [orders, setOrders]           = useState([])
+  const [users, setUsers] = useState([])
 
   async function reload() {
     setLoading(true)
@@ -110,6 +164,14 @@ export default function AdminPage() {
   }
 
   useEffect(() => { reload() }, [])
+
+  async function loadUsers() {
+  const token = localStorage.getItem('auth_token') || ''
+  const res   = await fetch('/api/auth/users', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  setUsers(await res.json())
+}
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
@@ -203,6 +265,7 @@ export default function AdminPage() {
                 {view === 'edit'   && 'Edit Menu Item'}
                 {view === 'delete' && 'Delete Menu Item'}
                 {view === 'orders' && 'Orders'}
+                {view === 'users'  && 'User Accounts'}
               </h2>
               <div className="admin-header-glow" />
             </div>
@@ -215,8 +278,11 @@ export default function AdminPage() {
                 <button className={`admin-tab ${view === 'add'  ? 'active' : ''}`} onClick={() => { setForm(EMPTY_FORM); setView('add') }}>
                   <span className="admin-tab-plus">+</span> Add Item
                 </button>
-                <button className={`admin-tab ${view === 'orders' ? 'active' : ''}`} onClick={() => { setOrders(getAllOrders()); setView('orders') }}>
-                  <img src="/favicon.svg" alt="" className="admin-tab-icon" /> Orders
+                <button className={`admin-tab ${view === 'orders' ? 'active' : ''}`} onClick={async () => { try { setOrders(await getAllOrders()) } catch { setOrders([]) } setView('orders') }}>
+                   <img src="/favicon.svg" alt="" className="admin-tab-icon" /> Orders
+                </button>
+                <button className={`admin-tab ${view === 'users' ? 'active' : ''}`} onClick={() => { loadUsers(); setView('users') }}>
+                  <img src="/favicon.svg" alt="" className="admin-tab-icon" /> User Accounts
                 </button>
               </div>
 
@@ -354,10 +420,12 @@ export default function AdminPage() {
                                 <select
                                   className="admin-status-select"
                                   value={order.status}
-                                  onChange={(e) => {
-                                    const updated = updateOrderStatus(order.id, e.target.value)
-                                    setOrders(updated)
+                                  onChange={async (e) => {
+                                    try{
+                                    await updateOrderStatus(order.id, e.target.value)
+                                    setOrders(await getAllOrders())
                                     showToast(`Order ${order.id} status updated.`)
+                                    } catch { showToast('Failed to update status.', 'error') }
                                   }}
                                 >
                                   <option value="Pending">Pending</option>
@@ -381,16 +449,109 @@ export default function AdminPage() {
                               <td>
                                 <button
                                   className="admin-delete-btn"
-                                  onClick={() => {
+                                  onClick={async () => {
                                     if (window.confirm(`Delete order ${order.id}?`)) {
-                                      const updated = deleteOrder(order.id)
-                                      setOrders(updated)
-                                      showToast(`Order ${order.id} deleted.`, 'error')
+                                      try {
+                                        await deleteOrder(order.id)
+                                        setOrders(await getAllOrders())
+                                        showToast(`Order ${order.id} deleted.`, 'error')
+                                      } catch { showToast('Failed to delete order.', 'error') }
                                     }
                                   }}
                                 >
                                   Delete
                                 </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* USERS */}
+              {view === 'users' && (
+                <div className="admin-view-body">
+                  <p className="admin-count">
+                    {users.length === 0 ? 'No accounts found' : `${users.length} account(s) - ${users.filter(u => !u.isDeleted).length} active, ${users.filter(u => u.isDeleted).length} pending deleted`}
+                  </p>
+                  {users.length > 0 && (
+                    <div className="admin-table-wrap">
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                            <th>Deletion Date</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.map((user) => (
+                            <tr key={user.id} style={{ opacity: user.isDeleted ? 0.7 : 1, background: user.isDeleted ? '#fff5f5' : 'transparent' }}>
+                              <td className="admin-item-name">
+                                {[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}
+                              </td>
+                              <td style={{ fontSize: 12 }}>{user.email}</td>
+                              <td>
+                                <span style={{
+                                  padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
+                                  background: user.role === 'admin' ? '#e8eaf6' : '#f5f5f5',
+                                  color:      user.role === 'admin' ? '#3949ab' : '#555',
+                                }}>
+                                  {user.role}
+                                </span>
+                              </td>
+                              <td style={{ fontSize: 12 }}>
+                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
+                              </td>
+                              <td>
+                                <span style={{
+                                  padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
+                                  background: user.isDeleted ? '#fdecea' : '#e8f5e9',
+                                  color:      user.isDeleted ? '#c62828' : '#2e7d32',
+                                }}>
+                                  {user.isDeleted ? 'Pending Deletion' : 'Active'}
+                                </span>
+                              </td>
+                              <td style={{ fontSize: 12, color: user.isDeleted ? '#c62828' : '#aaa' }}>
+                                {user.scheduledDeletionAt
+                                  ? new Date(user.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
+                                  : '—'}
+                              </td>
+                              <td className="admin-actions">
+                                {user.isDeleted && (
+                                  <button
+                                    className="admin-edit-btn"
+                                    onClick={async () => {
+                                      const token = localStorage.getItem('auth_token') || ''
+                                      await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                                      loadUsers()
+                                      showToast(`"${user.email}" restored.`)
+                                    }}
+                                  >
+                                    Restore
+                                  </button>
+                                )}
+                                {user.role !== 'admin' && (
+                                  <button
+                                    className="admin-delete-btn"
+                                    onClick={async () => {
+                                      if (!window.confirm(`Permanently delete "${user.email}"? This cannot be undone.`)) return
+                                      const token = localStorage.getItem('auth_token') || ''
+                                      await fetch(`/api/auth/users/${user.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+                                      loadUsers()
+                                      showToast(`"${user.email}" deleted.`, 'error')
+                                    }}
+                                  >
+                                    Force Delete
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           ))}
