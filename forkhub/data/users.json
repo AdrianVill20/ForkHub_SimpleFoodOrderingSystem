@@ -7,7 +7,7 @@
     "lastName": "Villarte",
     "phone": "098765432",
     "address": "Cebu City",
-    "role": "member"
+    "role": "customer"
   },
   {
     "id": "bbf67fc6-fbfc-4f6c-bf12-f6be142b605b",
@@ -17,7 +17,7 @@
     "lastName": "Entera",
     "phone": "09215721111",
     "address": "",
-    "role": "member",
+    "role": "customer",
     "createdAt": "2026-05-02T02:20:18.378Z"
   },
   {
@@ -28,7 +28,7 @@
     "lastName": "Arnado",
     "phone": "09786423589",
     "address": "C. Padilla Street, Cebu City",
-    "role": "member",
+    "role": "customer",
     "createdAt": "2026-05-06T15:51:06.231Z"
   },
   {
@@ -39,7 +39,7 @@
     "lastName": "ENTERA",
     "phone": "09215721111",
     "address": "",
-    "role": "member",
+    "role": "customer",
     "createdAt": "2026-05-07T04:16:33.270Z"
   },
   {
@@ -63,5 +63,16 @@
     "address": "",
     "role": "customer",
     "createdAt": "2026-05-09T01:59:48.214Z"
+  },
+  {
+    "id": "f9860436-7b49-4b16-b7ba-dbf3aec830de",
+    "email": "trial@gmail.com",
+    "password": "$2b$10$DHlmnhQEsA8VAeReiWKwBeEWIdizFvXHCuOgnlO7m4az293fSj/r.",
+    "firstName": "trial",
+    "lastName": "trial",
+    "phone": "09846215874",
+    "address": "",
+    "role": "customer",
+    "createdAt": "2026-05-15T15:19:36.642Z"
   }
 ]
