@@ -73,6 +73,9 @@
     "phone": "09846215874",
     "address": "",
     "role": "customer",
-    "createdAt": "2026-05-15T15:19:36.642Z"
+    "createdAt": "2026-05-15T15:19:36.642Z",
+    "isDeleted": true,
+    "deletedAt": "2026-05-16T00:20:17.912Z",
+    "scheduledDeletionAt": "2026-05-16T00:20:17.917Z"
   }
 ]
