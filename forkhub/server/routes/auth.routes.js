@@ -26,7 +26,7 @@ function withoutPassword(user) {
     role: user.role || 'customer',
     createdAt: user.createdAt,
     isDeleted: user.isDeleted || false,
-    scheduledDeletionDate: user.scheduledDeletionDate || null,
+    scheduledDeletionAt: user.scheduledDeletionAt || null,
   }
 }
 
@@ -49,8 +49,8 @@ async function purgeExpiredAccounts(){
     const users = await readUsers()
     const now = new Date()
     const kept = users.filter((u) => {
-      if(u.isDeleted || !u.scheduledDeletionDate) return true
-      return new Date(u.scheduledDeletionDate) > now
+      if(!u.isDeleted || !u.scheduledDeletionAt) return true
+      return new Date(u.scheduledDeletionAt) > now
   })
   if (kept.length !== users.length) {
     await writeUsers(kept)
@@ -140,7 +140,7 @@ router.post('/login', async (req, res, next) => {
       throw createHttpError(401, 'Invalid email or password')
     }
 
-    if (user.isDeleted && user.sceduleDeletionAt && new Date(user.scheduledDeletionAt) <= new Date()) {
+    if (user.isDeleted && user.scheduledDeletionAt && new Date(user.scheduledDeletionAt) <= new Date()) {
       await writeUsers(users.filter((u) => u.id !== user.id))
       throw createHttpError(401, 'This account has been permanently deleted')
     }
@@ -212,7 +212,7 @@ router.delete('/profile', requireAuth, async (req, res, next) => {
     if (idx === -1) throw createHttpError(404, 'User not found')
     
     const deletedAt = new Date()
-    const scheduledDeletionAt = new Date(deletedAt.getTime() + DELETION_GRACE_DAYS)
+    const scheduledDeletionAt = new Date(deletedAt.getTime() + DELETION_GRACE_DAYS * 24 * 60 *60 * 1000)
 
    users[idx] = {
     ...users[idx],
@@ -236,7 +236,7 @@ router.post('/profile/restore', requireAuth, async (req, res, next) => {
     const idx = users.findIndex((u) => u.id === req.user.id)
     if (idx === -1) throw createHttpError(404, 'User not found')
     
-    const { isDeleted: _d, deletedAt: _da, scheduleDeletionAt: _s, ...rest} = users[idx]
+    const { isDeleted: _d, deletedAt: _da, scheduledDeletionAt: _s, ...rest} = users[idx]
     users[idx] = rest
     await writeUsers(users)
     return res.json({ user: withoutPassword(users[idx]), message: 'Account deletion cancelled' })
