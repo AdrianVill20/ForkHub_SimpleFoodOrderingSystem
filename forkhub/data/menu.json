@@ -313,6 +313,15 @@
     "subcategory": "Classic",
     "description": "Pizza",
     "price": 200,
-    "image": "D:\\School_Doc\\College_3rd_Year\\2nd_sem\\allaince\\ForkHub_SimpleFoodOrderingSystem\\forkhub\\public\\images\\pizza\\bbqpizza"
+    "image": "/images/pizza/bbqpizza_1778888781669.jpg"
+  },
+  {
+    "id": "58670c60-0982-42b1-87ce-d793fa739058",
+    "name": "Cup of Ice",
+    "category": "Extras",
+    "subcategory": "Classic",
+    "description": "",
+    "price": 25,
+    "image": "/images/extras/Screenshot_2026-05-16_003648_1778887599011.png"
   }
 ]
