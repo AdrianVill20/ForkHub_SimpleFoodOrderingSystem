@@ -19,7 +19,6 @@ function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
       <Navigate
         to="/login"
         replace
-        state={{ nextPath: `${location.pathname}${location.search}` }}
       />
     )
   }
@@ -51,7 +50,7 @@ function LoginBookmarkRoute({ registerPreferred }) {
     if (ran.current) return
     ran.current = true
     openAuth({
-      nextPath: location.state?.nextPath || '/menu',
+      nextPath: location.state?.nextPath || '/',
       mode: registerPreferred ? 'register' : 'login',
     })
   }, [location.state?.nextPath, openAuth, registerPreferred])
@@ -66,6 +65,8 @@ function App() {
 
   const verifySession = useCallback(async (token) => {
     if (!token) {
+      localStorage.removeItem('auth_user')
+      localStorage.removeItem('login')
       setIsAuthenticated(false)
       return
     }
