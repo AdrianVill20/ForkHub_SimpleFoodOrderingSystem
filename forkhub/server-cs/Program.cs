@@ -1,4 +1,5 @@
 using ForkHub.Api;
+using ForkHub.Api.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 
@@ -8,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 var rootDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["RootDir"] ?? ".."));
 
 builder.Services.AddSingleton(new JsonStore(Path.Combine(rootDir, "data")));
+
+builder.Services.AddForkHubAuth(builder.Configuration);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins("http://localhost:5173")
@@ -43,6 +46,8 @@ app.Use(async (context, next) =>
 });
 
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 var imagesDir = Path.Combine(rootDir, "public", "images");
 Directory.CreateDirectory(imagesDir);
