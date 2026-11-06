@@ -63,5 +63,16 @@
     "address": "",
     "role": "customer",
     "createdAt": "2026-05-09T01:59:48.214Z"
+  },
+  {
+    "id": "a9e0f9a1-89b5-477d-99e2-adbc6a9e7c67",
+    "email": "lyka@gmail.com",
+    "password": "$2a$10$7OfSJZ2ap8OwmqwJq1ajP.p8o/O8eTMQ43U5u8Aiqi1NQxjVUA0/O",
+    "firstName": "Lyka Mae",
+    "lastName": "Entera",
+    "phone": "09215721111",
+    "address": "Duljo Fatima",
+    "role": "customer",
+    "createdAt": "2026-11-05T12:00:48.121Z"
   }
 ]
