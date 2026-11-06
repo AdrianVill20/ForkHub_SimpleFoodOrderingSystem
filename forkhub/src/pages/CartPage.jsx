@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
+import { useAuthModal } from '../contexts/AuthModalContext'
 import { getCart, removeFromCart, updateCartQty, getCartTotal, clearCart } from '../services/cartService'
 
 export default function CartPage() {
   const navigate = useNavigate()
+  const { openAuth } = useAuthModal()
   const [cart, setCart] = useState(getCart())
   const serviceType = localStorage.getItem('order_service_type') || 'Delivery'
   let userAddress = 'No saved address yet'
@@ -22,6 +24,15 @@ export default function CartPage() {
   }, [])
 
   const total = getCartTotal()
+
+  // Guests can browse and fill the cart; they only need to sign in at checkout
+  function checkout() {
+    if (localStorage.getItem('auth_token')) {
+      window.location.href = '/orders'
+    } else {
+      openAuth({ nextPath: '/orders', mode: 'login' })
+    }
+  }
 
   return (
     <div className="page">
@@ -100,7 +111,7 @@ export default function CartPage() {
                 </div>
               </div>
             </div>
-            <button className="cart-checkout-btn" disabled={cart.length === 0}  onClick={() => { window.location.href = '/orders' }}>
+            <button className="cart-checkout-btn" disabled={cart.length === 0}  onClick={checkout}>
               CONTINUE CHECKOUT
             </button>
             <button className="cart-back-btn" onClick={() => navigate('/menu')}>
