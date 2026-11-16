@@ -84,4 +84,150 @@ public sealed class AuthController(JsonStore store, TokenService tokens, IConfig
         await store.WriteAsync("users.json", users);
         return Ok(new { user = user.ToResponse() });
     }
+
+    private const int DeletionGraceDays = 5;
+
+                            // DELETE OWN ACCOUNT (5-DAY GRACE PERIOD)
+    [Authorize]
+    [HttpDelete("profile")]
+    public async Task<IActionResult> DeleteProfile()
+    {
+        var users = await store.ReadAsync<AppUser>("users.json");
+        var user = users.FirstOrDefault(item => item.Id == User.GetUserId());
+
+        if (user is null)
+            throw new HttpError(404, "User not found");
+
+        var now = DateTimeOffset.UtcNow;
+        var scheduled = now.AddDays(DeletionGraceDays);
+
+        user.IsDeleted = true;
+        user.DeletedAt = now.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
+        user.ScheduledDeletionAt = scheduled.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
+
+        await store.WriteAsync("users.json", users);
+
+        return Ok(new
+        {
+            message = $"Account scheduled for permanent deletion in {DeletionGraceDays} days",
+            scheduledDeletionAt = user.ScheduledDeletionAt,
+            graceDays = DeletionGraceDays
+        });
+    }
+
+    // RESTORE OWN ACCOUNT
+    [Authorize]
+    [HttpPost("profile/restore")]
+    public async Task<IActionResult> RestoreProfile()
+    {
+        var users = await store.ReadAsync<AppUser>("users.json");
+        var user = users.FirstOrDefault(item => item.Id == User.GetUserId());
+
+        if (user is null)
+            throw new HttpError(404, "User not found");
+
+        ClearDeletion(user);
+        await store.WriteAsync("users.json", users);
+
+        return Ok(new
+        {
+            user = user.ToResponse(),
+            message = "Account deletion cancelled"
+        });
+    }
+
+    // ADMIN - VIEW ALL USERS
+    [Authorize]
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers()
+    {
+        if (!User.IsAdmin())
+            throw new HttpError(403, "Access denied");
+
+        var users = await store.ReadAsync<AppUser>("users.json");
+
+        return Ok(users.Select(ToAdminResponse).ToList());
+    }
+
+    // ADMIN - PERMANENTLY DELETE USER
+    [Authorize]
+    [HttpDelete("users/{id}")]
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        if (!User.IsAdmin())
+            throw new HttpError(403, "Admin access required");
+
+        var users = await store.ReadAsync<AppUser>("users.json");
+        var target = users.FirstOrDefault(item => item.Id == id);
+
+        if (target is null)
+            throw new HttpError(404, "User not found");
+
+        if (target.Role == "admin")
+            throw new HttpError(403, "Cannot delete admin accounts");
+
+        users.RemoveAll(item => item.Id == id);
+        await store.WriteAsync("users.json", users);
+
+        return Ok(new
+        {
+            message = $"Account \"{target.Email}\" permanently deleted"
+        });
+    }
+
+    // ADMIN - RESTORE USER ACCOUNT
+    [Authorize]
+    [HttpPost("users/{id}/restore")]
+    public async Task<IActionResult> RestoreUser(string id)
+    {
+        if (!User.IsAdmin())
+            throw new HttpError(403, "Admin access required");
+
+        var users = await store.ReadAsync<AppUser>("users.json");
+        var user = users.FirstOrDefault(item => item.Id == id);
+
+        if (user is null)
+            throw new HttpError(404, "User not found");
+
+        ClearDeletion(user);
+        await store.WriteAsync("users.json", users);
+
+        return Ok(new
+        {
+            user = ToAdminResponse(user),
+            message = "Account restored"
+        });
+    }
+
+    // HELPER - CLEAR DELETION STATUS
+    private static void ClearDeletion(AppUser user)
+    {
+        user.IsDeleted = null;
+        user.DeletedAt = null;
+        user.ScheduledDeletionAt = null;
+    }
+
+    // HELPER - ADMIN USER RESPONSE
+    private static Dictionary<string, object?> ToAdminResponse(AppUser user)
+    {
+        var result = new Dictionary<string, object?>
+        {
+            ["id"] = user.Id,
+            ["email"] = user.Email,
+            ["firstName"] = user.FirstName ?? "",
+            ["lastName"] = user.LastName ?? "",
+            ["phone"] = user.Phone ?? "",
+            ["address"] = user.Address ?? "",
+            ["role"] = user.Role ?? "customer",
+            ["isDeleted"] = user.IsDeleted ?? false,
+            ["scheduledDeletionAt"] = user.ScheduledDeletionAt,
+            ["deletedAt"] = user.DeletedAt
+        };
+
+        if (user.CreatedAt is not null)
+            result["createdAt"] = user.CreatedAt;
+
+        return result;
+    }
+
 }

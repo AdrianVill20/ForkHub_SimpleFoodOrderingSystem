@@ -1,5 +1,6 @@
 using ForkHub.Api;
 using ForkHub.Api.Auth;
+using ForkHub.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 
@@ -11,6 +12,7 @@ var rootDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath,
 builder.Services.AddSingleton(new JsonStore(Path.Combine(rootDir, "data")));
 
 builder.Services.AddForkHubAuth(builder.Configuration);
+builder.Services.AddHostedService<AccountDeletionCleanupService>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins("http://localhost:5173")
