@@ -10,6 +10,7 @@ import TrackingPage from './pages/TrackingPage'
 import AdminPage from './pages/AdminPage'
 import UserPage from './pages/UserPage'
 import './App.css'
+import './GourmetEmber.css'
 
 function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
   const location = useLocation()
@@ -148,7 +149,7 @@ function App() {
       <div className="page">
         <main className="content-wrap">
           <div style={{ padding: 40, textAlign: 'center' }}>
-            <p style={{ fontSize: 18, color: '#555' }}>Loading your session…</p>
+            <p style={{ fontSize: 18, color: 'var(--color-on-surface-variant)' }}>Loading your session…</p>
           </div>
         </main>
       </div>

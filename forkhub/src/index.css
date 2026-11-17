@@ -1,11 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+
 :root {
+  /* Gourmet Ember design tokens: color */
+  --primary: #D62839;
+  --secondary: #F79D3F;
+  --tertiary: #D9C582;
+  --background: #FFF9EB;
+  --surface: #FFFFFF;
+  --on-surface: #1D1C13;
+  --on-surface-variant: #5B403F;
+  --inverse: #333027;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Be Vietnam Pro', system-ui, sans-serif;
+
+  --color-surface: var(--surface, #FFFFFF);
+  --color-surface-dim: #dfdacc;
+  --color-surface-bright: var(--surface, #FFFFFF);
+  --color-surface-container-lowest: var(--surface, #FFFFFF);
+  --color-surface-container-low: #F9F3E5;
+  --color-surface-container: #F3EDE0;
+  --color-surface-container-high: #ede8da;
+  --color-surface-container-highest: #e8e2d4;
+  --color-on-surface: var(--on-surface, #1D1C13);
+  --color-on-surface-variant: var(--on-surface-variant, #5B403F);
+  --color-inverse-surface: var(--inverse, #333027);
+  --color-inverse-on-surface: #f6f0e2;
+  --color-outline: #80615F;
+  --color-outline-variant: #e4bdbc;
+  --color-surface-tint: #bc0f2a;
+  --color-primary: var(--primary, #D62839);
+  --color-primary-dark: #B20024;
+  --color-on-primary: #ffffff;
+  --color-primary-container: var(--primary, #D62839);
+  --color-on-primary-container: #fff2f1;
+  --color-inverse-primary: #ffb3b1;
+  --color-secondary: var(--secondary, #F79D3F);
+  --color-on-secondary: #6E3D00;
+  --color-secondary-container: #FFA446;
+  --color-on-secondary-container: #6E3D00;
+  --color-tertiary: var(--tertiary, #D9C582);
+  --color-on-tertiary: #4B3E07;
+  --color-tertiary-container: #BDAA6A;
+  --color-on-tertiary-container: #4b3e07;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #F9F3E5;
+  --color-primary-fixed-dim: #B20024;
+  --color-on-primary-fixed: #410007;
+  --color-on-primary-fixed-variant: #92001c;
+  --color-secondary-fixed: #F3EDE0;
+  --color-secondary-fixed-dim: #FFA446;
+  --color-on-secondary-fixed: #2d1600;
+  --color-on-secondary-fixed-variant: #6b3b00;
+  --color-tertiary-fixed: #BDAA6A;
+  --color-tertiary-fixed-dim: #BDAA6A;
+  --color-on-tertiary-fixed: #221b00;
+  --color-on-tertiary-fixed-variant: #53460f;
+  --color-background: var(--background, #FFF9EB);
+  --color-on-background: var(--on-surface, #1D1C13);
+  --color-surface-variant: #e8e2d4;
+
+  /* Typography, spacing, shape, and elevation */
+  --font-headline: var(--font-heading, 'Be Vietnam Pro', system-ui, sans-serif);
+  --text-display-lg: 48px;
+  --line-display-lg: 56px;
+  --text-headline-lg: 32px;
+  --line-headline-lg: 40px;
+  --text-headline-md: 24px;
+  --line-headline-md: 32px;
+  --text-body-lg: 18px;
+  --line-body-lg: 28px;
+  --text-body-md: 16px;
+  --line-body-md: 24px;
+  --text-label-lg: 14px;
+  --line-label-lg: 20px;
+  --text-label-sm: 12px;
+  --line-label-sm: 16px;
+  --space-xs: 4px;
+  --space-sm: 12px;
+  --space-base: 8px;
+  --space-md: 24px;
+  --space-lg: 48px;
+  --space-xl: 80px;
+  --space-gutter: 20px;
+  --space-mobile-margin: 16px;
+  --space-desktop-margin: 64px;
+  --radius-sm: 4px;
+  --radius-button: 8px;
+  --radius-md: 12px;
+  --radius-card: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+  --shadow-card: 0 4px 20px rgba(178, 0, 36, 0.06);
+  --shadow-float: 0 12px 32px rgba(91, 64, 63, 0.12);
+  --focus-ring: 0 0 0 3px rgba(255, 164, 70, 0.28);
+
+  font-family: var(--font-body, 'Plus Jakarta Sans', system-ui, sans-serif);
+  color: var(--on-surface, #1D1C13);
+  background: var(--background, #FFF9EB);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  width: 100%;
+* { box-sizing: border-box; }
+
+html { min-width: 320px; background: var(--background, #FFF9EB); }
+
+body {
+  min-width: 320px;
   min-height: 100vh;
+  margin: 0;
+  color: var(--on-surface, #1D1C13);
+  background: var(--background, #FFF9EB);
+  font-family: var(--font-body, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: var(--text-body-md);
+  line-height: var(--line-body-md);
 }
+
+button, input, select, textarea { font: inherit; }
+button { color: inherit; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+
+#root { width: 100%; min-height: 100vh; }

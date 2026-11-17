@@ -1,0 +1,280 @@
+/* Gourmet Ember final component rules. Kept after legacy layout rules so the
+   presentation layer is authoritative without changing page behavior. */
+body,
+html {
+  min-width: 320px;
+  color: var(--on-surface, #1D1C13);
+  background: var(--background, #FFF9EB) !important;
+  font-family: var(--font-body, 'Plus Jakarta Sans', system-ui, sans-serif);
+}
+
+.page { min-height: 100vh; color: var(--color-on-surface, #1D1C13); background: var(--color-background, #FFF9EB); }
+.content-wrap { width: min(1280px, 100%); margin-inline: auto; padding: 32px 64px 56px; }
+
+.top-nav {
+  position: sticky;
+  z-index: 100;
+  top: 0;
+  display: flex;
+  min-height: 72px;
+  height: auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 12px max(32px, calc((100vw - 1280px) / 2));
+  color: var(--color-on-surface, #1D1C13);
+  background: var(--background, #FFF9EB) !important;
+  background-image: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 55%, transparent);
+  box-shadow: none;
+  animation: none;
+}
+.top-nav-logo-link { display: inline-flex; flex: 0 0 auto; align-items: center; }
+.top-nav-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--color-primary-dark, #B20024); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); font-size: 23px; font-weight: 700; letter-spacing: -0.04em; }
+.top-nav-brand-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+.top-nav-links { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.top-nav-item, .top-nav-right .top-nav-item {
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--color-on-surface-variant);
+  background: transparent;
+  font-family: var(--font-body, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: var(--text-label-lg);
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: color 160ms ease, background 160ms ease;
+}
+.top-nav-item:hover, .top-nav-right .top-nav-item:hover { color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.top-nav-right { display: flex; align-items: center; gap: 8px; }
+.top-nav-right .auth-topnav-signin { border: 1px solid var(--color-primary); color: var(--color-primary); background: transparent; cursor: pointer; }
+.top-nav-cart, .top-nav-right .top-nav-cart { border-color: var(--color-primary-container, #D62839) !important; color: var(--color-on-primary, #FFFFFF) !important; background: var(--color-primary-container, var(--primary, #D62839)) !important; }
+.top-nav-cart:hover, .top-nav-right .top-nav-cart:hover { color: var(--color-on-primary, #FFFFFF) !important; background: var(--color-primary-dark, #B20024) !important; }
+.cart-checkout-btn:disabled { opacity: 1; cursor: not-allowed; }
+
+h1, h2, h3, h4, .hero-title, .menu-section-title, .order-section-title, .tracking-title, .cart-title, .modal-title {
+  color: var(--color-on-surface, #1D1C13);
+  font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif);
+  letter-spacing: -0.025em;
+  text-transform: none;
+  background-image: none !important;
+  text-shadow: none !important;
+}
+
+button, .btn-red, .btn-purple, .btn-hero-cta, .btn-cta-large, .premium-btn,
+.menu-checkout-btn, .cart-checkout-btn, .order-place-btn, .tracking-search-btn,
+.tracking-new-btn, .order-confirm-track-btn, .order-confirm-menu-btn,
+.order-confirm-modal-btn, .order-empty-btn {
+  min-height: 44px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-body, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-weight: 700;
+}
+button { background-image: none !important; }
+button.btn-red, button.btn-purple, .btn-red, .btn-purple, .btn-hero-cta, .btn-cta-large,
+.premium-btn, .menu-checkout-btn, .cart-checkout-btn, .order-place-btn,
+.tracking-search-btn, .order-confirm-track-btn, .order-confirm-modal-btn-primary,
+.order-empty-btn {
+  border: 1px solid var(--color-primary-container, #D62839) !important;
+  color: var(--color-on-primary, #FFFFFF) !important;
+  background: var(--color-primary-container, var(--primary, #D62839)) !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-card) !important;
+  text-transform: none;
+  letter-spacing: 0;
+}
+button.btn-red:hover, button.btn-purple:hover, .btn-red:hover, .btn-purple:hover,
+.btn-hero-cta:hover, .btn-cta-large:hover, .premium-btn:hover, .menu-checkout-btn:hover,
+.cart-checkout-btn:hover, .order-place-btn:hover, .tracking-search-btn:hover,
+.order-confirm-track-btn:hover, .order-empty-btn:hover {
+  color: var(--color-on-primary) !important;
+  background: var(--color-primary-dark, #B20024) !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-card) !important;
+  transform: translateY(-1px);
+}
+.btn-takeout, .tracking-new-btn, .order-confirm-menu-btn,
+.order-confirm-modal-btn-secondary, .cart-back-btn {
+  border: 1px solid var(--color-secondary-container, #FFA446) !important;
+  color: var(--color-on-secondary-container, #6E3D00) !important;
+  background: var(--color-secondary-container, #FFA446) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.field, input.field, select.field, textarea.field, .tracking-field, input, select, textarea {
+  border-color: var(--color-tertiary-container);
+  border-radius: var(--radius-button);
+  color: var(--color-on-surface, #1D1C13);
+  background: var(--color-surface-container-lowest);
+  font-family: var(--font-body, 'Plus Jakarta Sans', system-ui, sans-serif);
+}
+.field:focus, input:focus, select:focus, textarea:focus { border-color: var(--color-secondary-container, #FFA446) !important; outline: none; box-shadow: var(--focus-ring) !important; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--color-primary-dark, #B20024); }
+
+/* Landing hero */
+.home-hero {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 10%, transparent);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface) !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-card);
+}
+.hero-background, .hero-background .blob { display: none !important; }
+.hero-content { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: 40px; padding: clamp(36px, 6vw, 72px); }
+.hero-text { min-width: 0; }
+.hero-title { max-width: 15ch; margin: 0 0 16px; color: var(--color-on-surface, #1D1C13) !important; font-size: clamp(40px, 4.25vw, var(--text-display-lg, 48px)) !important; font-weight: 700; line-height: var(--line-display-lg, 56px); overflow-wrap: normal; }
+.hero-subtitle { margin: 0 0 16px; color: var(--color-tertiary); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); font-size: var(--text-body-lg); font-weight: 600; }
+.hero-description { max-width: 56ch; color: var(--color-on-surface-variant); font-size: var(--text-body-md); line-height: 1.75; }
+.hero-visual { display: grid; grid-template-columns: minmax(0, 1fr) 156px; grid-template-rows: repeat(3, minmax(58px, auto)); align-items: center; align-content: center; gap: 14px; min-width: 0; min-height: 440px; overflow: visible; }
+.food-plate-container { position: relative; display: grid; grid-row: 1 / 4; grid-column: 1; place-items: center; width: min(100%, 370px); aspect-ratio: 1; margin: auto; }
+.food-plate, .plate-shadow { position: absolute; inset: 4%; border-radius: 50%; background: var(--color-surface-container-low); box-shadow: var(--shadow-card); }
+.plate-shadow { inset: 8%; background: var(--color-tertiary-fixed); opacity: 0.45; filter: none; }
+.hero-food-img { position: relative; z-index: 1; display: block; width: 86%; height: 86%; border: 8px solid var(--color-surface-container-lowest); border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-card); }
+.floating-badge { position: static; display: inline-flex; align-items: center; justify-self: start; gap: 8px; width: max-content; max-width: 100%; padding: 12px 14px; border: 0; border-radius: var(--radius-pill); color: var(--color-on-surface, #1D1C13); background: var(--color-surface-container-low); box-shadow: var(--shadow-card); font-size: var(--text-label-sm); font-weight: 700; line-height: 1.3; white-space: nowrap; }
+.floating-badge .badge-icon { width: 16px; height: 16px; }
+.badge-1 { grid-column: 2; grid-row: 1; color: var(--color-on-primary) !important; background: var(--color-primary-container, #D62839) !important; }
+.badge-2 { grid-column: 2; grid-row: 2; color: var(--color-on-secondary-container, #6E3D00) !important; background: var(--color-secondary-container, #FFA446) !important; }
+.badge-3 { grid-column: 2; grid-row: 3; color: var(--color-on-tertiary-fixed-variant, #53460F) !important; background: color-mix(in srgb, var(--color-tertiary-container, #BDAA6A) 15%, var(--color-surface-container-lowest, #FFFFFF)) !important; }
+.btn-hero-cta { margin-top: 20px; padding: 14px 24px; font-size: var(--text-label-lg); }
+
+.features-section, .about-section, .cta-section, .final-cta { border-radius: var(--radius-xl); background: var(--color-surface-container, #F3EDE0) !important; background-image: none !important; box-shadow: none; }
+.features-background, .about-background, .cta-background, .final-cta-background { display: none !important; }
+.features-section h2, .why-choose-section h2, .culinary-about h2, .cta-text h2, .cta-text-final h2 { color: var(--color-on-surface, #1D1C13) !important; font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); font-size: var(--text-headline-lg); line-height: var(--line-headline-lg); }
+.section-subtitle, .about-intro, .cta-text p, .cta-text-final p { color: var(--color-on-surface-variant); }
+.feature-card, .benefit-card, .highlight-item, .menu-card, .cart-section, .cart-sidebar-card,
+.menu-section, .menu-settings-card, .order-section, .order-summary-card, .tracking-section,
+.order-history-card, .profile-card {
+  border: 1px solid color-mix(in srgb, var(--color-tertiary) 14%, transparent) !important;
+  border-radius: var(--radius-card) !important;
+  color: var(--color-on-surface, #1D1C13);
+  background: var(--color-surface-container-lowest) !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-card) !important;
+}
+.food-card-image-wrapper, .food-card-overlay { background-image: none !important; }
+.feature-card:hover, .menu-card:hover, .order-history-card:hover { background: color-mix(in srgb, var(--color-primary-container, #D62839) 8%, var(--color-surface-container-lowest)) !important; border-color: color-mix(in srgb, var(--color-primary) 35%, transparent) !important; box-shadow: var(--shadow-card) !important; }
+.food-card-content h3, .highlight-text h4, .benefit-card h3 { color: var(--color-primary-dark, #B20024); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); }
+.premium-order-section, .culinary-cta { border: 1px solid color-mix(in srgb, var(--color-primary, #D62839) 10%, transparent); background: var(--color-surface-container, #F3EDE0) !important; background-image: none !important; }
+.premium-btn.btn-takeout { color: var(--color-on-secondary-container, #6E3D00) !important; background: var(--color-secondary-container, #FFA446) !important; }
+
+/* Menu, cart, checkout, order history, and tracking */
+.layout-2col { gap: 24px; }
+.menu-layout, .cart-layout, .order-layout { grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); }
+.menu-section-header, .cart-header, .order-section-header, .tracking-header { padding: 24px 28px; background: var(--color-primary-dark, #B20024) !important; background-image: none !important; }
+.cat-subcategory-bar { background: var(--color-primary-dark, #B20024) !important; }
+.menu-section-title, .cart-title, .order-section-title, .tracking-title { margin: 0; color: var(--color-on-primary) !important; font-size: var(--text-headline-lg); font-weight: 700; line-height: var(--line-headline-lg); }
+.menu-section-body, .cart-items-wrap, .order-section-body, .tracking-body { padding: 24px; }
+.menu-card { overflow: hidden; cursor: pointer; background: var(--color-surface-container-low, #F9F3E5) !important; }
+.menu-card-img-wrap { overflow: hidden; }
+.menu-card-img { display: block; width: 100%; object-fit: cover; transition: transform 180ms ease; }
+.menu-card:hover .menu-card-img { transform: scale(1.025); }
+.menu-card-title { min-width: 0; padding: 12px 10px 16px; color: var(--color-on-surface, #1D1C13); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); font-size: clamp(14px, 1.1vw, 16px); line-height: 1.25; overflow-wrap: anywhere; word-break: normal; white-space: normal; text-align: center; }
+.menu-settings-title, .cart-sidebar-title, .order-summary-title { color: var(--color-on-surface, #1D1C13); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); }
+.menu-settings-row, .cart-sidebar-row, .order-summary-item, .order-history-card { border-color: var(--color-surface-container-high) !important; color: var(--color-on-surface-variant); }
+.cart-item, .order-history-card { border-radius: var(--radius-md); }
+.cart-item-name, .order-history-id { color: var(--color-on-surface, #1D1C13); }
+.cart-item-price, .cart-total span, .order-history-total, .order-total-price { color: var(--color-primary-dark, #B20024); }
+.cart-qty-btn { border-color: var(--color-outline-variant); border-radius: var(--radius-button); color: var(--color-primary-dark, #B20024); background: var(--color-surface-container-low); }
+.cart-remove-btn, .order-cancel-btn { border-radius: var(--radius-button); color: var(--color-error); }
+.order-section { overflow: hidden; }
+.order-summary-card { position: sticky; top: 96px; overflow: hidden; }
+.tracking-layout { max-width: 960px; margin-inline: auto; }
+.tracking-section { overflow: hidden; border-radius: var(--radius-card); background: var(--color-surface-container-lowest); box-shadow: var(--shadow-card); }
+.tracking-description, .order-empty-text { color: var(--color-on-surface-variant); }
+.tracking-message.found { color: var(--color-on-secondary-container, #6E3D00); background: color-mix(in srgb, var(--color-secondary-container, #FFA446) 18%, transparent); }
+.tracking-result, .order-confirmation { border-color: color-mix(in srgb, var(--color-tertiary) 18%, transparent); border-radius: var(--radius-card); background: var(--color-surface-container-low); }
+.tracking-result-title, .order-confirm-title, .order-history-title { color: var(--color-primary-dark, #B20024); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); }
+.order-hint, .order-status-text, .order-history-date { color: var(--color-on-surface-variant); }
+.order-radio { border-color: var(--color-outline-variant); border-radius: var(--radius-button); background: var(--color-surface-container-low); }
+.order-radio.active { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.order-radio.active .order-radio-indicator, .order-radio.active .order-radio-indicator::after { border-color: var(--color-primary); background: var(--color-primary); }
+.order-total-row { border-color: var(--color-surface-container-high); }
+.modal-card, .form-panel, .order-confirm-modal, .cat-modal-box { border: 1px solid color-mix(in srgb, var(--color-tertiary) 14%, transparent); border-radius: var(--radius-card); color: var(--color-on-surface, #1D1C13); background: var(--color-surface-container-lowest); box-shadow: var(--shadow-float); }
+.modal-title { color: var(--color-primary-dark, #B20024); font-size: var(--text-headline-lg); }
+
+.hero-subtitle { color: var(--color-on-tertiary-fixed-variant, #53460F); }
+.btn-delivery { color: var(--color-on-primary, #FFFFFF) !important; background: var(--color-primary-dark, #B20024) !important; }
+.btn-takeout { color: var(--color-on-secondary-container, #6E3D00) !important; background: var(--color-secondary-container, #FFA446) !important; }
+.final-cta { color: var(--color-inverse-on-surface, #F6F0E2); background: var(--color-inverse-surface, #333027) !important; }
+.final-cta h2, .final-cta p { color: var(--color-inverse-on-surface, #F6F0E2) !important; }
+.about-stats { padding: 24px; border-top: 1px solid var(--color-outline-variant); border-radius: var(--radius-card); color: var(--color-on-surface, #1D1C13); background: transparent; }
+.about-stats .stat-number { color: var(--color-primary-dark, #B20024); }
+.about-stats .stat-label { color: var(--color-on-surface-variant, #5B403F); }
+.benefit-icon, .highlight-icon { display: inline-grid; place-items: center; border-radius: 50%; color: var(--color-primary-dark, #B20024); background: color-mix(in srgb, var(--color-tertiary-container, #BDAA6A) 18%, var(--color-surface-container-lowest, #FFFFFF)); }
+.benefit-icon { padding: 12px; }
+.highlight-icon { padding: 10px; color: var(--color-on-tertiary-container, #4B3E07); }
+.profile-btn-primary { color: var(--color-on-primary, #FFFFFF) !important; background: var(--color-primary-dark, #B20024) !important; background-image: none !important; box-shadow: var(--shadow-card) !important; }
+.profile-btn-primary:hover:not(:disabled) { background: var(--color-primary-dark, #B20024) !important; }
+.profile-btn-danger { color: var(--color-on-error, #FFFFFF) !important; background: var(--color-error, #BA1A1A) !important; background-image: none !important; box-shadow: var(--shadow-card) !important; }
+.profile-btn-danger:hover:not(:disabled) { color: var(--color-on-error, #FFFFFF) !important; background: var(--color-error, #BA1A1A) !important; }
+.profile-btn-primary:disabled, .profile-btn-danger:disabled { opacity: 1; cursor: not-allowed; }
+.profile-page .profile-card { background: var(--color-surface-container-lowest, #FFFFFF) !important; }
+.profile-page .profile-stat-card { background: var(--color-surface-container, #F3EDE0) !important; }
+.register-premium-header { background: var(--color-primary-dark, #B20024) !important; }
+.profile-page .profile-hero { background: var(--color-primary-dark, #B20024) !important; }
+.profile-page .profile-hero-background { display: none !important; }
+.profile-page .profile-hero-title, .profile-page .profile-hero-email { color: var(--color-on-primary, #FFFFFF) !important; }
+.profile-page .profile-avatar-status { color: var(--color-on-secondary-container, #6E3D00); background: var(--color-secondary-container, #FFA446); }
+.profile-page .profile-error-banner { background: var(--color-error, #BA1A1A); background-image: none; }
+.profile-page .profile-card-accent .profile-card-icon-img { filter: sepia(0.7) saturate(1.3) hue-rotate(345deg); }
+.profile-page .profile-btn-icon, .profile-page .profile-field-icon, .profile-page .avatar-icon { filter: sepia(0.6) saturate(1.2) hue-rotate(345deg); }
+.feature-card h3 { color: var(--color-primary-dark, #B20024); }
+
+.cart-empty-food-icon, .order-empty-food-icon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  margin: 0 auto;
+  border-radius: 50%;
+  color: var(--color-on-tertiary-container, #4B3E07);
+  background: color-mix(in srgb, var(--tertiary, #D9C582) 22%, white);
+  font-size: 38px;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .content-wrap { padding: 24px var(--space-mobile-margin) 40px; }
+  .top-nav { flex-wrap: wrap; gap: 8px; padding-inline: var(--space-mobile-margin); }
+  .top-nav-links { order: 3; width: 100%; flex-wrap: wrap; justify-content: center; }
+  .top-nav-right { margin-left: auto; }
+  .hero-content { grid-template-columns: 1fr; gap: 20px; }
+  .hero-visual { grid-template-columns: minmax(0,1fr) repeat(3, minmax(0,1fr)); grid-template-rows: auto auto; min-height: 0; gap: 10px; }
+  .food-plate-container { grid-column: 1 / -1; grid-row: 1; width: min(74vw, 340px); }
+  .floating-badge { justify-self: center; white-space: normal; text-align: center; }
+  .badge-1 { grid-column: 1; grid-row: 2; }
+  .badge-2 { grid-column: 2 / 3; grid-row: 2; }
+  .badge-3 { grid-column: 3 / 4; grid-row: 2; }
+  .menu-layout, .cart-layout, .order-layout { grid-template-columns: 1fr; }
+  .menu-aside, .cart-aside, .order-aside { position: static; }
+}
+@media (max-width: 600px) {
+  .content-wrap { padding: 16px var(--space-mobile-margin) 32px; }
+  .top-nav { justify-content: space-between; }
+  .top-nav-brand { font-size: 20px; }
+  .top-nav-brand-icon { width: 22px; height: 22px; }
+  .top-nav-item, .top-nav-right .top-nav-item { padding: 8px 10px; font-size: var(--text-label-sm); }
+  .hero-content { padding: 28px 20px; }
+  .hero-title { max-width: 15ch; font-size: 34px !important; line-height: 1.2; }
+  .hero-visual { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hero-visual { height: auto; min-height: 390px; align-content: start; }
+  .food-plate-container { grid-column: 1 / -1; grid-row: 1; width: min(72vw, 280px); aspect-ratio: 1; }
+  .floating-badge { width: 100%; padding: 10px 7px; font-size: 10px; }
+  .floating-badge .badge-icon { flex: 0 0 auto; width: 14px; height: 14px; }
+  .badge-1 { grid-column: 1; grid-row: 2; }
+  .badge-2 { grid-column: 2; grid-row: 2; }
+  .badge-3 { grid-column: 3; grid-row: 2; }
+  .features-section, .about-section, .cta-section, .final-cta { padding: 28px 20px !important; }
+  .features-section h2, .why-choose-section h2, .culinary-about h2, .cta-text h2, .cta-text-final h2 { font-size: 26px; line-height: 1.3; }
+  .menu-section-header, .cart-header, .order-section-header, .tracking-header { padding: 20px; }
+  .menu-section-title, .cart-title, .order-section-title, .tracking-title { font-size: 28px; line-height: 34px; }
+  .menu-section-body, .cart-items-wrap, .order-section-body, .tracking-body { padding: 18px; }
+  .tracking-search-row { flex-wrap: wrap; }
+  .tracking-field { flex: 1 1 100%; }
+  .tracking-search-btn, .tracking-new-btn { flex: 1; }
+  .order-form-grid { grid-template-columns: 1fr; gap: 8px; }
+  .order-summary-card { position: static; }
+}
+

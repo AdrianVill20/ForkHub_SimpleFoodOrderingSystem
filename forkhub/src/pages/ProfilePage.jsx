@@ -200,7 +200,7 @@ export default function DashboardPage() {
 
         {/* Success Message */}
         {successMessage && (
-          <div style={{ background: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', color: '#fff', padding: '16px 20px', borderRadius: '8px', marginBottom: '24px', animation: 'slideInDown 0.4s ease-out', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600, boxShadow: '0 4px 12px rgba(46, 204, 113, 0.2)' }}>
+          <div style={{ background: 'var(--color-secondary-container)', color: 'var(--color-on-secondary-container)', padding: '16px 20px', borderRadius: '8px', marginBottom: '24px', animation: 'slideInDown 0.4s ease-out', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600, boxShadow: 'var(--shadow-card)' }}>
             <span>{successMessage}</span>
           </div>
         )}
@@ -209,7 +209,7 @@ export default function DashboardPage() {
         <div className="profile-stats-grid">
           <div className="profile-stat-card">
             <div className="profile-stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7ad8dc" strokeWidth="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-secondary-container)" strokeWidth="2">
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="M2 6h20" />
               </svg>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
           </div>
           <div className="profile-stat-card">
             <div className="profile-stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7ad8dc" strokeWidth="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-secondary-container)" strokeWidth="2">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
             </div>
@@ -232,7 +232,7 @@ export default function DashboardPage() {
           </div>
           <div className="profile-stat-card">
             <div className="profile-stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7ad8dc" strokeWidth="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-secondary-container)" strokeWidth="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
@@ -391,7 +391,7 @@ export default function DashboardPage() {
               <div className="profile-card-content-new">
                 {isEditing ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '12px', color: '#999', fontWeight: '700', textTransform: 'uppercase' }}>
+                    <label style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: '700', textTransform: 'uppercase' }}>
                       <img src={addressIcon} alt="Address" style={{ width: '16px', height: '16px', marginRight: '6px', verticalAlign: 'middle' }} />
                       Delivery Address
                     </label>
@@ -403,7 +403,7 @@ export default function DashboardPage() {
                       rows="4"
                       style={{ resize: 'vertical', fontFamily: 'inherit', padding: '12px' }}
                     />
-                    <p style={{ fontSize: '12px', color: '#999', margin: '4px 0 0' }}>Include street, city, and postal code</p>
+                    <p style={{ fontSize: '12px', color: 'var(--color-outline)', margin: '4px 0 0' }}>Include street, city, and postal code</p>
                   </div>
                 ) : (
                   <div className="profile-address-display">
@@ -426,7 +426,7 @@ export default function DashboardPage() {
             <div className="profile-card profile-card-secondary">
               <div className="profile-card-header-new">
                 <div className="profile-card-header-icon secondary">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#98008f" strokeWidth="2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
                 </div>
@@ -456,7 +456,7 @@ export default function DashboardPage() {
             <div className="profile-card profile-card-stats">
               <div className="profile-card-header-new">
                 <div className="profile-card-header-icon stats">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef8f2f" strokeWidth="2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-secondary-container)" strokeWidth="2">
                     <line x1="12" y1="2" x2="12" y2="22" />
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
@@ -530,19 +530,19 @@ export default function DashboardPage() {
               <p>Your account is scheduled for permanent deletion</p>
             </div>
             <div className="profile-modal-body-new">
-              <p style={{ textAlign: 'center', marginBottom: 12, color: '#555' }}>
+              <p style={{ textAlign: 'center', marginBottom: 12, color: 'var(--color-on-surface-variant)' }}>
                 Your account and all data will be <strong>permanently deleted on</strong>:
               </p>
               <p style={{
                 textAlign: 'center', fontWeight: 700, fontSize: 18,
-                color: '#d32f2f', background: '#fdecea',
+                color: 'var(--color-primary-container)', background: 'var(--color-error-container)',
                 padding: '10px 16px', borderRadius: 8, marginBottom: 16,
               }}>
                 {new Date(scheduledDeletion).toLocaleDateString('en-PH', {
                   weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
                 })}
               </p>
-              <p style={{ textAlign: 'center', color: '#666', fontSize: 13 }}>
+              <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', fontSize: 13 }}>
                 You can cancel this deletion anytime before that date by logging back in and clicking <strong>Cancel Deletion</strong> on your profile.
               </p>
             </div>
@@ -550,7 +550,7 @@ export default function DashboardPage() {
               <button
                 onClick={handleCancelDeletion}
                 className="profile-modal-btn-cancel-new"
-                style={{ background: '#4caf50', color: '#fff', border: 'none' }}
+                style={{ background: 'var(--color-secondary-container)', color: 'var(--color-on-secondary-container)', border: 'none' }}
               >
                 Cancel Deletion
               </button>
@@ -579,9 +579,9 @@ export default function DashboardPage() {
           return (
             <div style={{
               position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-              background: '#d32f2f', color: '#fff', borderRadius: 12,
+              background: 'var(--color-primary-container)', color: 'var(--color-surface-container-lowest)', borderRadius: 12,
               padding: '14px 24px', zIndex: 999, maxWidth: 480, width: '90%',
-              display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 4px 20px rgba(0,0,0,.25)',
+              display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 4px 20px color-mix(in srgb, var(--color-inverse-surface) 25%, transparent)',
             }}>
               <div style={{ flex: 1 }}>
                 <strong>Account pending deletion</strong>
@@ -592,7 +592,7 @@ export default function DashboardPage() {
               <button
                 onClick={handleCancelDeletion}
                 style={{
-                  background: '#fff', color: '#d32f2f', border: 'none',
+                  background: 'var(--color-surface-container-lowest)', color: 'var(--color-primary-container)', border: 'none',
                   borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: 'pointer',
                 }}
               >

@@ -36,9 +36,9 @@ export default function CategoryModal({ category, onClose }) {
 
           <div className="cat-modal-body">
             {loading ? (
-              <p style={{ textAlign: 'center', padding: 32, color: '#999' }}>Loading…</p>
+              <p style={{ textAlign: 'center', padding: 32, color: 'var(--color-outline)' }}>Loading…</p>
             ) : items.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: 32, color: '#666' }}>
+              <p style={{ textAlign: 'center', padding: 32, color: 'var(--color-on-surface-variant)' }}>
                 No items available in this category yet.
               </p>
             ) : (
@@ -73,8 +73,8 @@ export default function CategoryModal({ category, onClose }) {
                             position: 'absolute',
                             top: 8,
                             right: 8,
-                            backgroundColor: '#d32f2f',
-                            color: '#fff',
+                            backgroundColor: 'var(--color-primary-container)',
+                            color: 'var(--color-surface-container-lowest)',
                             padding: '4px 8px',
                             borderRadius: 4,
                             fontSize: 11,
@@ -88,9 +88,9 @@ export default function CategoryModal({ category, onClose }) {
                         <p className="cat-item-desc muted">{item.description}</p>
                         <p className="cat-item-price muted">Starting @ ₱{item.price}.00</p>
                         {!item.unavailable ? (
-                          <p className="cat-item-action" style={{ color: '#7c3aed', fontWeight: 600, marginTop: 8 }}>Click to customize →</p>
+                          <p className="cat-item-action" style={{ color: 'var(--color-primary)', fontWeight: 600, marginTop: 8 }}>Click to customize →</p>
                         ) : (
-                          <p className="cat-item-action" style={{ color: '#999', fontWeight: 600, marginTop: 8 }}>Out of Stock</p>
+                          <p className="cat-item-action" style={{ color: 'var(--color-outline)', fontWeight: 600, marginTop: 8 }}>Out of Stock</p>
                         )}
                       </div>
                     ))}
