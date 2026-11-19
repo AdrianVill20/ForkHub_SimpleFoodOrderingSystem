@@ -53,7 +53,8 @@ export async function updateOrderStatus(orderId, newStatus, reason) {
   })
 }
 
-const CANCELLABLE = ['Pending', 'Preparing', 'Out for delivery', 'Ready for pickup']
+// Customers can only cancel before the restaurant starts preparing the order
+const CANCELLABLE = ['Pending']
 
 export function canCancel(status) {
   return CANCELLABLE.includes(status)

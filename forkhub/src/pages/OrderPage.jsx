@@ -186,8 +186,13 @@ export default function OrderPage() {
                                     />
                                     <button
                                       className="order-cancel-confirm-btn"
-                                      onClick={() => {
-                                        setOrderHistory(updateOrderStatus(o.id, 'Cancelled', cancelReason))
+                                      onClick={async () => {
+                                        try {
+                                          await updateOrderStatus(o.id, 'Cancelled', cancelReason)
+                                          setOrderHistory(await getAllOrders())
+                                        } catch (err) {
+                                          alert(`Could not cancel: ${err.message}`)
+                                        }
                                         setCancellingId(null)
                                         setCancelReason('')
                                       }}

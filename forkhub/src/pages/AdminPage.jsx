@@ -443,7 +443,14 @@ export default function AdminPage() {
                                 {order.address || '—'}
                               </td>
                               <td>{order.phone}</td>
-                              <td>{order.items?.length || 0} item(s)</td>
+                              <td>
+                                {order.items?.length || 0} item(s)
+                                {order.items?.filter((item) => item.note).map((item, n) => (
+                                  <div key={n} style={{ fontSize: 11, color: '#666', marginTop: 4 }}>
+                                    Note ({item.name}): {item.note}
+                                  </div>
+                                ))}
+                              </td>
                               <td className="admin-order-total">₱{(order.total || 0).toFixed(2)}</td>
                               <td>{new Date(order.placedAt).toLocaleDateString()}</td>
                               <td>
