@@ -47,7 +47,7 @@ export default function CartPage() {
             <div className="cart-items-wrap">
               {cart.length === 0 ? (
                 <div className="cart-empty">
-                  <div className="cart-empty-icon"><img src="/favicon.svg" alt="ForkHub" className="cart-favicon" /></div>
+                  <div className="cart-empty-icon"><span className="cart-empty-food-icon" role="img" aria-label="Pizza">🍕</span></div>
                   <p className="cart-empty-text">Your cart is empty.</p>
                   <button className="btn-red cart-empty-btn" onClick={() => navigate('/menu')}>
                     BROWSE MENU

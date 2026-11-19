@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthModal } from '../contexts/AuthModalContext'
-import logo from '../assets/logo.png'
 import { getCartCount } from '../services/cartService'
 
 export default function TopNav() {
@@ -48,7 +47,12 @@ export default function TopNav() {
   return (
     <header className="top-nav">
       <Link className="top-nav-logo-link" to="/">
-        <img src={logo} alt="ForkHub" className="top-nav-logo" />
+        <span className="top-nav-brand" aria-label="ForkHub">
+          <svg className="top-nav-brand-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 2v7m4-7v7M9 2v20m7-20v6a3 3 0 0 0 6 0V2m-3 9v11" />
+          </svg>
+          <span>ForkHub</span>
+        </span>
       </Link>
 
       <nav className="top-nav-links">
@@ -65,7 +69,7 @@ export default function TopNav() {
           Tracker
         </Link>
         {currentUser?.role === 'admin' && (
-          <Link className="top-nav-item" to="/admin" style={{ color: '#7ad8dc' }}>
+          <Link className="top-nav-item" to="/admin" style={{ color: 'var(--color-on-secondary-container)' }}>
             Admin
           </Link>
         )}
@@ -94,7 +98,7 @@ export default function TopNav() {
           {cartCount > 0 && (
             <span style={{
              position: 'absolute', top: -8, right: -12,
-              background: '#e53e3e', color: '#fff',
+              background: 'var(--color-primary-container)', color: 'var(--color-surface-container-lowest)',
               borderRadius: '50%', fontSize: 10, fontWeight: 800,
               minWidth: 18, height: 18,
               display: 'flex', alignItems: 'center', justifyContent: 'center',

@@ -1,16 +1,16 @@
 <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="bgGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#98008f;stop-opacity:0.08" />
-      <stop offset="100%" style="stop-color:#7ad8dc;stop-opacity:0.04" />
+      <stop offset="0%" style="stop-color:#B20024;stop-opacity:0.08" />
+      <stop offset="100%" style="stop-color:#F3EDE0;stop-opacity:0.04" />
     </linearGradient>
     <linearGradient id="bgGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#f01527;stop-opacity:0.06" />
-      <stop offset="100%" style="stop-color:#ef8f2f;stop-opacity:0.03" />
+      <stop offset="0%" style="stop-color:#B20024;stop-opacity:0.06" />
+      <stop offset="100%" style="stop-color:#FFA446;stop-opacity:0.03" />
     </linearGradient>
     <radialGradient id="bgGradient3">
-      <stop offset="0%" style="stop-color:#7ad8dc;stop-opacity:0.12" />
-      <stop offset="100%" style="stop-color:#7ad8dc;stop-opacity:0" />
+      <stop offset="0%" style="stop-color:#F3EDE0;stop-opacity:0.12" />
+      <stop offset="100%" style="stop-color:#F3EDE0;stop-opacity:0" />
     </radialGradient>
     <filter id="blur">
       <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
@@ -33,36 +33,36 @@
   <!-- Animated geometric shapes -->
   <g opacity="0.08">
     <!-- Scattered dots pattern -->
-    <circle cx="100" cy="100" r="2" fill="#98008f"/>
-    <circle cx="250" cy="180" r="1.5" fill="#f01527"/>
-    <circle cx="400" cy="120" r="2" fill="#7ad8dc"/>
-    <circle cx="550" cy="200" r="1.5" fill="#ef8f2f"/>
-    <circle cx="700" cy="150" r="2" fill="#98008f"/>
-    <circle cx="850" cy="220" r="1.5" fill="#f01527"/>
-    <circle cx="1000" cy="100" r="2" fill="#7ad8dc"/>
-    <circle cx="1100" cy="180" r="1.5" fill="#ef8f2f"/>
+    <circle cx="100" cy="100" r="2" fill="#B20024"/>
+    <circle cx="250" cy="180" r="1.5" fill="#B20024"/>
+    <circle cx="400" cy="120" r="2" fill="#F3EDE0"/>
+    <circle cx="550" cy="200" r="1.5" fill="#FFA446"/>
+    <circle cx="700" cy="150" r="2" fill="#B20024"/>
+    <circle cx="850" cy="220" r="1.5" fill="#B20024"/>
+    <circle cx="1000" cy="100" r="2" fill="#F3EDE0"/>
+    <circle cx="1100" cy="180" r="1.5" fill="#FFA446"/>
     
-    <circle cx="150" cy="400" r="2" fill="#f01527"/>
-    <circle cx="350" cy="450" r="1.5" fill="#7ad8dc"/>
-    <circle cx="600" cy="380" r="2" fill="#98008f"/>
-    <circle cx="800" cy="420" r="1.5" fill="#ef8f2f"/>
-    <circle cx="1050" cy="400" r="2" fill="#f01527"/>
+    <circle cx="150" cy="400" r="2" fill="#B20024"/>
+    <circle cx="350" cy="450" r="1.5" fill="#F3EDE0"/>
+    <circle cx="600" cy="380" r="2" fill="#B20024"/>
+    <circle cx="800" cy="420" r="1.5" fill="#FFA446"/>
+    <circle cx="1050" cy="400" r="2" fill="#B20024"/>
     
-    <circle cx="200" cy="700" r="2" fill="#7ad8dc"/>
-    <circle cx="450" cy="750" r="1.5" fill="#ef8f2f"/>
-    <circle cx="700" cy="680" r="2" fill="#98008f"/>
-    <circle cx="950" cy="720" r="1.5" fill="#f01527"/>
-    <circle cx="1100" cy="700" r="2" fill="#7ad8dc"/>
+    <circle cx="200" cy="700" r="2" fill="#F3EDE0"/>
+    <circle cx="450" cy="750" r="1.5" fill="#FFA446"/>
+    <circle cx="700" cy="680" r="2" fill="#B20024"/>
+    <circle cx="950" cy="720" r="1.5" fill="#B20024"/>
+    <circle cx="1100" cy="700" r="2" fill="#F3EDE0"/>
     
-    <circle cx="100" cy="1000" r="2" fill="#ef8f2f"/>
-    <circle cx="300" cy="1050" r="1.5" fill="#98008f"/>
-    <circle cx="550" cy="1000" r="2" fill="#f01527"/>
-    <circle cx="800" cy="1020" r="1.5" fill="#7ad8dc"/>
-    <circle cx="1050" cy="1050" r="2" fill="#ef8f2f"/>
+    <circle cx="100" cy="1000" r="2" fill="#FFA446"/>
+    <circle cx="300" cy="1050" r="1.5" fill="#B20024"/>
+    <circle cx="550" cy="1000" r="2" fill="#B20024"/>
+    <circle cx="800" cy="1020" r="1.5" fill="#F3EDE0"/>
+    <circle cx="1050" cy="1050" r="2" fill="#FFA446"/>
   </g>
   
   <!-- Wave patterns -->
-  <g opacity="0.04" stroke="#98008f" stroke-width="1" fill="none">
+  <g opacity="0.04" stroke="#B20024" stroke-width="1" fill="none">
     <path d="M 0 200 Q 300 150 600 200 T 1200 200"/>
     <path d="M 0 400 Q 300 350 600 400 T 1200 400"/>
     <path d="M 0 600 Q 300 550 600 600 T 1200 600"/>
@@ -71,7 +71,7 @@
   </g>
   
   <!-- Diagonal accent lines -->
-  <g opacity="0.05" stroke="#f01527" stroke-width="2">
+  <g opacity="0.05" stroke="#B20024" stroke-width="2">
     <line x1="0" y1="0" x2="200" y2="200"/>
     <line x1="300" y1="0" x2="500" y2="200"/>
     <line x1="600" y1="0" x2="800" y2="200"/>

@@ -141,7 +141,7 @@ export default function OrderPage() {
               {cart.length === 0 && !orderSummary ? (
                 <div>
                   <div className="order-empty">
-                    <div className="order-empty-icon"><img src="/favicon.svg" alt="ForkHub" className="order-favicon" /></div>
+                    <div className="order-empty-icon"><span className="order-empty-food-icon" role="img" aria-label="Meal">🍽️</span></div>
                     <p className="order-empty-text">Your cart is empty.</p>
                     <button className="btn-red order-empty-btn" onClick={() => navigate('/menu')}>
                       Browse Menu
@@ -303,7 +303,7 @@ export default function OrderPage() {
                             cursor: 'pointer',
                             background: 'none',
                             border: 'none',
-                            color: '#7c3aed',
+                            color: 'var(--color-primary)',
                             textDecoration: 'underline',
                           }}
                         >

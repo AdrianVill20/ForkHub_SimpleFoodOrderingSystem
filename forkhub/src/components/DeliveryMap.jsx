@@ -89,8 +89,8 @@ export default function DeliveryMap({ branch, address, destination, onDestinatio
       })
       destinationIconRef.current = L.icon({
         ...defaultIconOptions,
-        iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-blue.png',
-        iconRetinaUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-blue.png',
+        iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-red.png',
+        iconRetinaUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-red.png',
       })
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -167,7 +167,7 @@ export default function DeliveryMap({ branch, address, destination, onDestinatio
         routeRef.current = L.polyline([
           [branch.lat, branch.lng],
           [destination.lat, destination.lng],
-        ], { color: '#b000b0', weight: 5, opacity: 0.7, dashArray: '8, 8' }).addTo(map)
+        ], { color: 'var(--color-primary)', weight: 5, opacity: 0.7, dashArray: '8, 8' }).addTo(map)
       } else {
         routeRef.current.setLatLngs([
           [branch.lat, branch.lng],
@@ -193,7 +193,7 @@ export default function DeliveryMap({ branch, address, destination, onDestinatio
 
   return (
     <div>
-      <div ref={mapContainerRef} style={{ width: '100%', minHeight: 380, borderRadius: 12, overflow: 'hidden', border: '1px solid #ddd' }} />
+      <div ref={mapContainerRef} style={{ width: '100%', minHeight: 380, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--color-outline-variant)' }} />
       {status ? <p className="muted" style={{ marginTop: 10 }}>{status}</p> : null}
     </div>
   )

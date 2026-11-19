@@ -35,7 +35,7 @@ function ImageUpload({ category, value, onChange }) {
 
   return (
     <>
-      <label style={{ fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }}>
+      <label style={{ fontWeight:700, fontSize:13, color:'var(--color-on-surface)', display:'block', marginBottom:2, marginTop:10 }}>
         Food Image
       </label>
       <div
@@ -44,30 +44,30 @@ function ImageUpload({ category, value, onChange }) {
         onDrop={(e) => { e.preventDefault(); setDragOver(false); upload(e.dataTransfer.files[0]) }}
         onClick={() => fileRef.current?.click()}
         style={{
-          border: `2px dashed ${dragOver ? '#1976d2' : '#ccc'}`,
+          border: `2px dashed ${dragOver ? 'var(--color-tertiary)' : 'var(--color-outline-variant)'}`,
           borderRadius: 10, padding: '18px 12px', textAlign: 'center',
-          cursor: 'pointer', color: '#555', backgroundColor: dragOver ? '#e3f2fd' : 'transparent',
+          cursor: 'pointer', color: 'var(--color-on-surface-variant)', backgroundColor: dragOver ? 'var(--color-surface-container-low)' : 'transparent',
           transition: 'all .2s', marginTop: 4,
         }}
       >
         {uploading ? (
-          <p style={{ color:'#7c3aed', fontWeight:600, margin:0 }}>Uploading…</p>
+          <p style={{ color:'var(--color-primary)', fontWeight:600, margin:0 }}>Uploading…</p>
         ) : value ? (
           <>
             <img
               src={value}
               alt="preview"
               onError={(e) => (e.target.style.display = 'none')}
-              style={{ width:80, height:80, borderRadius:'50%', objectFit:'cover', border:'2px solid #ddd', display:'block', margin:'0 auto 8px' }}
+              style={{ width:80, height:80, borderRadius:'50%', objectFit:'cover', border:'2px solid var(--color-outline-variant)', display:'block', margin:'0 auto 8px' }}
             />
-            <p style={{ fontSize:12, color:'#666', margin:0 }}>Drop a new image to replace, or click to browse</p>
-            <p style={{ fontSize:11, color:'#aaa', margin:'4px 0 0', wordBreak:'break-all' }}>{value}</p>
+            <p style={{ fontSize:12, color:'var(--color-on-surface-variant)', margin:0 }}>Drop a new image to replace, or click to browse</p>
+            <p style={{ fontSize:11, color:'var(--color-outline)', margin:'4px 0 0', wordBreak:'break-all' }}>{value}</p>
           </>
         ) : (
           <>
             <p style={{ fontSize:26, margin:0 }}>🖼️</p>
-            <p style={{ fontSize:13, color:'#666', marginTop:6 }}>Drag &amp; drop food image here, or <u>click to browse</u></p>
-            <p style={{ fontSize:11, color:'#aaa' }}>PNG · JPG · WebP · max 5 MB</p>
+            <p style={{ fontSize:13, color:'var(--color-on-surface-variant)', marginTop:6 }}>Drag &amp; drop food image here, or <u>click to browse</u></p>
+            <p style={{ fontSize:11, color:'var(--color-outline)' }}>PNG · JPG · WebP · max 5 MB</p>
           </>
         )}
         <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={(e) => upload(e.target.files?.[0])} />
@@ -78,7 +78,7 @@ function ImageUpload({ category, value, onChange }) {
 }
 
 function FormFields({ form, setForm }) {
-  const lbl = { fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }
+  const lbl = { fontWeight:700, fontSize:13, color:'var(--color-on-surface)', display:'block', marginBottom:2, marginTop:10 }
 
   return (
     <>
@@ -241,7 +241,7 @@ export default function AdminPage() {
     }
   }
 
-  const lbl = { fontWeight:700, fontSize:13, color:'#2e2e2e', display:'block', marginBottom:2, marginTop:10 }
+  const lbl = { fontWeight:700, fontSize:13, color:'var(--color-on-surface)', display:'block', marginBottom:2, marginTop:10 }
   const th  = { padding:'10px 12px', fontWeight:700, fontSize:12, textTransform:'uppercase' }
   const td  = { padding:'10px 12px', verticalAlign:'middle' }
 
@@ -314,14 +314,14 @@ export default function AdminPage() {
                           <tr><td colSpan={6} className="admin-empty-row">No items found.</td></tr>
                         )}
                         {filtered.map((item, i) => (
-                          <tr key={item.id} style={{ opacity: item.unavailable ? 0.6 : 1, backgroundColor: item.unavailable ? '#fafafa' : 'transparent' }}>
+                          <tr key={item.id} style={{ opacity: item.unavailable ? 0.6 : 1, backgroundColor: item.unavailable ? 'var(--color-surface-container-low)' : 'transparent' }}>
                             <td>
                               <img src={item.image} alt={item.name} className="admin-item-img" onError={(e) => { e.target.style.display='none' }} style={{ filter: item.unavailable ? 'grayscale(100%)' : 'none', opacity: item.unavailable ? 0.5 : 1 }} />
                             </td>
                             <td className="admin-item-name">
                               {item.name}
                               {item.unavailable && (
-                                <span style={{ marginLeft: 8, color: '#d32f2f', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
+                                <span style={{ marginLeft: 8, color: 'var(--color-primary-container)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
                                   [UNAVAILABLE]
                                 </span>
                               )}
@@ -372,7 +372,7 @@ export default function AdminPage() {
               {view === 'delete' && deleteTarget && (
                 <div className="admin-delete-modal">
                   <div className="admin-delete-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={deleteTarget.unavailable ? '#4caf50' : '#d32f2f'} strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={deleteTarget.unavailable ? 'var(--color-secondary-container)' : 'var(--color-primary-container)'} strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                   </div>
                   <h3 className="admin-delete-title">
                     {deleteTarget.unavailable ? 'Re-enable' : 'Mark as Unavailable'} "{deleteTarget.name}"?
@@ -500,7 +500,7 @@ export default function AdminPage() {
                         </thead>
                         <tbody>
                           {users.map((user) => (
-                            <tr key={user.id} style={{ opacity: user.isDeleted ? 0.7 : 1, background: user.isDeleted ? '#fff5f5' : 'transparent' }}>
+                            <tr key={user.id} style={{ opacity: user.isDeleted ? 0.7 : 1, background: user.isDeleted ? 'var(--color-error-container)' : 'transparent' }}>
                               <td className="admin-item-name">
                                 {[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}
                               </td>
@@ -508,8 +508,8 @@ export default function AdminPage() {
                               <td>
                                 <span style={{
                                   padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                                  background: user.role === 'admin' ? '#e8eaf6' : '#f5f5f5',
-                                  color:      user.role === 'admin' ? '#3949ab' : '#555',
+                                  background: user.role === 'admin' ? 'var(--color-surface-container-low)' : 'var(--color-surface-container-low)',
+                                  color:      user.role === 'admin' ? 'var(--color-tertiary)' : 'var(--color-on-surface-variant)',
                                 }}>
                                   {user.role}
                                 </span>
@@ -520,13 +520,13 @@ export default function AdminPage() {
                               <td>
                                 <span style={{
                                   padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                                  background: user.isDeleted ? '#fdecea' : '#e8f5e9',
-                                  color:      user.isDeleted ? '#c62828' : '#2e7d32',
+                                  background: user.isDeleted ? 'var(--color-error-container)' : 'var(--color-secondary-fixed)',
+                                  color:      user.isDeleted ? 'var(--color-error)' : 'var(--color-secondary)',
                                 }}>
                                   {user.isDeleted ? 'Pending Deletion' : 'Active'}
                                 </span>
                               </td>
-                              <td style={{ fontSize: 12, color: user.isDeleted ? '#c62828' : '#aaa' }}>
+                              <td style={{ fontSize: 12, color: user.isDeleted ? 'var(--color-error)' : 'var(--color-outline)' }}>
                                 {user.scheduledDeletionAt
                                   ? new Date(user.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
                                   : '—'}

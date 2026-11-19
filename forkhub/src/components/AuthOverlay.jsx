@@ -125,7 +125,7 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
           Don&apos;t have one?{' '}
           <button
             type="button"
-            style={{ color: '#98008f', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
+            style={{ color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
             onClick={() => setRegisterOpen(true)}
           >
             Create One
@@ -144,7 +144,7 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#7c3aed',
+              color: 'var(--color-primary)',
               fontSize: 16,
               padding: 0,
               fontWeight: 500,
@@ -173,7 +173,7 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
         </label>
 
         {errorMessage ? (
-          <p className="muted" style={{ color: '#c62828', marginTop: 10 }}>
+          <p className="muted" style={{ color: 'var(--color-error)', marginTop: 10 }}>
             {errorMessage}
           </p>
         ) : null}
