@@ -13,13 +13,17 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
     private const string MenuFile = "menu.json";
     private const long MaxImageBytes = 5 * 1024 * 1024;
 
+    // Only pictures, so nobody can host e.g. an .html page under /images
+    private static readonly HashSet<string> ImageExtensions =
+        new(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".jfif" };
+
     // public/images, found the same way as in Program.cs
     private readonly string _imagesDir = Path.GetFullPath(
         Path.Combine(env.ContentRootPath, config["RootDir"] ?? "..", "public", "images"));
 
     // POST /api/menu/upload  (form fields: category, image)
     [HttpPost("upload")]
-    [Authorize]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Upload()
     {
         var form = Request.HasFormContentType ? await Request.ReadFormAsync() : null;
@@ -27,14 +31,15 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
         if (file is null) throw new HttpError(400, "No file received");
         if (file.Length > MaxImageBytes) throw new HttpError(400, "File too large");
 
+        var originalName = Path.GetFileName(file.FileName);
+        var ext = Path.GetExtension(originalName);
+        if (!ImageExtensions.Contains(ext)) throw new HttpError(400, "Only image files are allowed.");
+
         // "Pizza" -> "pizza", "Rice Meals" -> "rice-meals"
         var category = CategoryFolder(form!["category"].ToString());
         var dir = Path.Combine(_imagesDir, category);
         Directory.CreateDirectory(dir);
 
-        var originalName = Path.GetFileName(file.FileName);
-        var ext = Path.GetExtension(originalName);
-        if (ext == "") ext = ".jpg";
         var baseName = Regex.Replace(Path.GetFileNameWithoutExtension(originalName), "[^a-zA-Z0-9_-]", "_");
         var fileName = $"{baseName}_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{ext}";
 
@@ -65,11 +70,12 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
 
     // POST /api/menu  — add new item
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] MenuItemRequest body)
     {
-        if (string.IsNullOrEmpty(body.Name) || string.IsNullOrEmpty(body.Category) || body.Price is null)
+        if (string.IsNullOrWhiteSpace(body.Name) || string.IsNullOrWhiteSpace(body.Category) || body.Price is null)
             throw new HttpError(400, "name, category and price are required");
+        if (body.Price <= 0) throw new HttpError(400, "Price must be greater than 0.");
 
         var items = await store.ReadAsync<MenuItem>(MenuFile);
         var newItem = new MenuItem
@@ -90,9 +96,13 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
 
     // PUT /api/menu/{id}  — edit existing item, only the fields that were sent
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(string id, [FromBody] MenuItemRequest body)
     {
+        if (body.Name is not null && body.Name.Trim() == "") throw new HttpError(400, "Name cannot be empty.");
+        if (body.Category is not null && body.Category.Trim() == "") throw new HttpError(400, "Category cannot be empty.");
+        if (body.Price <= 0) throw new HttpError(400, "Price must be greater than 0.");
+
         var items = await store.ReadAsync<MenuItem>(MenuFile);
         var item = items.Find(i => i.Id == id) ?? throw new HttpError(404, "Menu item not found");
 
@@ -110,7 +120,7 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
 
     // DELETE /api/menu/{id}
     [HttpDelete("{id}")]
-    [Authorize]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(string id)
     {
         var items = await store.ReadAsync<MenuItem>(MenuFile);
@@ -118,7 +128,28 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
 
         items.Remove(item);
         await store.WriteAsync(MenuFile, items);
+        DeleteImageIfUnused(item.Image, items);
         return Ok(new { message = $"\"{item.Name}\" deleted successfully" });
+    }
+
+    // Removes a deleted item's picture from public/images, unless another item still uses it.
+    // Category tiles (images/categories) are never touched.
+    private void DeleteImageIfUnused(string image, List<MenuItem> remaining)
+    {
+        if (!image.StartsWith("/images/") || remaining.Any(i => i.Image == image)) return;
+
+        var path = Path.GetFullPath(Path.Combine(_imagesDir, image["/images/".Length..]));
+        var categoriesDir = Path.Combine(_imagesDir, "categories") + Path.DirectorySeparatorChar;
+        if (!path.StartsWith(_imagesDir + Path.DirectorySeparatorChar) || path.StartsWith(categoriesDir)) return;
+
+        try
+        {
+            if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+        }
+        catch (IOException)
+        {
+            // The item is already deleted; a leftover picture isn't worth failing the request
+        }
     }
 
     // Lowercase, spaces to dashes (like the Node version), and nothing that could
