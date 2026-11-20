@@ -6,9 +6,10 @@ Reference for future chats if the conversation expires.
 - Current branch: feature/csharp
 - Phase 1 commit: 3d0ad83
 - Phase 1: Completed and committed.
-- Phase 2: Completed in the working tree. Not committed yet.
-- Phase 3: Completed in the working tree. Not committed yet.
-- Latest commit: `7e07ddb` — no later commit exists on this branch.
+- Phase 2: Completed and committed.
+- Phase 3: Completed and committed.
+- Phase 4: Completed and committed.
+- Latest commit: `34db044` — Remove JSON storage from C# backend.
 - SQLite and EF Core packages installed: version 9.0.23.
 - Created UserEntity, MenuItemEntity, OrderEntity, OrderItemEntity, and ForkHubDbContext.
 - Registered SQLite in Program.cs.
@@ -98,3 +99,48 @@ Phase 3 is complete. AuthController, MenuController, and OrdersController use Fo
 - `/api/menu` returned 36 menu items.
 - `/api/orders/track?q=FH-8496943-12` returned the tracked order and one order item.
 - Original JSON SHA-256 hashes remain unchanged.
+
+## Phase 5 — Final testing and verification
+
+### Git and build
+
+- `feature/csharp` is clean after commit `34db044`.
+- Recent commits: `34db044` (Phase 4), `3cc39f3` (Phase 3), `7e07ddb` (Phase 2), `3d0ad83` (Phase 1).
+- `dotnet build`: 0 warnings and 0 errors.
+
+### Database
+
+- Applied migrations:
+  - `20261120141112_InitialCreate`
+  - `20261120151642_AddMenuItemPosition`
+- Existing row counts:
+  - Users: 7
+  - MenuItems: 36
+  - Orders: 6
+  - OrderItems: 7
+- Accounts scheduled for permanent deletion: 0.
+- No migration was reapplied by API startup.
+
+### Authentication and authorization
+
+- Passed: registration missing fields returned 400.
+- Passed: registration with an existing email returned 409.
+- Passed: login with an unknown account and wrong password returned 401.
+- Passed: profile, admin-user, menu-admin, order-create, order-status, order-delete, and account-delete requests without authentication returned 401.
+- Not run with persisted mutations: successful registration, login for an existing account, profile update, profile deletion/restoration, or admin-user operations. Existing plaintext passwords were not available, and mutating tests were excluded.
+
+### Menu and orders
+
+- Passed: `/api/menu` returned 36 menu items.
+- Passed: tracking order `FH-8496943-12` returned Pending status and 1 order item.
+- Passed: tracking an unknown order returned 404.
+- Not run with persisted mutations: menu admin create/update/delete, order creation, order cancellation/status changes, and order deletion. These tests require authenticated sessions and would alter stored data.
+
+### Restart and backup verification
+
+- Stopped and restarted the API successfully.
+- After restart, menu still returned 36 items.
+- Tracked order `FH-8496943-12` still returned status Pending and 1 order item.
+- No new migration or import step ran.
+- `users.json`, `menu.json`, and `orders.json` SHA-256 hashes remain unchanged.
+- Git status shows no frontend or Node.js backend changes.
