@@ -12,10 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Project root (the folder with data/ and public/), one level above server-cs
 var rootDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["RootDir"] ?? ".."));
 
-builder.Services.AddSingleton(new JsonStore(Path.Combine(rootDir, "data")));
-
 // SQLite file lives next to the project. The folder must exist before EF opens the file.
-// Controllers read and write this database. Startup still copies any missing JSON rows in once.
+// Controllers read and write this database.
 var appDataDir = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(appDataDir);
 var configuredConnection = builder.Configuration.GetConnectionString("ForkHub")
@@ -75,28 +73,10 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images",
 });
 
-// dotnet ef loads this program while it builds a migration. Skip the import there,
-// because the new tables do not exist until the migration is applied.
-var runningUnderEfTools = AppDomain.CurrentDomain.GetAssemblies().Any(assembly =>
-    assembly.GetName().Name == "Microsoft.EntityFrameworkCore.Design");
-if (!runningUnderEfTools)
+await using (var scope = app.Services.CreateAsyncScope())
 {
-    await using var scope = app.Services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<ForkHubDbContext>();
     await db.Database.MigrateAsync();
-    var importer = new JsonDataImporter(db, scope.ServiceProvider.GetRequiredService<JsonStore>());
-    var imported = await importer.ImportAsync();
-    await importer.EnsureMenuOrderAsync();
-    app.Logger.LogInformation(
-        "SQLite import added {Users} users ({UsersSkipped} already stored), {MenuItems} menu items ({MenuItemsSkipped} already stored), {Orders} orders ({OrdersSkipped} already stored), {OrderItems} order items ({OrderItemsSkipped} already stored)",
-        imported.Users.Added,
-        imported.Users.Skipped,
-        imported.MenuItems.Added,
-        imported.MenuItems.Skipped,
-        imported.Orders.OrdersAdded,
-        imported.Orders.OrdersSkipped,
-        imported.Orders.ItemsAdded,
-        imported.Orders.ItemsSkipped);
 }
 
 app.MapControllers();

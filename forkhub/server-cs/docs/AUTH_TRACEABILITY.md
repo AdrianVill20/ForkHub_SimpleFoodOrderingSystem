@@ -59,7 +59,7 @@ All error bodies use `{ "message": "..." }`.
 
 ## Login and token flow in five steps
 
-1. The login endpoint trims and lowercases the submitted email, then reads users through the shared `JsonStore`.
+1. The login endpoint trims and lowercases the submitted email, then reads the matching user through `ForkHubDbContext`.
 2. It checks the stored BCrypt hash against the submitted password; on success it creates a token for that user's ID, email, and role.
 3. The token is signed with the configured JWT secret using HS256 and includes issued-at and expiry times.
 4. The client sends the token in an `Authorization: Bearer ...` header on protected profile requests.

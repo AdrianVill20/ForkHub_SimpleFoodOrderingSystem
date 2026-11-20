@@ -15,7 +15,7 @@ Reference for future chats if the conversation expires.
 - Database file: forkhub/server-cs/App_Data/forkhub.db
 - The connection string in appsettings.json is `Data Source=App_Data/forkhub.db`. Program.cs turns that relative path into a full path beside the project.
 - Original JSON files are still present and unchanged.
-- JsonStore remains for one-time startup import only. It is not used by AuthController, MenuController, or OrdersController.
+- JSON startup import is removed. Original JSON files remain as backups and are not read by the C# API.
 - No cart tables were created.
 
 ## Phase 2 details
@@ -25,7 +25,7 @@ Reference for future chats if the conversation expires.
 - Orders.UserId is indexed and is not a foreign key, so orders remain when the customer is gone.
 - OrderItems.OrderId is a foreign key to Orders and deletes with the order.
 - Users.Email is unique.
-- Import class: `forkhub/server-cs/Data/JsonDataImporter.cs`
+- Import class was used only during migration and is removed after the SQLite database is populated.
 - The API applies the migration and imports missing rows at startup, before it accepts requests.
 - A second run skips ids that are already stored. It does not insert duplicates.
 - Imported counts: 7 users, 36 menu items, 6 orders, 7 order items.
@@ -54,7 +54,7 @@ Checked again on 2026-11-20 without rewriting Phase 1 or the Phase 2 files.
 
 ## Next task
 
-Phase 3 is complete in the working tree. AuthController, MenuController, and OrdersController now use ForkHubDbContext; JSON is used only by the startup importer.
+Phase 3 is complete. AuthController, MenuController, and OrdersController use ForkHubDbContext.
 
 ## Phase 3 details
 
@@ -62,7 +62,7 @@ Phase 3 is complete in the working tree. AuthController, MenuController, and Ord
 - MenuController now reads and writes MenuItemEntity rows. Menu ordering uses Position and image cleanup still checks the database.
 - OrdersController now reads and writes OrderEntity and OrderItemEntity rows, including order tracking, status changes, cancellation, and deletion.
 - Shared database-to-response mapping is in EntityMapping.cs.
-- JsonStore remains only for startup JSON importing and is no longer used by the three migrated controllers.
+- JsonStore was used only for startup JSON importing and has now been removed.
 - AccountDeletionCleanupService also uses the database for scheduled account purges.
 
 ## Phase 3 verification
@@ -83,3 +83,18 @@ Phase 3 is complete in the working tree. AuthController, MenuController, and Ord
 - The Phase 3 controller review found no remaining `JsonStore` reads or writes in AuthController, MenuController, or OrdersController.
 - The build was re-run successfully with 0 warnings and 0 errors.
 - Nothing was committed or advanced to Phase 4.
+
+## Phase 4
+
+- JSON startup importing and JsonStore registration were removed.
+- JsonDataImporter and the JsonStore source file were removed.
+- JSON-specific persistence models were removed while response/request DTOs were retained.
+- The original users.json, menu.json, and orders.json backups remain unchanged.
+
+## Phase 4 verification
+
+- `dotnet build`: 0 warnings and 0 errors.
+- The API started without a JSON import step and reported the database already up to date.
+- `/api/menu` returned 36 menu items.
+- `/api/orders/track?q=FH-8496943-12` returned the tracked order and one order item.
+- Original JSON SHA-256 hashes remain unchanged.

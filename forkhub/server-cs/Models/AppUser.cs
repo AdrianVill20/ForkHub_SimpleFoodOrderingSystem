@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ForkHub.Api.Models;
@@ -17,14 +16,18 @@ public sealed class AppUser
     [JsonPropertyName("isDeleted"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public bool? IsDeleted { get; set; }
     [JsonPropertyName("deletedAt"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? DeletedAt { get; set; }
     [JsonPropertyName("scheduledDeletionAt"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? ScheduledDeletionAt { get; set; }
-    [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
 
     public object ToResponse()
     {
         var response = new Dictionary<string, object?>
         {
-            ["id"] = Id, ["email"] = Email, ["firstName"] = FirstName ?? "", ["lastName"] = LastName ?? "",
-            ["phone"] = Phone ?? "", ["address"] = Address ?? "", ["role"] = Role ?? "customer"
+            ["id"] = Id,
+            ["email"] = Email,
+            ["firstName"] = FirstName ?? "",
+            ["lastName"] = LastName ?? "",
+            ["phone"] = Phone ?? "",
+            ["address"] = Address ?? "",
+            ["role"] = Role ?? "customer"
         };
         if (CreatedAt is not null) response["createdAt"] = CreatedAt;
         response["isDeleted"] = IsDeleted ?? false;
