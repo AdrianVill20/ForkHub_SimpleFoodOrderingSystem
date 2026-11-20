@@ -1,7 +1,9 @@
 using ForkHub.Api;
 using ForkHub.Api.Auth;
+using ForkHub.Api.Data;
 using ForkHub.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 var rootDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["RootDir"] ?? ".."));
 
 builder.Services.AddSingleton(new JsonStore(Path.Combine(rootDir, "data")));
+
+// SQLite file lives next to the project. The folder must exist before EF opens the file.
+// Tables are not created in this step. Controllers still read and write JSON.
+var appDataDir = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
+Directory.CreateDirectory(appDataDir);
+var connectionString = builder.Configuration.GetConnectionString("ForkHub")
+    ?? throw new InvalidOperationException("Connection string 'ForkHub' is missing.");
+builder.Services.AddDbContext<ForkHubDbContext>(options => options.UseSqlite(connectionString));
 
 builder.Services.AddForkHubAuth(builder.Configuration);
 builder.Services.AddHostedService<AccountDeletionCleanupService>();

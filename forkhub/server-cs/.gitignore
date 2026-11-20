@@ -1,2 +1,7 @@
 bin/
 obj/
+
+# SQLite database created by the C# API. The empty App_Data folder stays in git.
+App_Data/*.db
+App_Data/*.db-shm
+App_Data/*.db-wal
