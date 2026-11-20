@@ -1,0 +1,55 @@
+# ForkHub migration progress
+
+Reference for future chats if the conversation expires.
+
+- Project: ForkHub Simple Food Ordering System
+- Current branch: feature/csharp
+- Phase 1 commit: 3d0ad83
+- Phase 1: Completed and committed.
+- Phase 2: Completed in the working tree. Not committed yet.
+- SQLite and EF Core packages installed: version 9.0.23.
+- Created UserEntity, MenuItemEntity, OrderEntity, OrderItemEntity, and ForkHubDbContext.
+- Registered SQLite in Program.cs.
+- Database file: forkhub/server-cs/App_Data/forkhub.db
+- The connection string in appsettings.json is `Data Source=App_Data/forkhub.db`. Program.cs turns that relative path into a full path beside the project.
+- Original JSON files are still present and unchanged.
+- Controllers and JsonStore still use JSON. JsonStore was not removed.
+- No cart tables were created.
+
+## Phase 2 details
+
+- Migration: `forkhub/server-cs/Migrations/20261120141112_InitialCreate.cs`
+- Tables: Users, MenuItems, Orders, OrderItems.
+- Orders.UserId is indexed and is not a foreign key, so orders remain when the customer is gone.
+- OrderItems.OrderId is a foreign key to Orders and deletes with the order.
+- Users.Email is unique.
+- Import class: `forkhub/server-cs/Data/JsonDataImporter.cs`
+- The API applies the migration and imports missing rows at startup, before it accepts requests.
+- A second run skips ids that are already stored. It does not insert duplicates.
+- Imported counts: 7 users, 36 menu items, 6 orders, 7 order items.
+- Two orders, FH-8496943-12 and FH-9639360-94, point at user id f9860436-7b49-4b16-b7ba-dbf3aec830de, which is not in users.json. Those orders were still imported.
+- Each order line keeps the website's item id in OrderItems.ItemId. Its database id is `{orderId}:{position}`, for example `FH-9837923-39:0`.
+- Password hashes, timestamps, prices, notes, branch fields, and destination fields were copied as stored.
+- The oldest user has no createdAt. That value is null in SQLite.
+- Menu items that omit `unavailable` store null. pizza_1 stores false.
+- Last build result after Phase 2: 0 warnings and 0 errors.
+- JSON SHA-256 hashes after import:
+  - users.json: 82D16608AC1D058BD7BE850A861EB4851E6F79BFB2B8EB7D8B07D1AB75F5B2B0
+  - menu.json: 816AEA77C55D547733717B06F10F2EB2C79DD96588ED27A5EA45CF68BDC2FA2B
+  - orders.json: 10EFE7AB8C5793C2E2B5C7E95E72B3DBD04A05832768A586F9B721A1FF9A3253
+
+## Re-check
+
+Checked again on 2026-11-20 without rewriting Phase 1 or the Phase 2 files.
+
+- `dotnet build`: 0 warnings, 0 errors.
+- `App_Data/forkhub.db` already had migration `20261120141112_InitialCreate` (EF Core 9.0.23). Startup did not apply a second migration.
+- Starting the API again added 0 rows. It skipped 7 users, 36 menu items, 6 orders, and 7 order items.
+- SQLite still holds those same 7, 36, 6, and 7 rows. Users.Email is a unique index. Orders.UserId is not a foreign key. OrderItems.OrderId deletes with the order.
+- The two orders for missing user `f9860436-7b49-4b16-b7ba-dbf3aec830de` are still stored.
+- JSON SHA-256 hashes were unchanged after this startup.
+- This PC has the .NET 9 base runtime, but not the ASP.NET 9 shared framework. `dotnet run` fails until that framework is installed. The check above used `DOTNET_ROLL_FORWARD=Major` so the existing ASP.NET 10 runtime could host the .NET 9 app. The project still targets `net9.0`.
+
+## Next task
+
+No later phase has been requested. Controllers still read and write the JSON files.
