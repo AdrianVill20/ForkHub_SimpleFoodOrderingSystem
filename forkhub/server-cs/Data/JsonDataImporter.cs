@@ -69,9 +69,12 @@ public class JsonDataImporter(ForkHubDbContext db, JsonStore store)
         var knownIds = existingIds.ToHashSet(StringComparer.Ordinal);
         var added = 0;
         var skipped = 0;
+        var position = 0;
 
         foreach (var item in await store.ReadAsync<MenuItem>("menu.json"))
         {
+            var itemPosition = position;
+            position++;
             if (string.IsNullOrWhiteSpace(item.Id) || !knownIds.Add(item.Id))
             {
                 skipped++;
@@ -89,11 +92,40 @@ public class JsonDataImporter(ForkHubDbContext db, JsonStore store)
                 Image = item.Image ?? "",
                 // Null means the JSON object did not contain "unavailable".
                 Unavailable = item.Unavailable,
+                // Same place as in menu.json. Already stored rows are not moved.
+                Position = itemPosition,
             });
             added++;
         }
 
         return new TableCounts(added, skipped);
+    }
+
+    // The first import stored menu rows without a list position, and SQLite then
+    // returned them alphabetically. Fill positions from menu.json once.
+    // Rows added later already have their own position and are left alone.
+    public async Task EnsureMenuOrderAsync(CancellationToken cancellationToken = default)
+    {
+        var items = await db.MenuItems.ToListAsync(cancellationToken);
+        if (items.Count < 2 || items.Select(item => item.Position).Distinct().Count() > 1)
+            return;
+
+        var jsonItems = await store.ReadAsync<MenuItem>("menu.json");
+        var rank = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (var index = 0; index < jsonItems.Count; index++)
+        {
+            var id = jsonItems[index].Id;
+            if (!string.IsNullOrWhiteSpace(id))
+                rank[id] = index;
+        }
+
+        var next = jsonItems.Count;
+        foreach (var item in items.OrderBy(item => item.Id, StringComparer.Ordinal))
+        {
+            item.Position = rank.TryGetValue(item.Id, out var index) ? index : next++;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<OrderImportCounts> ImportOrdersAsync(CancellationToken cancellationToken)

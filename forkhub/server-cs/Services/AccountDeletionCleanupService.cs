@@ -1,12 +1,14 @@
-
 using System.Globalization;
-using ForkHub.Api.Models;
+using ForkHub.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForkHub.Api.Services;
 
-// Automatically remove accounts after 5 days
+// Automatically remove accounts after 5 days.
+// This service lives for the whole time the API is running, so it opens a fresh
+// database connection for each check. A controller gets its own connection per request.
 public sealed class AccountDeletionCleanupService(
-    JsonStore store,
+    IServiceScopeFactory scopes,
     ILogger<AccountDeletionCleanupService> logger
 ) : BackgroundService
 {
@@ -29,10 +31,12 @@ public sealed class AccountDeletionCleanupService(
     {
         try
         {
-            var users = await store.ReadAsync<AppUser>("users.json");
+            await using var scope = scopes.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<ForkHubDbContext>();
             var now = DateTimeOffset.UtcNow;
+            var users = await db.Users.ToListAsync(cancellationToken);
 
-            var removed = users.RemoveAll(user =>
+            var expired = users.Where(user =>
                 user.IsDeleted == true &&
                 !string.IsNullOrEmpty(user.ScheduledDeletionAt) &&
                 DateTimeOffset.TryParse(
@@ -42,15 +46,16 @@ public sealed class AccountDeletionCleanupService(
                     out var scheduled
                 ) &&
                 scheduled <= now
-            );
+            ).ToList();
 
-            if (removed > 0)
+            if (expired.Count > 0)
             {
-                await store.WriteAsync("users.json", users);
+                db.Users.RemoveRange(expired);
+                await db.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation(
                     "[auth] Purged {Count} expired account(s)",
-                    removed
+                    expired.Count
                 );
             }
         }

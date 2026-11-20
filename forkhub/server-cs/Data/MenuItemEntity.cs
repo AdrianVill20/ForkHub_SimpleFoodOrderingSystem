@@ -13,4 +13,8 @@ public class MenuItemEntity
 
     // Omitted on most JSON items. Null means the field was not stored.
     public bool? Unavailable { get; set; }
+
+    // Place in the menu list. 0 is the first item from menu.json.
+    // The API response does not include this number.
+    public int Position { get; set; }
 }

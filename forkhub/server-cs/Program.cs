@@ -15,7 +15,7 @@ var rootDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath,
 builder.Services.AddSingleton(new JsonStore(Path.Combine(rootDir, "data")));
 
 // SQLite file lives next to the project. The folder must exist before EF opens the file.
-// Controllers still read and write JSON. The database is filled from those files at startup.
+// Controllers read and write this database. Startup still copies any missing JSON rows in once.
 var appDataDir = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(appDataDir);
 var configuredConnection = builder.Configuration.GetConnectionString("ForkHub")
@@ -84,8 +84,9 @@ if (!runningUnderEfTools)
     await using var scope = app.Services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<ForkHubDbContext>();
     await db.Database.MigrateAsync();
-    var imported = await new JsonDataImporter(db, scope.ServiceProvider.GetRequiredService<JsonStore>())
-        .ImportAsync();
+    var importer = new JsonDataImporter(db, scope.ServiceProvider.GetRequiredService<JsonStore>());
+    var imported = await importer.ImportAsync();
+    await importer.EnsureMenuOrderAsync();
     app.Logger.LogInformation(
         "SQLite import added {Users} users ({UsersSkipped} already stored), {MenuItems} menu items ({MenuItemsSkipped} already stored), {Orders} orders ({OrdersSkipped} already stored), {OrderItems} order items ({OrderItemsSkipped} already stored)",
         imported.Users.Added,

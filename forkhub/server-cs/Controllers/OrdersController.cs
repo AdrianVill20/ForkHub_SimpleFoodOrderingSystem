@@ -1,24 +1,24 @@
 using System.Globalization;
 using ForkHub.Api.Auth;
+using ForkHub.Api.Data;
 using ForkHub.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForkHub.Api.Controllers;
 
 // Same routes as server/routes/order.routes.js
 [ApiController]
 [Route("api/orders")]
-public class OrdersController(JsonStore store) : ControllerBase
+public class OrdersController(ForkHubDbContext db) : ControllerBase
 {
-    private const string OrdersFile = "orders.json";
-
     // GET /api/orders  — admin gets all, customer gets their own
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetAll()
     {
-        var orders = await store.ReadAsync<Order>(OrdersFile);
+        var orders = await LoadOrdersAsync();
         return Ok(User.IsAdmin() ? orders : orders.Where(o => o.UserId == User.GetUserId()));
     }
 
@@ -27,7 +27,7 @@ public class OrdersController(JsonStore store) : ControllerBase
     public async Task<IActionResult> Track([FromQuery] string? q)
     {
         var search = (q ?? "").Trim().ToLowerInvariant();
-        var orders = await store.ReadAsync<Order>(OrdersFile);
+        var orders = await LoadOrdersAsync();
         var order = orders.Find(o => o.Id.ToLowerInvariant() == search || (o.Phone ?? "").ToLowerInvariant() == search)
             ?? throw new HttpError(404, "Order not found");
         return Ok(order);
@@ -37,9 +37,11 @@ public class OrdersController(JsonStore store) : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var orders = await store.ReadAsync<Order>(OrdersFile);
-        var order = orders.Find(o => o.Id == id) ?? throw new HttpError(404, "Order not found");
-        return Ok(order);
+        var order = await db.Orders.AsNoTracking()
+            .Include(item => item.Items)
+            .FirstOrDefaultAsync(item => item.Id == id)
+            ?? throw new HttpError(404, "Order not found");
+        return Ok(EntityMapping.ToOrder(order));
     }
 
     // POST /api/orders  — place a new order. Every new order starts as "Pending".
@@ -53,25 +55,24 @@ public class OrdersController(JsonStore store) : ControllerBase
 
         // Order ID like FH-8496943-12
         var millis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
-        var order = new Order
+        var order = new OrderEntity
         {
             Id = $"FH-{millis[^7..]}-{Random.Shared.Next(10, 100)}",
             UserId = User.GetUserId() ?? "",
             Status = "Pending",
             PlacedAt = Now(),
-            Items = body.Items,
             Total = body.Total,
             ServiceType = body.ServiceType,
             Address = body.Address ?? "",
             Phone = body.Phone,
-            Branch = body.Branch,
-            Destination = body.Destination,
         };
+        order.Items = EntityMapping.ReadItems(order.Id, body.Items);
+        EntityMapping.ApplyBranch(order, body.Branch);
+        EntityMapping.ApplyDestination(order, body.Destination);
 
-        var orders = await store.ReadAsync<Order>(OrdersFile);
-        orders.Add(order);
-        await store.WriteAsync(OrdersFile, orders);
-        return StatusCode(201, order);
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
+        return StatusCode(201, EntityMapping.ToOrder(order));
     }
 
     // PUT /api/orders/{id}/status  — admin changes the status; a customer may only cancel their own order while it's still Pending
@@ -81,8 +82,8 @@ public class OrdersController(JsonStore store) : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(body.Status)) throw new HttpError(400, "Status is required");
 
-        var orders = await store.ReadAsync<Order>(OrdersFile);
-        var order = orders.Find(o => o.Id == id) ?? throw new HttpError(404, "Order not found");
+        var order = await db.Orders.Include(item => item.Items).FirstOrDefaultAsync(item => item.Id == id)
+            ?? throw new HttpError(404, "Order not found");
 
         if (!User.IsAdmin())
         {
@@ -98,8 +99,8 @@ public class OrdersController(JsonStore store) : ControllerBase
             order.CancelReason = body.CancelReason ?? body.Reason ?? "";
         }
 
-        await store.WriteAsync(OrdersFile, orders);
-        return Ok(order);
+        await db.SaveChangesAsync();
+        return Ok(EntityMapping.ToOrder(order));
     }
 
     // DELETE /api/orders/{id}  — admin only
@@ -109,12 +110,23 @@ public class OrdersController(JsonStore store) : ControllerBase
     {
         if (!User.IsAdmin()) throw new HttpError(403, "Admin only");
 
-        var orders = await store.ReadAsync<Order>(OrdersFile);
-        var order = orders.Find(o => o.Id == id) ?? throw new HttpError(404, "Order not found");
+        var order = await db.Orders.FirstOrDefaultAsync(item => item.Id == id)
+            ?? throw new HttpError(404, "Order not found");
 
-        orders.Remove(order);
-        await store.WriteAsync(OrdersFile, orders);
+        db.Orders.Remove(order);
+        await db.SaveChangesAsync();
         return Ok(new { message = "Order deleted" });
+    }
+
+    // Oldest placedAt first, matching orders.json. Phone tracking returns that oldest match.
+    private async Task<List<Order>> LoadOrdersAsync()
+    {
+        var orders = await db.Orders.AsNoTracking()
+            .Include(order => order.Items)
+            .OrderBy(order => order.PlacedAt)
+            .ThenBy(order => order.Id)
+            .ToListAsync();
+        return orders.Select(EntityMapping.ToOrder).ToList();
     }
 
     // Same date format as Node's toISOString(), e.g. 2026-05-15T15:21:36.943Z

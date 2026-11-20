@@ -7,13 +7,15 @@ Reference for future chats if the conversation expires.
 - Phase 1 commit: 3d0ad83
 - Phase 1: Completed and committed.
 - Phase 2: Completed in the working tree. Not committed yet.
+- Phase 3: Completed in the working tree. Not committed yet.
+- Latest commit: `7e07ddb` — no later commit exists on this branch.
 - SQLite and EF Core packages installed: version 9.0.23.
 - Created UserEntity, MenuItemEntity, OrderEntity, OrderItemEntity, and ForkHubDbContext.
 - Registered SQLite in Program.cs.
 - Database file: forkhub/server-cs/App_Data/forkhub.db
 - The connection string in appsettings.json is `Data Source=App_Data/forkhub.db`. Program.cs turns that relative path into a full path beside the project.
 - Original JSON files are still present and unchanged.
-- Controllers and JsonStore still use JSON. JsonStore was not removed.
+- JsonStore remains for one-time startup import only. It is not used by AuthController, MenuController, or OrdersController.
 - No cart tables were created.
 
 ## Phase 2 details
@@ -52,4 +54,32 @@ Checked again on 2026-11-20 without rewriting Phase 1 or the Phase 2 files.
 
 ## Next task
 
-No later phase has been requested. Controllers still read and write the JSON files.
+Phase 3 is complete in the working tree. AuthController, MenuController, and OrdersController now use ForkHubDbContext; JSON is used only by the startup importer.
+
+## Phase 3 details
+
+- AuthController now reads and writes UserEntity rows for registration, login, profile operations, account deletion/restoration, and admin user management.
+- MenuController now reads and writes MenuItemEntity rows. Menu ordering uses Position and image cleanup still checks the database.
+- OrdersController now reads and writes OrderEntity and OrderItemEntity rows, including order tracking, status changes, cancellation, and deletion.
+- Shared database-to-response mapping is in EntityMapping.cs.
+- JsonStore remains only for startup JSON importing and is no longer used by the three migrated controllers.
+- AccountDeletionCleanupService also uses the database for scheduled account purges.
+
+## Phase 3 verification
+
+- Checked git status and preserved the existing working-tree changes.
+- `dotnet build`: 0 warnings and 0 errors.
+- Started the API with `DOTNET_ROLL_FORWARD=Major`: no migrations were applied and startup reused the existing SQLite data.
+- Startup import skipped all existing rows: 7 users, 36 menu items, 6 orders, and 7 order items.
+- Smoke test returned 36 menu items from `/api/menu`.
+- Smoke test returned order `FH-8496943-12` with 1 order item from `/api/orders/track?q=FH-8496943-12`.
+- No frontend or Node backend files were changed. JSON files were not deleted or rewritten by these controller changes.
+
+## Phase 3 review
+
+- Re-checked `feature/csharp` status and recent commits. HEAD is still `7e07ddb`.
+- Phase 1 is committed.
+- Phases 2–3 and their supporting files remain uncommitted in the working tree.
+- The Phase 3 controller review found no remaining `JsonStore` reads or writes in AuthController, MenuController, or OrdersController.
+- The build was re-run successfully with 0 warnings and 0 errors.
+- Nothing was committed or advanced to Phase 4.

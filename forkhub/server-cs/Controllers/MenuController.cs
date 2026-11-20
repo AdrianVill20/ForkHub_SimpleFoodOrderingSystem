@@ -1,16 +1,17 @@
 using System.Text.RegularExpressions;
+using ForkHub.Api.Data;
 using ForkHub.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForkHub.Api.Controllers;
 
 // Same routes as server/routes/menu.routes.js
 [ApiController]
 [Route("api/menu")]
-public class MenuController(JsonStore store, IWebHostEnvironment env, IConfiguration config) : ControllerBase
+public class MenuController(ForkHubDbContext db, IWebHostEnvironment env, IConfiguration config) : ControllerBase
 {
-    private const string MenuFile = "menu.json";
     private const long MaxImageBytes = 5 * 1024 * 1024;
 
     // Only pictures, so nobody can host e.g. an .html page under /images
@@ -55,17 +56,22 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? category)
     {
-        var items = await store.ReadAsync<MenuItem>(MenuFile);
-        return Ok(string.IsNullOrEmpty(category) ? items : items.Where(i => i.Category == category));
+        // Position follows menu.json, then each new item is added at the end.
+        var items = await db.MenuItems.AsNoTracking()
+            .OrderBy(item => item.Position)
+            .ThenBy(item => item.Id)
+            .ToListAsync();
+        var menu = items.Select(EntityMapping.ToMenuItem).ToList();
+        return Ok(string.IsNullOrEmpty(category) ? menu : menu.Where(i => i.Category == category));
     }
 
     // GET /api/menu/{id}
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var items = await store.ReadAsync<MenuItem>(MenuFile);
-        var item = items.Find(i => i.Id == id) ?? throw new HttpError(404, "Menu item not found");
-        return Ok(item);
+        var item = await db.MenuItems.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id)
+            ?? throw new HttpError(404, "Menu item not found");
+        return Ok(EntityMapping.ToMenuItem(item));
     }
 
     // POST /api/menu  — add new item
@@ -77,8 +83,8 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
             throw new HttpError(400, "name, category and price are required");
         if (body.Price <= 0) throw new HttpError(400, "Price must be greater than 0.");
 
-        var items = await store.ReadAsync<MenuItem>(MenuFile);
-        var newItem = new MenuItem
+        var lastPosition = await db.MenuItems.MaxAsync(item => (int?)item.Position) ?? -1;
+        var newItem = new MenuItemEntity
         {
             Id = Guid.NewGuid().ToString(),
             Name = body.Name.Trim(),
@@ -87,11 +93,12 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
             Description = (body.Description ?? "").Trim(),
             Price = body.Price.Value,
             Image = (body.Image ?? "").Trim(),
+            Position = lastPosition + 1,
         };
 
-        items.Add(newItem);
-        await store.WriteAsync(MenuFile, items);
-        return StatusCode(201, newItem);
+        db.MenuItems.Add(newItem);
+        await db.SaveChangesAsync();
+        return StatusCode(201, EntityMapping.ToMenuItem(newItem));
     }
 
     // PUT /api/menu/{id}  — edit existing item, only the fields that were sent
@@ -103,8 +110,8 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
         if (body.Category is not null && body.Category.Trim() == "") throw new HttpError(400, "Category cannot be empty.");
         if (body.Price <= 0) throw new HttpError(400, "Price must be greater than 0.");
 
-        var items = await store.ReadAsync<MenuItem>(MenuFile);
-        var item = items.Find(i => i.Id == id) ?? throw new HttpError(404, "Menu item not found");
+        var item = await db.MenuItems.FirstOrDefaultAsync(i => i.Id == id)
+            ?? throw new HttpError(404, "Menu item not found");
 
         if (body.Name is not null) item.Name = body.Name.Trim();
         if (body.Category is not null) item.Category = body.Category.Trim();
@@ -114,8 +121,8 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
         if (body.Image is not null) item.Image = body.Image.Trim();
         if (body.Unavailable is not null) item.Unavailable = body.Unavailable;
 
-        await store.WriteAsync(MenuFile, items);
-        return Ok(item);
+        await db.SaveChangesAsync();
+        return Ok(EntityMapping.ToMenuItem(item));
     }
 
     // DELETE /api/menu/{id}
@@ -123,20 +130,24 @@ public class MenuController(JsonStore store, IWebHostEnvironment env, IConfigura
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(string id)
     {
-        var items = await store.ReadAsync<MenuItem>(MenuFile);
-        var item = items.Find(i => i.Id == id) ?? throw new HttpError(404, "Menu item not found");
+        var item = await db.MenuItems.FirstOrDefaultAsync(i => i.Id == id)
+            ?? throw new HttpError(404, "Menu item not found");
 
-        items.Remove(item);
-        await store.WriteAsync(MenuFile, items);
-        DeleteImageIfUnused(item.Image, items);
-        return Ok(new { message = $"\"{item.Name}\" deleted successfully" });
+        var image = item.Image;
+        var name = item.Name;
+        db.MenuItems.Remove(item);
+        await db.SaveChangesAsync();
+        if (!await db.MenuItems.AnyAsync(other => other.Image == image))
+            DeleteImageIfUnused(image);
+        return Ok(new { message = $"\"{name}\" deleted successfully" });
     }
 
-    // Removes a deleted item's picture from public/images, unless another item still uses it.
+    // Removes a deleted item's picture from public/images.
+    // The caller already checked that no other item uses this path.
     // Category tiles (images/categories) are never touched.
-    private void DeleteImageIfUnused(string image, List<MenuItem> remaining)
+    private void DeleteImageIfUnused(string image)
     {
-        if (!image.StartsWith("/images/") || remaining.Any(i => i.Image == image)) return;
+        if (!image.StartsWith("/images/")) return;
 
         var path = Path.GetFullPath(Path.Combine(_imagesDir, image["/images/".Length..]));
         var categoriesDir = Path.Combine(_imagesDir, "categories") + Path.DirectorySeparatorChar;

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ForkHub.Api.Data;
 
 // The database context is the class EF Core uses to talk to SQLite.
-// Controllers still use JsonStore. This class is only registered so later phases can switch over.
+// Auth, menu, and orders controllers read and write these tables.
 public class ForkHubDbContext(DbContextOptions<ForkHubDbContext> options) : DbContext(options)
 {
     public DbSet<UserEntity> Users => Set<UserEntity>();
@@ -31,6 +31,7 @@ public class ForkHubDbContext(DbContextOptions<ForkHubDbContext> options) : DbCo
             entity.HasKey(item => item.Id);
             entity.Property(item => item.Id).ValueGeneratedNever();
             entity.Property(item => item.Price).HasPrecision(18, 2);
+            entity.Property(item => item.Position).HasDefaultValue(0);
         });
 
         modelBuilder.Entity<OrderEntity>(entity =>
