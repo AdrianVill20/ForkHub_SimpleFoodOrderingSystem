@@ -45,9 +45,11 @@ export default function Home() {
             </div>
             <div className="hero-visual">
               <div className="food-plate-container">
-                <div className="food-plate"></div>
-                <div className="plate-shadow"></div>
-                <img src="/images/pizza/CheeseMania.jpg" alt="Featured pizza" className="hero-food-img" />
+                <div className="plate-shadow" aria-hidden="true"></div>
+                <div className="food-plate">
+                  <div className="pizza-shadow" aria-hidden="true"></div>
+                  <img src="/images/pizza/CheeseMania.jpg" alt="Featured pizza" className="hero-food-img" />
+                </div>
               </div>
               <div className="floating-badge badge-1"><svg className="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Fresh & Tasty</div>
               <div className="floating-badge badge-2"><svg className="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M13 5v6h6V5h-6m0-2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m-8 2h2v12H5V5m4 0h2v12H9V5m4 0h2v12h-2V5z"/></svg> 30min Delivery</div>

@@ -5,22 +5,12 @@ import { RegisterModal } from '../pages/Register'
 export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
   const [registerOpen, setRegisterOpen] = useState(initialMode === 'register')
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-
-  useEffect(() => {
-    // Load saved credentials if remember me was checked
-    const savedEmail = localStorage.getItem('fh_remember_email')
-    if (savedEmail) {
-      setEmail(savedEmail)
-      setRememberMe(true)
-    }
-  }, [])
 
   useEffect(() => {
     if (registerOpen) return undefined
@@ -39,8 +29,8 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
     }
   }, [])
 
-  const login = async () => {
-    if (!email.trim() || !password) {
+  const login = async (submittedEmail = email, submittedPassword = password) => {
+    if (!submittedEmail.trim() || !submittedPassword) {
       setErrorMessage('Email and password are required.')
       return
     }
@@ -48,18 +38,13 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
     setErrorMessage('')
     setIsSubmitting(true)
 
-    // Save email if remember me is checked
-    if (rememberMe) {
-      localStorage.setItem('fh_remember_email', email)
-    } else {
-      localStorage.removeItem('fh_remember_email')
-    }
+    localStorage.removeItem('fh_remember_email')
 
     try {
       const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: submittedEmail, password: submittedPassword }),
       })
 
       const payload = await response.json().catch(() => ({}))
@@ -87,6 +72,19 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (isSubmitting) return
+    const formData = new FormData(event.currentTarget)
+    const formEmail = formData.get('email')
+    const formPassword = formData.get('password')
+    const submittedEmail = typeof formEmail === 'string' ? formEmail : email
+    const submittedPassword = typeof formPassword === 'string' ? formPassword : password
+    setEmail(submittedEmail)
+    setPassword(submittedPassword)
+    login(submittedEmail, submittedPassword)
   }
 
   if (registerOpen) {
@@ -132,55 +130,55 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
           </button>
         </p>
 
-        <label>Email</label>
-        <input className="field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <form onSubmit={handleSubmit} noValidate>
+          <label>Email</label>
+          <input className="field" name="email" autoComplete="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-        <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
-          <span>Password</span>
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--color-primary)',
-              fontSize: 16,
-              padding: 0,
-              fontWeight: 500,
-            }}
-            title={showPassword ? 'Hide password' : 'Show password'}
-          >
-            {showPassword ? '👁️ Hide' : '👁️ Show'}
+          <label style={{ display: 'block', marginTop: 16 }}>Password</label>
+          <div className="auth-password-field">
+            <input
+              className="field"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              className="auth-password-toggle"
+              type="button"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword((visible) => !visible)}
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                {showPassword ? (
+                  <>
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+                    <path d="M9.9 5.2A10.7 10.7 0 0112 5c6.4 0 10 7 10 7a14.8 14.8 0 01-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.5 10.5 0 004.1-.8" />
+                  </>
+                ) : (
+                  <>
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </>
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {errorMessage ? (
+            <p className="muted" style={{ color: 'var(--color-error)', marginTop: 10 }}>
+              {errorMessage}
+            </p>
+          ) : null}
+
+          <button className="btn-purple" style={{ width: '100%', borderRadius: 10, marginTop: 10 }} type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
-        </label>
-        <input
-          className="field"
-          type={showPassword ? 'text' : 'password'}
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            style={{ cursor: 'pointer', width: 18, height: 18 }}
-          />
-          <span style={{ fontSize: 14 }}>Remember me</span>
-        </label>
-
-        {errorMessage ? (
-          <p className="muted" style={{ color: 'var(--color-error)', marginTop: 10 }}>
-            {errorMessage}
-          </p>
-        ) : null}
-
-        <button className="btn-purple" style={{ width: '100%', borderRadius: 10, marginTop: 10 }} type="button" onClick={login} disabled={isSubmitting}>
-          {isSubmitting ? 'Signing In...' : 'Sign In'}
-        </button>
+        </form>
       </div>
     </div>
   )

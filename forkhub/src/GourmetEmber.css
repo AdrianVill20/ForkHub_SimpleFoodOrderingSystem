@@ -128,15 +128,30 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--color-primary-
 .hero-subtitle { margin: 0 0 16px; color: var(--color-tertiary); font-family: var(--font-headline, 'Be Vietnam Pro', system-ui, sans-serif); font-size: var(--text-body-lg); font-weight: 600; }
 .hero-description { max-width: 56ch; color: var(--color-on-surface-variant); font-size: var(--text-body-md); line-height: 1.75; }
 .hero-visual { display: grid; grid-template-columns: minmax(0, 1fr) 156px; grid-template-rows: repeat(3, minmax(58px, auto)); align-items: center; align-content: center; gap: 14px; min-width: 0; min-height: 440px; overflow: visible; }
-.food-plate-container { position: relative; display: grid; grid-row: 1 / 4; grid-column: 1; place-items: center; width: min(100%, 370px); aspect-ratio: 1; margin: auto; }
-.food-plate, .plate-shadow { position: absolute; inset: 4%; border-radius: 50%; background: var(--color-surface-container-low); box-shadow: var(--shadow-card); }
-.plate-shadow { inset: 8%; background: var(--color-tertiary-fixed); opacity: 0.45; filter: none; }
-.hero-food-img { position: relative; z-index: 1; display: block; width: 86%; height: 86%; border: 8px solid var(--color-surface-container-lowest); border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-card); }
+.food-plate-container { position: relative; display: grid; grid-row: 1 / 4; grid-column: 1; place-items: center; width: min(100%, 370px); height: auto; aspect-ratio: 1; margin: auto; }
+.food-plate { position: relative; z-index: 1; display: grid; width: 100%; height: 100%; place-items: center; overflow: hidden; border: 8px solid var(--color-surface-container-low); border-radius: 50%; background: var(--color-surface-container-lowest); box-shadow: 0 8px 30px color-mix(in srgb, var(--color-primary-dark) 10%, transparent); animation: plate-float 3s ease-in-out infinite; }
+.plate-shadow { position: absolute; z-index: 0; right: 9%; bottom: -5%; left: 9%; height: 12%; border-radius: 50%; background: color-mix(in srgb, var(--color-tertiary-fixed) 28%, transparent); filter: blur(12px); }
+.pizza-shadow { position: absolute; z-index: 1; right: 15%; bottom: 2%; left: 15%; height: 9%; border-radius: 50%; background: color-mix(in srgb, var(--color-inverse-surface) 30%, transparent); filter: blur(10px); transform-origin: center; animation: pizza-shadow-float 3s ease-in-out infinite; }
+.hero-food-img { position: relative; z-index: 2; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; margin: auto; border: 0; border-radius: 50%; object-fit: cover; mix-blend-mode: multiply; box-shadow: none; transform: scale(1.2); animation: none; }
+@keyframes plate-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pizza-shadow-float {
+  0%, 100% { opacity: 0.65; transform: scaleX(0.9); }
+  50% { opacity: 0.3; transform: scaleX(1.05); }
+}
 .floating-badge { position: static; display: inline-flex; align-items: center; justify-self: start; gap: 8px; width: max-content; max-width: 100%; padding: 12px 14px; border: 0; border-radius: var(--radius-pill); color: var(--color-on-surface, #1D1C13); background: var(--color-surface-container-low); box-shadow: var(--shadow-card); font-size: var(--text-label-sm); font-weight: 700; line-height: 1.3; white-space: nowrap; }
 .floating-badge .badge-icon { width: 16px; height: 16px; }
 .badge-1 { grid-column: 2; grid-row: 1; color: var(--color-on-primary) !important; background: var(--color-primary-container, #D62839) !important; }
 .badge-2 { grid-column: 2; grid-row: 2; color: var(--color-on-secondary-container, #6E3D00) !important; background: var(--color-secondary-container, #FFA446) !important; }
 .badge-3 { grid-column: 2; grid-row: 3; color: var(--color-on-tertiary-fixed-variant, #53460F) !important; background: color-mix(in srgb, var(--color-tertiary-container, #BDAA6A) 15%, var(--color-surface-container-lowest, #FFFFFF)) !important; }
+.auth-password-field { position: relative; }
+.auth-password-field .field { width: 100%; padding-right: 52px; }
+.auth-password-toggle { position: absolute; top: 50%; right: 10px; display: inline-flex; min-height: 32px; width: 32px; align-items: center; justify-content: center; padding: 0; transform: translateY(-50%); border: 0 !important; border-radius: var(--radius-pill); color: var(--color-on-surface-variant); background: transparent !important; box-shadow: none !important; cursor: pointer; }
+.auth-password-toggle:hover { color: var(--color-primary); background: var(--color-surface-container-low) !important; transform: translateY(-50%); }
+.auth-password-toggle:focus-visible { outline: none; box-shadow: var(--focus-ring) !important; }
+.auth-password-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 .btn-hero-cta { margin-top: 20px; padding: 14px 24px; font-size: var(--text-label-lg); }
 
 .features-section, .about-section, .cta-section, .final-cta { border-radius: var(--radius-xl); background: var(--color-surface-container, #F3EDE0) !important; background-image: none !important; box-shadow: none; }

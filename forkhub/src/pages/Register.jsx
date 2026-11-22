@@ -162,12 +162,19 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
     }
   }
 
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (isSubmitting) return
+    register()
+  }
+
   return (
     <div className="form-panel register-modal-form-panel register-premium-form">
       <button type="button" className="register-premium-signin-link" onClick={() => onClose?.()}>
         ← Back to sign in
       </button>
 
+      <form onSubmit={handleSubmit} noValidate>
       <section className="register-premium-section" aria-labelledby="reg-section-name">
         <h3 id="reg-section-name" className="register-premium-section-title">
           About you
@@ -314,11 +321,12 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
       ) : null}
 
       <div className="register-premium-actions">
-        <button type="button" className="btn-red register-premium-submit" onClick={register} disabled={isSubmitting}>
+        <button type="submit" className="btn-red register-premium-submit" disabled={isSubmitting}>
           {isSubmitting ? 'Creating your account…' : 'Create my ForkHub profile'}
         </button>
         <p className="register-premium-footnote">By continuing you agree to use this account responsibly. No spam—we only email about your orders.</p>
       </div>
+      </form>
     </div>
   )
 }
