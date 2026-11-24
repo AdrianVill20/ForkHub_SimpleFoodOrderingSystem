@@ -74,5 +74,27 @@
     "address": "Duljo Fatima",
     "role": "customer",
     "createdAt": "2026-11-05T12:00:48.121Z"
+  },
+  {
+    "id": "3157877f-83af-4c2d-9a6b-b2b3ef736737",
+    "email": "adriantabera@gmail.com",
+    "password": "$2a$10$vjKwm3rz8AFSTcYMnhOlJurD7OWlYKvpWlwbZE8DeXkaHlqpxgn0a",
+    "firstName": "Adrian",
+    "lastName": "Tabera",
+    "phone": "",
+    "address": "",
+    "role": "customer",
+    "createdAt": "2026-11-06T14:26:15.195Z"
+  },
+  {
+    "id": "20ce5648-5f53-4102-b03b-2158e0ec620f",
+    "email": "adrian@gmail.com",
+    "password": "$2a$10$JYscyOsFx.4wx1a5ICGFwu5udy4.h6B/lBW/cEoZ5j4VCj1yrwXg2",
+    "firstName": "Adr",
+    "lastName": "ian",
+    "phone": "",
+    "address": "",
+    "role": "customer",
+    "createdAt": "2026-11-12T16:51:51.997Z"
   }
 ]

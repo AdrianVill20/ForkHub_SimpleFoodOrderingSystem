@@ -1,10 +1,18 @@
 import { useState, useEffect,  useRef, useCallback } from 'react'
 import TopNav from '../components/TopNav'
 import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService'
-import { getAllOrders, deleteOrder, updateOrderStatus } from '../services/orderService'
-import { Form } from 'react-router-dom'
+import { getAllOrders, updateOrderStatus } from '../services/orderService'
+import Pagination from '../components/Pagination'
+import { paginate } from '../utils/pagination'
 
 const CATEGORIES = ['Pizza','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
+// Admin order list is sorted in this status order; newest first inside each status.
+const STATUS_ORDER = ['Pending','Preparing','Out for delivery','Ready for pickup','Delivered','Completed','Cancelled']
+
+function sortOrdersByStatus(list) {
+  const rank = (status) => { const i = STATUS_ORDER.indexOf(status); return i === -1 ? STATUS_ORDER.length : i }
+  return [...list].sort((a, b) => rank(a.status) - rank(b.status) || new Date(b.placedAt) - new Date(a.placedAt))
+}
 const EMPTY_FORM  = { name:'', category:'Pizza', subcategory:'Classic', description:'', price:'', image:'' }
 
 
@@ -150,6 +158,9 @@ export default function AdminPage() {
   const [toast, setToast]             = useState(null)
   const [orders, setOrders]           = useState([])
   const [users, setUsers] = useState([])
+  const [itemPage, setItemPage]       = useState(1)
+  const [orderPage, setOrderPage]     = useState(1)
+  const [userPage, setUserPage]       = useState(1)
 
   async function reload() {
     setLoading(true)
@@ -183,6 +194,9 @@ export default function AdminPage() {
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   })
+  const itemPaging  = paginate(filtered, itemPage)
+  const orderPaging = paginate(sortOrdersByStatus(orders), orderPage)
+  const userPaging  = paginate(users, userPage)
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -255,7 +269,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      <main className="content-wrap">
+      <main className="content-wrap admin-content-wrap">
         <div className="admin-layout">
           <section className="admin-section">
             <div className="admin-section-header">
@@ -290,8 +304,8 @@ export default function AdminPage() {
               {view === 'list' && (
                 <div className="admin-view-body">
                   <div className="admin-search-row">
-                    <input className="field admin-search-field" placeholder="Search items…" value={search} onChange={(e) => setSearch(e.target.value)} />
-                    <select className="select-field admin-filter-select" value={filterCat} onChange={(e) => setFilterCat(e.target.value)}>
+                    <input className="field admin-search-field" placeholder="Search items…" value={search} onChange={(e) => { setSearch(e.target.value); setItemPage(1) }} />
+                    <select className="select-field admin-filter-select" value={filterCat} onChange={(e) => { setFilterCat(e.target.value); setItemPage(1) }}>
                       <option value="All">All Categories</option>
                       {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                     </select>
@@ -313,7 +327,7 @@ export default function AdminPage() {
                         {filtered.length === 0 && !loading && (
                           <tr><td colSpan={6} className="admin-empty-row">No items found.</td></tr>
                         )}
-                        {filtered.map((item, i) => (
+                        {itemPaging.rows.map((item) => (
                           <tr key={item.id} style={{ opacity: item.unavailable ? 0.6 : 1, backgroundColor: item.unavailable ? 'var(--color-surface-container-low)' : 'transparent' }}>
                             <td>
                               <img src={item.image} alt={item.name} className="admin-item-img" onError={(e) => { e.target.style.display='none' }} style={{ filter: item.unavailable ? 'grayscale(100%)' : 'none', opacity: item.unavailable ? 0.5 : 1 }} />
@@ -331,8 +345,8 @@ export default function AdminPage() {
                             <td className="admin-item-price">₱{item.price}</td>
                             <td className="admin-actions">
                               <button className="admin-edit-btn" onClick={() => openEdit(item)}>Edit</button>
-                              <button 
-                                className={`admin-delete-btn ${item.unavailable ? 'admin-enable-btn' : ''}`}
+                              <button
+                                className={item.unavailable ? 'admin-enable-btn' : 'admin-unavailable-btn'}
                                 onClick={() => openDelete(item)}
                               >
                                 {item.unavailable ? 'Enable' : 'Unavailable'}
@@ -343,6 +357,7 @@ export default function AdminPage() {
                       </tbody>
                     </table>
                   </div>
+                  <Pagination page={itemPaging.current} totalPages={itemPaging.totalPages} onChange={setItemPage} />
                 </div>
               )}
 
@@ -409,11 +424,10 @@ export default function AdminPage() {
                             <th>Items</th>
                             <th>Total</th>
                             <th>Date</th>
-                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {[...orders].reverse().map((order, i) => (
+                          {orderPaging.rows.map((order) => (
                             <tr key={order.id}>
                               <td className="admin-order-id">{order.id}</td>
                               <td>
@@ -439,7 +453,7 @@ export default function AdminPage() {
                               </td>
                               <td className="admin-reason-cell">{order.status === 'Cancelled' ? (order.cancelReason || '—') : '—'}</td>
                               <td>{order.serviceType}</td>
-                              <td style={{ fontSize: 12, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <td className="admin-address-cell">
                                 {order.address || '—'}
                               </td>
                               <td>{order.phone}</td>
@@ -453,28 +467,13 @@ export default function AdminPage() {
                               </td>
                               <td className="admin-order-total">₱{(order.total || 0).toFixed(2)}</td>
                               <td>{new Date(order.placedAt).toLocaleDateString()}</td>
-                              <td>
-                                <button
-                                  className="admin-delete-btn"
-                                  onClick={async () => {
-                                    if (window.confirm(`Delete order ${order.id}?`)) {
-                                      try {
-                                        await deleteOrder(order.id)
-                                        setOrders(await getAllOrders())
-                                        showToast(`Order ${order.id} deleted.`, 'error')
-                                      } catch { showToast('Failed to delete order.', 'error') }
-                                    }
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
                   )}
+                  <Pagination page={orderPaging.current} totalPages={orderPaging.totalPages} onChange={setOrderPage} />
                 </div>
               )}
 
@@ -499,7 +498,7 @@ export default function AdminPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {users.map((user) => (
+                          {userPaging.rows.map((user) => (
                             <tr key={user.id} style={{ opacity: user.isDeleted ? 0.7 : 1, background: user.isDeleted ? 'var(--color-error-container)' : 'transparent' }}>
                               <td className="admin-item-name">
                                 {[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}
@@ -545,20 +544,6 @@ export default function AdminPage() {
                                     Restore
                                   </button>
                                 )}
-                                {user.role !== 'admin' && (
-                                  <button
-                                    className="admin-delete-btn"
-                                    onClick={async () => {
-                                      if (!window.confirm(`Permanently delete "${user.email}"? This cannot be undone.`)) return
-                                      const token = localStorage.getItem('auth_token') || ''
-                                      await fetch(`/api/auth/users/${user.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
-                                      loadUsers()
-                                      showToast(`"${user.email}" deleted.`, 'error')
-                                    }}
-                                  >
-                                    Force Delete
-                                  </button>
-                                )}
                               </td>
                             </tr>
                           ))}
@@ -566,6 +551,7 @@ export default function AdminPage() {
                       </table>
                     </div>
                   )}
+                  <Pagination page={userPaging.current} totalPages={userPaging.totalPages} onChange={setUserPage} />
                 </div>
               )}
 

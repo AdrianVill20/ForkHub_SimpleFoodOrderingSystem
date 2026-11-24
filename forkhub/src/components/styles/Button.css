@@ -1,0 +1,71 @@
+.btn {
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.btn-primary {
+  background-color: #ff6b35;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #e55a24;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: #ff6b35;
+  border: 2px solid #ff6b35;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #fff5f0;
+}
+
+.btn-secondary:active:not(:disabled) {
+  background-color: #ffe8dd;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

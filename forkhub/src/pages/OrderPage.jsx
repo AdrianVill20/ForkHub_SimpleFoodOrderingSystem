@@ -2,6 +2,8 @@ import { use, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
+import Pagination from '../components/Pagination'
+import { paginate } from '../utils/pagination'
 import { getCart, getCartTotal, clearCart } from '../services/cartService'
 import { saveOrder, getAllOrders, canCancel, updateOrderStatus } from '../services/orderService'
 
@@ -27,6 +29,8 @@ export default function OrderPage() {
   const [orderHistory, setOrderHistory] = useState([])
   const [cancellingId, setCancellingId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
+  const [historyPage, setHistoryPage] = useState(1)
+  const historyPaging = paginate([...orderHistory].reverse(), historyPage)
 
   // Auto-fill phone from user data on mount
   useEffect(() => {
@@ -152,7 +156,7 @@ export default function OrderPage() {
                     <div className="order-history">
                       <h3 className="order-history-title">Order History</h3>
                       <div className="order-history-list">
-                        {[...orderHistory].reverse().map((o) => (
+                        {historyPaging.rows.map((o) => (
                           <div key={o.id} className="order-history-card">
                             <div className="order-history-top">
                               <div>
@@ -202,7 +206,7 @@ export default function OrderPage() {
                                     <button className="order-cancel-back-btn" onClick={() => setCancellingId(null)}>Back</button>
                                   </div>
                                 )}
-                                <button className="order-track-btn" onClick={() => navigate('/tracking')}>Track</button>
+                                <button className="order-track-btn" onClick={() => navigate(`/tracking?q=${encodeURIComponent(o.id)}`)}>Track</button>
                               </div>
                               {o.status === 'Cancelled' && o.cancelReason && (
                                 <p className="order-cancel-reason-display">Reason: {o.cancelReason}</p>
@@ -211,6 +215,7 @@ export default function OrderPage() {
                           </div>
                         ))}
                       </div>
+                      <Pagination page={historyPaging.current} totalPages={historyPaging.totalPages} onChange={setHistoryPage} />
                     </div>
                   )}
                 </div>
@@ -331,7 +336,7 @@ export default function OrderPage() {
                       <p className="order-total-price">₱{total.toFixed(2)}</p>
                     </div>
                     <button className="order-place-btn" type="button" onClick={handlePlaceOrder}>
-                      Add to Cart
+                      Place Order
                     </button>
                   </div>
                 </>
@@ -370,7 +375,7 @@ export default function OrderPage() {
                     </div>
                   </div>
                   <div className="order-confirm-actions">
-                    <button className="order-confirm-track-btn" type="button" onClick={() => navigate('/tracking')}>
+                    <button className="order-confirm-track-btn" type="button" onClick={() => navigate(`/tracking?q=${encodeURIComponent(orderSummary.id)}`)}>
                       Track Order
                     </button>
                     <button type="button" className="order-confirm-menu-btn" onClick={() => navigate('/menu')}>
@@ -467,7 +472,7 @@ export default function OrderPage() {
                 className="order-confirm-modal-btn order-confirm-modal-btn-primary"
                 onClick={() => {
                   setShowConfirmation(false)
-                  navigate('/tracking')
+                  navigate(`/tracking?q=${encodeURIComponent(orderSummary?.id || '')}`)
                 }}
               >
                 Track Order

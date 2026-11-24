@@ -56,18 +56,23 @@ export default function TopNav() {
       </Link>
 
       <nav className="top-nav-links">
-        <Link className="top-nav-item" to="/">
-          Home
-        </Link>
-        <Link className="top-nav-item" to="/menu">
-          Menu
-        </Link>
-        <Link className="top-nav-item" to="/orders">
-          Orders
-        </Link>
-        <Link className="top-nav-item" to="/tracking">
-          Tracker
-        </Link>
+        {/* Customer links are hidden on the admin page */}
+        {location.pathname !== '/admin' && (
+          <>
+            <Link className="top-nav-item" to="/">
+              Home
+            </Link>
+            <Link className="top-nav-item" to="/menu">
+              Menu
+            </Link>
+            <Link className="top-nav-item" to="/orders">
+              Orders
+            </Link>
+            <Link className="top-nav-item" to="/tracking">
+              Tracker
+            </Link>
+          </>
+        )}
         {currentUser?.role === 'admin' && (
           <Link className="top-nav-item" to="/admin" style={{ color: 'var(--color-on-secondary-container)' }}>
             Admin

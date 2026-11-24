@@ -1,23 +1,31 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import { findOrder } from '../services/orderService'
 
 export default function TrackingPage() {
   const navigate = useNavigate()
-  const [query, setQuery] = useState('')
+  // Track buttons open /tracking?q=<order number>; fill it in and search right away.
+  const [searchParams] = useSearchParams()
+  const initialQuery = searchParams.get('q') || ''
+  const [query, setQuery] = useState(initialQuery)
   const [order, setOrder] = useState(null)
   const [message, setMessage] = useState('')
 
-   const handleSearch = async () => {
-    if (!query.trim()) return
+  const handleSearch = async (value = query) => {
+    if (!value.trim()) return
     setOrder(null); setMessage('')
     try {
-      const found = await findOrder(query)
+      const found = await findOrder(value)
       if (found) { setOrder(found); setMessage('Order found.') }
       else        { setMessage('No order found. Check your order number or phone.') }
     } catch { setMessage('No order found. Check your order number or phone.') }
   }
+
+  useEffect(() => {
+    if (initialQuery) handleSearch(initialQuery)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery])
 
   return (
     <div className="page">
@@ -40,7 +48,7 @@ export default function TrackingPage() {
                   placeholder="FH-1234567-89 or 09171234567"
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
-                <button className="tracking-search-btn" type="button" onClick={handleSearch}>
+                <button className="tracking-search-btn" type="button" onClick={() => handleSearch()}>
                   Track
                 </button>
                 <button className="tracking-new-btn" type="button" onClick={() => navigate('/orders')}>

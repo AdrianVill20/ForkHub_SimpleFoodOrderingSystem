@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 916" font-family="Arial,Helvetica,sans-serif">
+  <style>
+    text{fill:#222}
+    .eyebrow{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:12px}
+    .hd{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:12.5px}
+    .at{font-size:12px}
+    .ty{font-size:10.5px;fill:#555}
+    .tag{font-size:10px;font-weight:700;fill:#1a56db}
+    .rel{font-family:Arial,Helvetica,sans-serif;font-size:11px;fill:#000}
+    .sub{font-size:10.5px;fill:#555}
+    .cap{font-size:10px;fill:#666}
+    .box{fill:#fff;stroke:#000;stroke-width:1.2}
+    .hdr{fill:#e8e8e8;stroke:#000;stroke-width:1.2}
+    .hdr2{fill:#d7d7d7;stroke:#000;stroke-width:1.2}
+    .flow{stroke:#000;stroke-width:1.6;fill:none}
+    .flow-dash{stroke:#000;stroke-width:1.5;fill:none;stroke-dasharray:6 5}
+    .flow-dot{stroke:#000;stroke-width:1.6;fill:none;stroke-dasharray:2 4}
+  </style>
+  <defs>
+    <marker id="erAh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#000"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="916" fill="#fff"/>
+
+  <text class="eyebrow" x="50" y="45" style="font-size:15px">ForkHub — Entity Relationship Diagram</text>
+  <text class="cap" x="50" y="62">Document-oriented model (JSON stores). Dashed = embedded / client-side.</text>
+
+  <!-- ===================== USER ===================== -->
+  <rect class="box" x="50" y="80" width="262" height="342" rx="11"/>
+  <path class="hdr" d="M50,114 L50,91 Q50,80 61,80 L301,80 Q312,80 312,91 L312,114 Z"/>
+  <line x1="50" y1="114" x2="312" y2="114" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="68" y="103">USER</text>
+  <text class="cap" x="302" y="103" text-anchor="end">data/users.json</text>
+  <text class="at" x="68" y="142">id</text><text class="ty" x="298" y="142" text-anchor="end">uuid · <tspan class="tag">PK</tspan></text>
+  <text class="at" x="68" y="166">email</text><text class="ty" x="298" y="166" text-anchor="end">string · unique</text>
+  <text class="at" x="68" y="190">password</text><text class="ty" x="298" y="190" text-anchor="end">string · bcrypt</text>
+  <text class="at" x="68" y="214">firstName</text><text class="ty" x="298" y="214" text-anchor="end">string</text>
+  <text class="at" x="68" y="238">lastName</text><text class="ty" x="298" y="238" text-anchor="end">string</text>
+  <text class="at" x="68" y="262">phone</text><text class="ty" x="298" y="262" text-anchor="end">string</text>
+  <text class="at" x="68" y="286">address</text><text class="ty" x="298" y="286" text-anchor="end">string</text>
+  <text class="at" x="68" y="310">role</text><text class="ty" x="298" y="310" text-anchor="end">customer | admin</text>
+  <text class="at" x="68" y="334">createdAt</text><text class="ty" x="298" y="334" text-anchor="end">ISO datetime</text>
+  <text class="at" x="68" y="358">isDeleted</text><text class="ty" x="298" y="358" text-anchor="end">boolean</text>
+  <text class="at" x="68" y="382">deletedAt</text><text class="ty" x="298" y="382" text-anchor="end">datetime?</text>
+  <text class="at" x="68" y="406">scheduledDeletionAt</text><text class="ty" x="298" y="406" text-anchor="end">datetime?</text>
+
+  <!-- ===================== ORDER ===================== -->
+  <rect class="box" x="470" y="80" width="290" height="366" rx="11"/>
+  <path class="hdr" d="M470,114 L470,91 Q470,80 481,80 L749,80 Q760,80 760,91 L760,114 Z"/>
+  <line x1="470" y1="114" x2="760" y2="114" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="488" y="103">ORDER</text>
+  <text class="cap" x="750" y="103" text-anchor="end">data/orders.json</text>
+  <text class="at" x="488" y="142">id</text><text class="ty" x="746" y="142" text-anchor="end">string "FH-…" · <tspan class="tag">PK</tspan></text>
+  <text class="at" x="488" y="166">userId</text><text class="ty" x="746" y="166" text-anchor="end">uuid · <tspan class="tag">FK→USER</tspan></text>
+  <text class="at" x="488" y="190">status</text><text class="ty" x="746" y="190" text-anchor="end">enum</text>
+  <text class="at" x="488" y="214">placedAt</text><text class="ty" x="746" y="214" text-anchor="end">ISO datetime</text>
+  <text class="at" x="488" y="238">total</text><text class="ty" x="746" y="238" text-anchor="end">number</text>
+  <text class="at" x="488" y="262">serviceType</text><text class="ty" x="746" y="262" text-anchor="end">Delivery | Pick Up</text>
+  <text class="at" x="488" y="286">address</text><text class="ty" x="746" y="286" text-anchor="end">string</text>
+  <text class="at" x="488" y="310">phone</text><text class="ty" x="746" y="310" text-anchor="end">string</text>
+  <text class="at" x="488" y="334">items</text><text class="ty" x="746" y="334" text-anchor="end">OrderItem[] ▽</text>
+  <text class="at" x="488" y="358">branch</text><text class="ty" x="746" y="358" text-anchor="end">Branch ▽</text>
+  <text class="at" x="488" y="382">destination</text><text class="ty" x="746" y="382" text-anchor="end">Destination? ▽</text>
+  <text class="at" x="488" y="406">cancelledAt</text><text class="ty" x="746" y="406" text-anchor="end">datetime?</text>
+  <text class="at" x="488" y="430">cancelReason</text><text class="ty" x="746" y="430" text-anchor="end">string?</text>
+
+  <!-- ===================== MENU_ITEM ===================== -->
+  <rect class="box" x="888" y="80" width="244" height="246" rx="11"/>
+  <path class="hdr" d="M888,114 L888,91 Q888,80 899,80 L1121,80 Q1132,80 1132,91 L1132,114 Z"/>
+  <line x1="888" y1="114" x2="1132" y2="114" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="906" y="103">MENU_ITEM</text>
+  <text class="cap" x="1122" y="103" text-anchor="end">data/menu.json</text>
+  <text class="at" x="906" y="142">id</text><text class="ty" x="1118" y="142" text-anchor="end">string · <tspan class="tag">PK</tspan></text>
+  <text class="at" x="906" y="166">name</text><text class="ty" x="1118" y="166" text-anchor="end">string</text>
+  <text class="at" x="906" y="190">category</text><text class="ty" x="1118" y="190" text-anchor="end">enum</text>
+  <text class="at" x="906" y="214">subcategory</text><text class="ty" x="1118" y="214" text-anchor="end">string</text>
+  <text class="at" x="906" y="238">description</text><text class="ty" x="1118" y="238" text-anchor="end">string</text>
+  <text class="at" x="906" y="262">price</text><text class="ty" x="1118" y="262" text-anchor="end">number</text>
+  <text class="at" x="906" y="286">image</text><text class="ty" x="1118" y="286" text-anchor="end">string (path)</text>
+  <text class="at" x="906" y="310">unavailable</text><text class="ty" x="1118" y="310" text-anchor="end">boolean</text>
+
+  <!-- ===================== EMBEDDED CONTAINER ===================== -->
+  <rect x="430" y="502" width="702" height="380" rx="14" fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="7 5"/>
+  <text class="eyebrow" x="450" y="528" style="font-size:11px">▽ EMBEDDED IN EACH ORDER DOCUMENT — denormalized snapshots</text>
+
+  <!-- ORDER_ITEM -->
+  <rect class="box" x="452" y="546" width="278" height="246" rx="11"/>
+  <path class="hdr2" d="M452,576 L452,557 Q452,546 463,546 L719,546 Q730,546 730,557 L730,576 Z"/>
+  <line x1="452" y1="576" x2="730" y2="576" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="470" y="568">ORDER_ITEM</text>
+  <text class="cap" x="720" y="568" text-anchor="end">Order.items[ ]</text>
+  <text class="at" x="470" y="606">id</text><text class="ty" x="716" y="606" text-anchor="end">"menuId_size"</text>
+  <text class="at" x="470" y="630">name</text><text class="ty" x="716" y="630" text-anchor="end">string</text>
+  <text class="at" x="470" y="654">category</text><text class="ty" x="716" y="654" text-anchor="end">string</text>
+  <text class="at" x="470" y="678">description</text><text class="ty" x="716" y="678" text-anchor="end">string</text>
+  <text class="at" x="470" y="702">price</text><text class="ty" x="716" y="702" text-anchor="end">number</text>
+  <text class="at" x="470" y="726">note</text><text class="ty" x="716" y="726" text-anchor="end">string?</text>
+  <text class="at" x="470" y="750">quantity</text><text class="ty" x="716" y="750" text-anchor="end">int</text>
+  <text class="sub" x="470" y="776">image, subcategory …</text>
+
+  <!-- BRANCH -->
+  <rect class="box" x="812" y="546" width="292" height="130" rx="11"/>
+  <path class="hdr2" d="M812,576 L812,557 Q812,546 823,546 L1093,546 Q1104,546 1104,557 L1104,576 Z"/>
+  <line x1="812" y1="576" x2="1104" y2="576" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="830" y="568">BRANCH</text>
+  <text class="cap" x="1094" y="568" text-anchor="end">Order.branch</text>
+  <text class="at" x="830" y="606">id</text><text class="ty" x="1090" y="606" text-anchor="end">string</text>
+  <text class="at" x="830" y="630">name</text><text class="ty" x="1090" y="630" text-anchor="end">string</text>
+  <text class="at" x="830" y="654">lat, lng</text><text class="ty" x="1090" y="654" text-anchor="end">number</text>
+
+  <!-- DESTINATION -->
+  <rect class="box" x="812" y="702" width="292" height="130" rx="11"/>
+  <path class="hdr2" d="M812,732 L812,713 Q812,702 823,702 L1093,702 Q1104,702 1104,713 L1104,732 Z"/>
+  <line x1="812" y1="732" x2="1104" y2="732" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="830" y="724">DESTINATION</text>
+  <text class="cap" x="1094" y="724" text-anchor="end">Order.destination?</text>
+  <text class="at" x="830" y="762">lat, lng</text><text class="ty" x="1090" y="762" text-anchor="end">number</text>
+  <text class="at" x="830" y="786">name</text><text class="ty" x="1090" y="786" text-anchor="end">string</text>
+  <text class="sub" x="830" y="810">null for some pickups</text>
+
+  <!-- ===================== CART (client-side) ===================== -->
+  <rect class="box" x="50" y="546" width="300" height="150" rx="11" stroke-dasharray="7 5"/>
+  <path class="hdr" d="M50,576 L50,557 Q50,546 61,546 L339,546 Q350,546 350,557 L350,576 Z"/>
+  <line x1="50" y1="576" x2="350" y2="576" stroke="#000" stroke-width="1.2"/>
+  <text class="hd" x="66" y="574">CART</text>
+  <text class="cap" x="338" y="574" text-anchor="end">client · localStorage</text>
+  <text class="at" x="66" y="606">key</text><text class="ty" x="338" y="606" text-anchor="end">fh_cart_items</text>
+  <text class="at" x="66" y="630">items</text><text class="ty" x="338" y="630" text-anchor="end">CartItem[ ]</text>
+  <text class="sub" x="66" y="656">CartItem = MenuItem + quantity</text>
+  <text class="sub" x="66" y="676">not persisted server-side;</text>
+  <text class="sub" x="66" y="691">becomes an ORDER at checkout</text>
+
+  <!-- ===================== RELATIONSHIPS ===================== -->
+  <!-- USER 1 -> N ORDER : places -->
+  <line class="flow" x1="312" y1="205" x2="470" y2="205" marker-end="url(#erAh)"/>
+  <text class="rel" x="391" y="196" text-anchor="middle">places</text>
+  <text class="ty" x="326" y="220">1</text>
+  <text class="ty" x="456" y="220">N</text>
+
+  <!-- ORDER 1 -> N ORDER_ITEM : embeds -->
+  <path class="flow-dash" d="M560 446 L560 546" marker-end="url(#erAh)"/>
+  <text class="rel" x="572" y="498">embeds</text>
+  <text class="ty" x="548" y="464">1</text>
+  <text class="ty" x="548" y="540">N</text>
+
+  <!-- ORDER_ITEM N -> 1 MENU_ITEM : references (base id) -->
+  <path class="flow" d="M730 600 C 820 470, 900 400, 970 326" marker-end="url(#erAh)"/>
+  <text class="rel" x="855" y="430" text-anchor="middle">references</text>
+  <text class="ty" x="855" y="445" text-anchor="middle" style="font-size:10px">(base menu id)</text>
+  <text class="ty" x="742" y="598">N</text>
+  <text class="ty" x="958" y="342">1</text>
+
+  <!-- CART ...-> ORDER : checkout -->
+  <path class="flow-dot" d="M350 600 C 410 560, 430 470, 470 430" marker-end="url(#erAh)"/>
+  <text class="rel" x="428" y="482" text-anchor="end">checkout</text>
+  <text class="ty" x="428" y="496" text-anchor="end" style="font-size:10px">POST /api/orders</text>
+
+  <!-- ===================== LEGEND ===================== -->
+  <rect class="box" x="50" y="742" width="300" height="140" rx="11" fill="#f5f5f5"/>
+  <text class="eyebrow" x="66" y="766" style="font-size:11px">NOTATION</text>
+  <line class="flow" x1="66" y1="786" x2="104" y2="786" marker-end="url(#erAh)"/>
+  <text class="sub" x="114" y="790">relationship (persisted reference)</text>
+  <line class="flow-dash" x1="66" y1="808" x2="104" y2="808" marker-end="url(#erAh)"/>
+  <text class="sub" x="114" y="812">embedded / denormalized snapshot</text>
+  <line class="flow-dot" x1="66" y1="830" x2="104" y2="830" marker-end="url(#erAh)"/>
+  <text class="sub" x="114" y="834">client-side → server</text>
+  <text class="sub" x="66" y="860"><tspan class="tag">PK</tspan> primary key   <tspan class="tag">FK</tspan> foreign key   ? nullable   [ ] array</text>
+  <text class="sub" x="66" y="876">1 · N · 0..1 cardinality   ▽ embedded object</text>
+</svg>

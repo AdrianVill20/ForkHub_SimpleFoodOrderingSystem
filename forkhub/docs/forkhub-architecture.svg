@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 820" font-family="Arial,Helvetica,sans-serif">
+  <style>
+    text{fill:#222}
+    .eyebrow{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:12px}
+    .hd{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:12.5px}
+    .at{font-size:12px}
+    .ty{font-size:10.5px;fill:#555}
+    .rel{font-family:Arial,Helvetica,sans-serif;font-size:11px;fill:#000}
+    .sub{font-size:10.5px;fill:#555}
+    .cap{font-size:10px;fill:#666}
+    .band{fill:#f4f4f4;stroke:#000;stroke-width:1.2}
+    .chip{fill:#fff;stroke:#000;stroke-width:1.1}
+    .chip-d{fill:#fff;stroke:#000;stroke-width:1.1;stroke-dasharray:5 4}
+    .bar{fill:#000}
+    .flow{stroke:#000;stroke-width:1.6;fill:none}
+    .flow-dash{stroke:#000;stroke-width:1.5;fill:none;stroke-dasharray:6 5}
+    .flow-dot{stroke:#000;stroke-width:1.6;fill:none;stroke-dasharray:2 4}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#000"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="820" fill="#fff"/>
+
+  <text class="eyebrow" x="30" y="18" style="font-size:15px">ForkHub — System Architecture</text>
+
+  <!-- ===== CLIENT BAND ===== -->
+  <rect class="band" x="30" y="40" width="940" height="196" rx="10"/>
+  <rect class="bar" x="30" y="40" width="6" height="196" rx="3"/>
+  <text class="eyebrow" x="50" y="66">① CLIENT — Browser · localhost:5173</text>
+
+  <rect class="chip" x="50" y="80" width="446" height="46" rx="8"/>
+  <text class="hd" x="66" y="100">React 19 SPA</text>
+  <text class="sub" x="66" y="116">Vite build · React Router 7 · Context (AuthModal)</text>
+
+  <rect class="chip" x="50" y="138" width="446" height="38" rx="8"/>
+  <text class="cap" x="64" y="154">ROUTES / PAGES</text>
+  <text class="at" x="64" y="168" style="font-size:11px">Home · Menu · Cart · Orders · Tracking · Profile · Admin</text>
+
+  <rect class="chip" x="50" y="186" width="446" height="38" rx="8"/>
+  <text class="cap" x="64" y="202">SERVICE LAYER (fetch)</text>
+  <text class="at" x="64" y="216" style="font-size:11px">authService · menuService · orderService · cartService</text>
+
+  <rect class="chip-d" x="514" y="80" width="426" height="144" rx="8"/>
+  <text class="cap" x="530" y="102">BROWSER STORAGE — localStorage (per client)</text>
+  <text class="at" x="530" y="128">auth_token</text><text class="ty" x="924" y="128" text-anchor="end">JWT</text>
+  <text class="at" x="530" y="150">auth_user</text><text class="ty" x="924" y="150" text-anchor="end">cached profile</text>
+  <text class="at" x="530" y="172">fh_cart_items</text><text class="ty" x="924" y="172" text-anchor="end">cart (pre-order)</text>
+  <text class="at" x="530" y="194">fh_last_order</text><text class="ty" x="924" y="194" text-anchor="end">last receipt</text>
+  <text class="sub" x="530" y="215">Cart lives only here until checkout →</text>
+
+  <!-- ===== TRANSPORT ===== -->
+  <line class="flow" x1="300" y1="238" x2="300" y2="316" marker-end="url(#ah)"/>
+  <line class="flow" x1="360" y1="316" x2="360" y2="238" marker-end="url(#ah)"/>
+  <text class="rel" x="292" y="264" text-anchor="end">request ↓</text>
+  <text class="ty" x="292" y="280" text-anchor="end" style="font-size:10px">HTTP/REST · JSON</text>
+  <text class="ty" x="292" y="294" text-anchor="end" style="font-size:10px">Authorization: Bearer &lt;JWT&gt;</text>
+  <text class="rel" x="372" y="264">↑ response</text>
+  <text class="ty" x="372" y="280" style="font-size:10px">JSON · 201 / 4xx</text>
+  <text class="rel" x="700" y="274" text-anchor="middle">CORS</text>
+  <text class="ty" x="700" y="290" text-anchor="middle" style="font-size:10px">origin :5173 · credentials</text>
+
+  <!-- ===== API BAND ===== -->
+  <rect class="band" x="30" y="316" width="940" height="230" rx="10"/>
+  <rect class="bar" x="30" y="316" width="6" height="230" rx="3"/>
+  <text class="eyebrow" x="50" y="342">② API — Express 5 · localhost:3001</text>
+
+  <rect class="chip" x="50" y="356" width="606" height="40" rx="8"/>
+  <text class="cap" x="66" y="373">MIDDLEWARE PIPELINE</text>
+  <text class="at" x="66" y="388" style="font-size:11px">cors · express.json · express.static(/images) · requireAuth (JWT verify)</text>
+
+  <rect class="chip" x="50" y="410" width="192" height="54" rx="8"/>
+  <text class="hd" x="64" y="430" style="font-size:12px">/api/auth</text>
+  <text class="sub" x="64" y="447">register · login · profile</text>
+  <text class="sub" x="64" y="460">users · restore · delete</text>
+
+  <rect class="chip" x="252" y="410" width="192" height="54" rx="8"/>
+  <text class="hd" x="266" y="430" style="font-size:12px">/api/menu</text>
+  <text class="sub" x="266" y="447">list · byId · create</text>
+  <text class="sub" x="266" y="460">update · delete · upload</text>
+
+  <rect class="chip" x="454" y="410" width="202" height="54" rx="8"/>
+  <text class="hd" x="468" y="430" style="font-size:12px">/api/orders</text>
+  <text class="sub" x="468" y="447">place · list · track</text>
+  <text class="sub" x="468" y="460">status · delete</text>
+
+  <rect class="chip" x="50" y="478" width="606" height="52" rx="8"/>
+  <text class="cap" x="66" y="495">DATA-ACCESS STORES</text>
+  <text class="at" x="66" y="511" style="font-size:11px">userStore · menuStore · orderStore</text>
+  <text class="sub" x="66" y="525">atomic write: serialize → .tmp → rename · serialized write queue</text>
+
+  <rect class="chip-d" x="676" y="356" width="264" height="174" rx="8"/>
+  <text class="cap" x="692" y="378">LIBRARIES</text>
+  <text class="at" x="692" y="402">bcrypt</text><text class="ty" x="924" y="402" text-anchor="end">password hash</text>
+  <text class="at" x="692" y="426">jsonwebtoken</text><text class="ty" x="924" y="426" text-anchor="end">sign / verify</text>
+  <text class="at" x="692" y="450">multer</text><text class="ty" x="924" y="450" text-anchor="end">image upload</text>
+  <text class="at" x="692" y="474">uuid</text><text class="ty" x="924" y="474" text-anchor="end">entity ids</text>
+  <text class="at" x="692" y="498">dotenv</text><text class="ty" x="924" y="498" text-anchor="end">config / secrets</text>
+  <text class="sub" x="692" y="521">JWT_SECRET · ADMIN_SECRET · PORT</text>
+
+  <!-- ===== TRANSPORT 2 ===== -->
+  <line class="flow" x1="330" y1="548" x2="330" y2="616" marker-end="url(#ah)"/>
+  <line class="flow" x1="330" y1="616" x2="330" y2="548" marker-end="url(#ah)"/>
+  <text class="rel" x="346" y="578">read / write</text>
+  <text class="ty" x="346" y="594" style="font-size:10px">fs · JSON.parse / stringify</text>
+
+  <!-- ===== DATA BAND ===== -->
+  <rect class="band" x="30" y="616" width="940" height="168" rx="10"/>
+  <rect class="bar" x="30" y="616" width="6" height="168" rx="3"/>
+  <text class="eyebrow" x="50" y="642">③ PERSISTENCE — File stores on disk</text>
+
+  <rect class="chip" x="50" y="656" width="180" height="56" rx="8"/>
+  <text class="at" x="64" y="679">data/users.json</text>
+  <text class="sub" x="64" y="698">accounts · roles</text>
+
+  <rect class="chip" x="242" y="656" width="180" height="56" rx="8"/>
+  <text class="at" x="256" y="679">data/menu.json</text>
+  <text class="sub" x="256" y="698">catalog items</text>
+
+  <rect class="chip" x="434" y="656" width="180" height="56" rx="8"/>
+  <text class="at" x="448" y="679">data/orders.json</text>
+  <text class="sub" x="448" y="698">orders + items</text>
+
+  <rect class="chip-d" x="434" y="724" width="372" height="46" rx="8"/>
+  <text class="at" x="448" y="746" style="font-size:11px">PostgreSQL · fh_orders (JSONB)</text>
+  <text class="sub" x="448" y="762">optional — when DATABASE_URL is set</text>
+
+  <rect class="chip" x="626" y="656" width="314" height="56" rx="8"/>
+  <text class="at" x="640" y="679">public/images/**</text>
+  <text class="sub" x="640" y="698">static assets + admin uploads (multer)</text>
+
+  <path class="flow-dash" d="M524 712 L524 724" marker-end="url(#ah)"/>
+  <text class="ty" x="534" y="722" style="font-size:9.5px">or</text>
+
+  <!-- images served back to client (return path, routed in the right margin) -->
+  <path class="flow-dot" d="M940 684 H977 V150 H968" marker-end="url(#ah)"/>
+  <text class="ty" transform="translate(991,430) rotate(-90)" text-anchor="middle" style="font-size:10px">GET /images · served statically to browser</text>
+</svg>

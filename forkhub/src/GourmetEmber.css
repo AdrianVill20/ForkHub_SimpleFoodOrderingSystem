@@ -293,3 +293,42 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--color-primary-
   .order-summary-card { position: static; }
 }
 
+
+/* ---- Button fixes ---- */
+/* The global "button { background-image: none }" rule strips gradient backgrounds, leaving white text on white. */
+/* Every button below is styled with a gradient in App.css, so it needs a solid color instead. */
+.admin-submit-btn, .admin-save-btn, .admin-delete-confirm-btn,
+.profile-btn-primary, .profile-modal-btn-delete-new.enabled { background-color: var(--color-primary); color: #FFFFFF; }
+.admin-submit-btn:hover, .admin-save-btn:hover, .admin-delete-confirm-btn:hover,
+.profile-btn-primary:hover, .profile-modal-btn-delete-new.enabled:hover:not(:disabled) { background-color: var(--color-primary-dark); }
+
+/* Edit, Unavailable and Enable each get their own color. */
+.admin-unavailable-btn, .admin-enable-btn {
+  border: none; padding: 5px 14px; font-weight: 700; font-size: 11px;
+  text-transform: uppercase; cursor: pointer; border-radius: 6px; color: #FFFFFF; transition: all 0.2s;
+}
+.admin-unavailable-btn { background-color: #6B7280; }
+.admin-unavailable-btn:hover { background-color: #4B5563; }
+.admin-enable-btn { background-color: #1E8E3E; }
+.admin-enable-btn:hover { background-color: #166F30; }
+
+/* Full-width admin page so the orders table fits without scrolling sideways. */
+.admin-content-wrap { width: 100%; padding: 24px 24px 40px; }
+.admin-content-wrap .admin-layout { max-width: none; }
+.admin-address-cell { font-size: 12px; min-width: 160px; white-space: normal; word-break: break-word; }
+
+/* ---- Pagination ---- */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; }
+.pagination-btn {
+  min-height: 36px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px;
+  background-color: var(--color-surface-container-lowest); color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+.pagination-btn:hover:not(:disabled) { background-color: var(--color-primary); color: #FFFFFF; }
+.pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination-info { font-size: 13px; font-weight: 600; color: var(--color-on-surface-variant); }
+
+/* ---- Category pop-up: line up price and "Click to customize" across each row ---- */
+.cat-item-card { height: 100%; }
+.cat-item-desc { flex: 1; }
+.cat-item-price { margin-top: auto; }
