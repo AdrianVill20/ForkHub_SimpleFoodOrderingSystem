@@ -4,6 +4,7 @@ import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../se
 import { getAllOrders, updateOrderStatus } from '../services/orderService'
 import Pagination from '../components/Pagination'
 import { paginate } from '../utils/pagination'
+import { formatName } from '../utils/formatName'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { ORDER_STATUS, ORDER_STATUS_FLOW, ROLES } from '../constants'
 
@@ -503,7 +504,7 @@ export default function AdminPage() {
                           {userPaging.rows.map((user) => (
                             <tr key={user.id} style={{ opacity: user.isDeleted ? 0.7 : 1, background: user.isDeleted ? 'var(--color-error-container)' : 'transparent' }}>
                               <td className="admin-item-name">
-                                {[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}
+                                {formatName(user.firstName, user.lastName) || '—'}
                               </td>
                               <td style={{ fontSize: 12 }}>{user.email}</td>
                               <td>

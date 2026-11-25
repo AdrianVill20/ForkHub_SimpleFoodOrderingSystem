@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuthModal } from '../contexts/AuthModalContext'
 import { getCartCount } from '../services/cartService'
 import { ROLES } from '../constants'
+import { formatName } from '../utils/formatName'
 
 // Admin pages, shown in the top bar instead of the customer links
 const ADMIN_LINKS = [
@@ -48,7 +49,7 @@ export default function TopNav() {
     return () => window.removeEventListener('cart-updated', onCart)
   }, [])
 
-  const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ').trim()
+  const displayName = formatName(currentUser?.firstName, currentUser?.lastName)
   const emailName = currentUser?.email ? currentUser.email.split('@')[0] : ''
   const greeting = displayName || emailName || 'User'
   const isSignedIn = Boolean(currentUser)
