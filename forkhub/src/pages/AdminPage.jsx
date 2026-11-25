@@ -219,6 +219,8 @@ export default function AdminPage() {
   const itemPaging  = paginate(filtered, itemPage)
   const orderPaging = paginate(sortOrdersByStatus(orders), orderPage)
   const userPaging  = paginate(users, userPage)
+  // The Action column only holds "Restore", so show it only when some account is pending deletion
+  const hasPendingDeletion = users.some((user) => user.isDeleted)
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -497,7 +499,7 @@ export default function AdminPage() {
                             <th>Joined</th>
                             <th>Status</th>
                             <th>Deletion Date</th>
-                            <th>Action</th>
+                            {hasPendingDeletion && <th>Action</th>}
                           </tr>
                         </thead>
                         <tbody>
@@ -533,21 +535,23 @@ export default function AdminPage() {
                                   ? new Date(user.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
                                   : '—'}
                               </td>
-                              <td className="admin-actions">
-                                {user.isDeleted && (
-                                  <button
-                                    className="admin-edit-btn"
-                                    onClick={async () => {
-                                      const token = localStorage.getItem('auth_token') || ''
-                                      await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
-                                      loadUsers()
-                                      showToast(`"${user.email}" restored.`)
-                                    }}
-                                  >
-                                    Restore
-                                  </button>
-                                )}
-                              </td>
+                              {hasPendingDeletion && (
+                                <td className="admin-actions">
+                                  {user.isDeleted && (
+                                    <button
+                                      className="admin-edit-btn"
+                                      onClick={async () => {
+                                        const token = localStorage.getItem('auth_token') || ''
+                                        await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                                        loadUsers()
+                                        showToast(`"${user.email}" restored.`)
+                                      }}
+                                    >
+                                      Restore
+                                    </button>
+                                  )}
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>
