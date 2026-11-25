@@ -1,6 +1,7 @@
 using ForkHub.Api;
 using ForkHub.Api.Auth;
 using ForkHub.Api.Data;
+using ForkHub.Api.Repositories;
 using ForkHub.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -24,6 +25,13 @@ var sqliteConnection = new SqliteConnectionStringBuilder(configuredConnection);
 if (!Path.IsPathRooted(sqliteConnection.DataSource))
     sqliteConnection.DataSource = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, sqliteConnection.DataSource));
 builder.Services.AddDbContext<ForkHubDbContext>(options => options.UseSqlite(sqliteConnection.ToString()));
+
+// Menu and Orders: Controller -> Service (rules) -> Repository (database / files)
+builder.Services.AddScoped<MenuRepository>();
+builder.Services.AddScoped<MenuImageRepository>();
+builder.Services.AddScoped<MenuService>();
+builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<OrderService>();
 
 builder.Services.AddForkHubAuth(builder.Configuration);
 builder.Services.AddHostedService<AccountDeletionCleanupService>();
