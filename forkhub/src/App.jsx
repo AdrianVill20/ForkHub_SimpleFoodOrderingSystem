@@ -9,6 +9,7 @@ import OrderPage from './pages/OrderPage'
 import TrackingPage from './pages/TrackingPage'
 import AdminPage from './pages/AdminPage'
 import UserPage from './pages/UserPage'
+import { ROLES } from './constants'
 import './App.css'
 import './GourmetEmber.css'
 
@@ -26,9 +27,19 @@ function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
 
   if (requireAdmin) {
     const user = (() => { try { return JSON.parse(localStorage.getItem('auth_user')) } catch { return null } })()
-    if (user?.role !== 'admin') {
+    if (user?.role !== ROLES.ADMIN) {
       return <Navigate to="/menu" replace />
     }
+  }
+
+  return children
+}
+
+// Admins manage the shop instead of ordering, so customer pages send them to /admin
+function CustomerRoute({ isAuthenticated, children }) {
+  const user = (() => { try { return JSON.parse(localStorage.getItem('auth_user')) } catch { return null } })()
+  if (isAuthenticated && user?.role === ROLES.ADMIN) {
+    return <Navigate to="/admin" replace />
   }
 
   return children
@@ -161,8 +172,8 @@ function App() {
       <AuthModalProvider>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/menu" element={<MenuPage />} />
-        <Route path="/cart" element={<CartPage />} />
+        <Route path="/menu" element={<CustomerRoute isAuthenticated={isAuthenticated}><MenuPage /></CustomerRoute>} />
+        <Route path="/cart" element={<CustomerRoute isAuthenticated={isAuthenticated}><CartPage /></CustomerRoute>} />
         <Route
           path="/login"
           element={(
@@ -199,7 +210,9 @@ function App() {
           path="/orders"
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <OrderPage />
+              <CustomerRoute isAuthenticated={isAuthenticated}>
+                <OrderPage />
+              </CustomerRoute>
             </ProtectedRoute>
           )}
         />
@@ -207,7 +220,9 @@ function App() {
           path="/tracking"
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <TrackingPage />
+              <CustomerRoute isAuthenticated={isAuthenticated}>
+                <TrackingPage />
+              </CustomerRoute>
             </ProtectedRoute>
           )}
         />

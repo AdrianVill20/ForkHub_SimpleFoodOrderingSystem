@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import { findOrder } from '../services/orderService'
+import { SERVICE_TYPE } from '../constants'
 
 export default function TrackingPage() {
   const navigate = useNavigate()
@@ -79,7 +80,7 @@ export default function TrackingPage() {
                       <span className="tracking-result-label">Store</span>
                       <span className="tracking-result-value">{order.branch.name}</span>
                     </div>
-                    {order.serviceType === 'Delivery' && (
+                    {order.serviceType === SERVICE_TYPE.DELIVERY && (
                       <div className="tracking-result-row">
                         <span className="tracking-result-label">Delivery Address</span>
                         <span className="tracking-result-value">{order.address}</span>
