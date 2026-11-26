@@ -4,6 +4,7 @@ import TopNav from '../components/TopNav'
 import CategoryModal from '../components/CategoryModal'
 import { initMenu } from '../services/menuService'
 import { getCartCount } from '../services/cartService'
+import { SERVICE_TYPE } from '../constants'
 
 const CATEGORIES = [
   { title: 'Pizza',    image: '/images/categories/pizza.jpg'     },
@@ -21,7 +22,7 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [cartCount, setCartCount]           = useState(getCartCount())
 
-  const serviceType = localStorage.getItem('order_service_type') || 'Delivery'
+  const serviceType = localStorage.getItem('order_service_type') || SERVICE_TYPE.DELIVERY
   let userAddress = 'No saved address yet'
   try {
     const user = JSON.parse(localStorage.getItem('auth_user') || '{}')

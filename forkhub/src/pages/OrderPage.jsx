@@ -6,6 +6,7 @@ import Pagination from '../components/Pagination'
 import { paginate } from '../utils/pagination'
 import { getCart, getCartTotal, clearCart } from '../services/cartService'
 import { saveOrder, getAllOrders, canCancel, updateOrderStatus } from '../services/orderService'
+import { ORDER_STATUS, SERVICE_TYPE } from '../constants'
 
 const BRANCHES = [
   { id: 'puso-village', name: 'Puso Village, Cebu City, PH', lat: 10.2913456, lng: 123.9016386 },
@@ -13,7 +14,7 @@ const BRANCHES = [
 
 export default function OrderPage() {
   const navigate = useNavigate()
-  const [serviceType, setServiceType] = useState(localStorage.getItem('order_service_type') || 'Delivery')
+  const [serviceType, setServiceType] = useState(localStorage.getItem('order_service_type') || SERVICE_TYPE.DELIVERY)
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
   const [destination, setDestination] = useState(null)
@@ -106,7 +107,7 @@ export default function OrderPage() {
 
   const handlePlaceOrder = async () => {
     if (!cart || cart.length === 0) return
-    if (serviceType === 'Delivery' && !address && !destination) {
+    if (serviceType === SERVICE_TYPE.DELIVERY && !address && !destination) {
       alert('Please enter a delivery address or pin a delivery location on the map.')
       return
     }
@@ -161,7 +162,7 @@ export default function OrderPage() {
                             <div className="order-history-top">
                               <div>
                                 <span className="order-history-id">{o.id}</span>
-                                <span className={`order-history-status ${o.status === 'Cancelled' ? 'cancelled' : ''}`}>{o.status}</span>
+                                <span className={`order-history-status ${o.status === ORDER_STATUS.CANCELLED ? 'cancelled' : ''}`}>{o.status}</span>
                               </div>
                               <span className="order-history-date">{new Date(o.placedAt).toLocaleDateString()}</span>
                             </div>
@@ -192,7 +193,7 @@ export default function OrderPage() {
                                       className="order-cancel-confirm-btn"
                                       onClick={async () => {
                                         try {
-                                          await updateOrderStatus(o.id, 'Cancelled', cancelReason)
+                                          await updateOrderStatus(o.id, ORDER_STATUS.CANCELLED, cancelReason)
                                           setOrderHistory(await getAllOrders())
                                         } catch (err) {
                                           alert(`Could not cancel: ${err.message}`)
@@ -208,7 +209,7 @@ export default function OrderPage() {
                                 )}
                                 <button className="order-track-btn" onClick={() => navigate(`/tracking?q=${encodeURIComponent(o.id)}`)}>Track</button>
                               </div>
-                              {o.status === 'Cancelled' && o.cancelReason && (
+                              {o.status === ORDER_STATUS.CANCELLED && o.cancelReason && (
                                 <p className="order-cancel-reason-display">Reason: {o.cancelReason}</p>
                               )}
                             </div>
@@ -225,25 +226,25 @@ export default function OrderPage() {
                     <div className="order-form-group">
                       <h3 className="order-label">Select Service</h3>
                       <div className="order-radio-row">
-                        <label className={`order-radio ${serviceType === 'Delivery' ? 'active' : ''}`}>
+                        <label className={`order-radio ${serviceType === SERVICE_TYPE.DELIVERY ? 'active' : ''}`}>
                           <input
                             type="radio"
                             name="service-type"
                             value="Delivery"
-                            checked={serviceType === 'Delivery'}
-                            onChange={() => setServiceType('Delivery')}
+                            checked={serviceType === SERVICE_TYPE.DELIVERY}
+                            onChange={() => setServiceType(SERVICE_TYPE.DELIVERY)}
                           />
                           <span className="order-radio-indicator" />
                           <span className="order-radio-text">Delivery</span>
                         </label>
-                        <label className={`order-radio ${serviceType === 'Pick Up' ? 'active' : ''}`}>
+                        <label className={`order-radio ${serviceType === SERVICE_TYPE.PICK_UP ? 'active' : ''}`}>
                           <input
                             type="radio"
                             name="service-type"
                             value="Pick Up"
-                            checked={serviceType === 'Pick Up'}
+                            checked={serviceType === SERVICE_TYPE.PICK_UP}
                             onChange={() => {
-                              setServiceType('Pick Up')
+                              setServiceType(SERVICE_TYPE.PICK_UP)
                               setAddress(branch.name)
                               setDestination({ lat: branch.lat, lng: branch.lng, name: branch.name })
                             }}
@@ -260,7 +261,7 @@ export default function OrderPage() {
                     </div>
                   </div>
 
-                  {serviceType === 'Delivery' ? (
+                  {serviceType === SERVICE_TYPE.DELIVERY ? (
                     <div className="order-delivery-section">
                       <h3 className="order-label">Delivery Address</h3>
                       <p className="order-hint">
@@ -363,7 +364,7 @@ export default function OrderPage() {
                       <span className="order-confirm-label">Store</span>
                       <span className="order-confirm-value">{orderSummary.branch.name}</span>
                     </div>
-                    {orderSummary.serviceType === 'Delivery' && (
+                    {orderSummary.serviceType === SERVICE_TYPE.DELIVERY && (
                       <div className="order-confirm-row">
                         <span className="order-confirm-label">Delivery Address</span>
                         <span className="order-confirm-value">{orderSummary.address}</span>
@@ -442,7 +443,7 @@ export default function OrderPage() {
                 <span className="order-confirm-modal-label">Branch</span>
                 <span className="order-confirm-modal-value">{orderSummary.branch.name}</span>
               </div>
-              {orderSummary.serviceType === 'Delivery' && (
+              {orderSummary.serviceType === SERVICE_TYPE.DELIVERY && (
                 <div className="order-confirm-modal-row">
                   <span className="order-confirm-modal-label">Address</span>
                   <span className="order-confirm-modal-value">{orderSummary.address}</span>
