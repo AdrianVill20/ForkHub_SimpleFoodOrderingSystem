@@ -36,7 +36,6 @@ builder.Services.AddScoped<OrderRepository>();
 builder.Services.AddScoped<OrderService>();
 
 builder.Services.AddForkHubAuth(builder.Configuration);
-builder.Services.AddHostedService<AccountDeletionCleanupService>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins("http://localhost:5173")

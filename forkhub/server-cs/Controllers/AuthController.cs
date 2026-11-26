@@ -63,8 +63,6 @@ public sealed class AuthController(ForkHubDbContext db, TokenService tokens, ICo
         if (user.IsDeleted == true && !string.IsNullOrEmpty(user.ScheduledDeletionAt) &&
             DateTimeOffset.TryParse(user.ScheduledDeletionAt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var scheduled) && scheduled <= DateTimeOffset.UtcNow)
         {
-            db.Users.Remove(user);
-            await db.SaveChangesAsync();
             throw new HttpError(401, "This account has been permanently deleted");
         }
         if (string.IsNullOrEmpty(user.Password) || !BCrypt.Net.BCrypt.Verify(password, user.Password)) throw new HttpError(401, "Invalid email or password");
@@ -118,7 +116,7 @@ public sealed class AuthController(ForkHubDbContext db, TokenService tokens, ICo
 
         return Ok(new
         {
-            message = $"Account scheduled for permanent deletion in {DeletionGraceDays} days",
+            message = $"Account marked as deleted. Self-restoration is available for {DeletionGraceDays} days",
             scheduledDeletionAt = user.ScheduledDeletionAt,
             graceDays = DeletionGraceDays
         });
@@ -160,31 +158,6 @@ public sealed class AuthController(ForkHubDbContext db, TokenService tokens, ICo
             .ToListAsync();
 
         return Ok(users.Select(user => ToAdminResponse(EntityMapping.ToAppUser(user))).ToList());
-    }
-
-    // ADMIN - PERMANENTLY DELETE USER
-    [Authorize]
-    [HttpDelete("users/{id}")]
-    public async Task<IActionResult> DeleteUser(string id)
-    {
-        if (!User.IsAdmin())
-            throw new HttpError(403, "Admin access required");
-
-        var target = await db.Users.FirstOrDefaultAsync(item => item.Id == id);
-
-        if (target is null)
-            throw new HttpError(404, "User not found");
-
-        if (target.Role == "admin")
-            throw new HttpError(403, "Cannot delete admin accounts");
-
-        db.Users.Remove(target);
-        await db.SaveChangesAsync();
-
-        return Ok(new
-        {
-            message = $"Account \"{target.Email}\" permanently deleted"
-        });
     }
 
     // ADMIN - RESTORE USER ACCOUNT
