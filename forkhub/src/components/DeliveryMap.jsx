@@ -49,7 +49,7 @@ async function reverseGeocode(lat, lng) {
   }
 }
 
-export default function DeliveryMap({ branch, address, destination, onDestinationChange, onAddressChange, onStatusChange, mode = 'delivery' }) {
+export default function DeliveryMap({ branch, destination, onDestinationChange, onAddressChange, onStatusChange, mode = 'delivery' }) {
   const mapContainerRef = useRef(null)
   const mapRef = useRef(null)
   const branchMarkerRef = useRef(null)
@@ -124,7 +124,7 @@ export default function DeliveryMap({ branch, address, destination, onDestinatio
         mapRef.current = null
       }
     }
-  }, [branch, onAddressChange, onDestinationChange, onStatusChange])
+  }, [branch, mode, onAddressChange, onDestinationChange, onStatusChange])
 
   useEffect(() => {
     if (!mapRef.current || !window.L) return
@@ -189,7 +189,7 @@ export default function DeliveryMap({ branch, address, destination, onDestinatio
       }
       map.setView([branch.lat, branch.lng], 13)
     }
-  }, [branch, destination])
+  }, [branch, destination, mode])
 
   return (
     <div>

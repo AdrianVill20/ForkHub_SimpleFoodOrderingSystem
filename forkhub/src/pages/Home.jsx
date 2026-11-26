@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
+import { SERVICE_TYPE } from '../constants'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -98,7 +99,7 @@ export default function Home() {
             <div className="cta-buttons premium-buttons">
               <button 
                 className="btn-large btn-delivery premium-btn" 
-                onClick={() => startOrder('Delivery')}
+                onClick={() => startOrder(SERVICE_TYPE.DELIVERY)}
               >
                 <svg className="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18 18.5a1.5 1.5 0 01-1.5-1.5 1.5 1.5 0 011.5-1.5 1.5 1.5 0 011.5 1.5 1.5 1.5 0 01-1.5 1.5m1.5-9l1.96 2.5H17V9.5m-11 9a1.5 1.5 0 01-1.5-1.5 1.5 1.5 0 011.5-1.5 1.5 1.5 0 011.5 1.5 1.5 1.5 0 01-1.5 1.5M5 9.5v3h5.5V9.5M1 6v9a3 3 0 003 3h2.28a3 3 0 002.64-1.56c.33-.56.77-1.04 1.32-1.44.55.4.99.88 1.32 1.44A3 3 0 0015.72 21H18a3 3 0 003-3V6H1m17 0V4h-5v2h5M3 4v2h5V4H3z"/></svg>
                 <span className="btn-text-wrapper">
@@ -108,7 +109,7 @@ export default function Home() {
               </button>
               <button 
                 className="btn-large btn-takeout premium-btn" 
-                onClick={() => startOrder('Pick Up')}
+                onClick={() => startOrder(SERVICE_TYPE.PICK_UP)}
               >
                 <svg className="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18a6 6 0 016-6 6 6 0 016 6v2H0v-2a6 6 0 016-6 6 6 0 016 6m8-9a3 3 0 110-6 3 3 0 010 6M3 5a3 3 0 110-6 3 3 0 010 6z"/></svg>
                 <span className="btn-text-wrapper">

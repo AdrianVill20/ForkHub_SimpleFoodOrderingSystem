@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import AuthOverlay from '../components/AuthOverlay'
-
-const AuthModalContext = createContext(null)
+import { AuthModalContext } from './useAuthModal'
 
 export function AuthModalProvider({ children }) {
   const [open, setOpen] = useState(false)
@@ -35,12 +34,4 @@ export function AuthModalProvider({ children }) {
       ) : null}
     </AuthModalContext.Provider>
   )
-}
-
-export function useAuthModal() {
-  const ctx = useContext(AuthModalContext)
-  if (!ctx) {
-    throw new Error('useAuthModal must be used within AuthModalProvider')
-  }
-  return ctx
 }

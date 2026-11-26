@@ -3,20 +3,27 @@ import { getItemsByCategory } from '../services/menuService'
 import CustomizeModal from './CustomizeModal'
 
 export default function CategoryModal({ category, onClose }) {
-  const [items, setItems]             = useState([])
-  const [loading, setLoading]         = useState(true)
+  const [loadedItems, setLoadedItems] = useState({ category: null, items: [] })
   const [customizeItem, setCustomizeItem] = useState(null)
 
   useEffect(() => {
+    let active = true
     document.body.style.overflow = 'hidden'
-    setLoading(true)
     getItemsByCategory(category)
-      .then(setItems)
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false))
-    return () => { document.body.style.overflow = '' }
+      .then((items) => {
+        if (active) setLoadedItems({ category, items })
+      })
+      .catch(() => {
+        if (active) setLoadedItems({ category, items: [] })
+      })
+    return () => {
+      active = false
+      document.body.style.overflow = ''
+    }
   }, [category])
 
+  const loading = loadedItems.category !== category
+  const items = loading ? [] : loadedItems.items
   const grouped = items.reduce((acc, item) => {
     const sub = item.subcategory || 'Classic'
     if (!acc[sub]) acc[sub] = []

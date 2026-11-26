@@ -1,4 +1,4 @@
-import { useState, useEffect,  useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import TopNav from '../components/TopNav'
 import { getMenuItems, addMenuItem, updateMenuItem } from '../services/menuService'
 import { getAllOrders, updateOrderStatus } from '../services/orderService'
@@ -550,7 +550,7 @@ export default function AdminPage() {
                               <td>
                                 <span style={{
                                   padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                                  background: user.role === ROLES.ADMIN ? 'var(--color-surface-container-low)' : 'var(--color-surface-container-low)',
+                                  background: 'var(--color-surface-container-low)',
                                   color:      user.role === ROLES.ADMIN ? 'var(--color-tertiary)' : 'var(--color-on-surface-variant)',
                                 }}>
                                   {user.role}

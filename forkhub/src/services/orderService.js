@@ -16,20 +16,12 @@ async function req(path = '', opts = {}) {
   return res.json()
 }
 
-export function getSavedOrder() {
-  try {
-    return JSON.parse(localStorage.getItem('fh_last_order')) || null
-  } catch {
-    return null
-  }
-}
-
 export async function getAllOrders() {
   return req()
 }
 
 export async function findOrder(q) {
-   return req(`/track?q=${encodeURIComponent(String(q || '').trim())}`)
+  return req(`/track?q=${encodeURIComponent(String(q || '').trim())}`)
 }
 
 
@@ -41,11 +33,6 @@ export async function saveOrder(order) {
   window.dispatchEvent(new Event('cart-updated'))
   return saved
 }
-
-export async function deleteOrder(orderId) {
-  await req(`/${orderId}`, { method: 'DELETE' })
-}
-
 
 export async function updateOrderStatus(orderId, newStatus, reason) {
   return req(`/${orderId}/status`, { 

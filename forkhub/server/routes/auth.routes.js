@@ -56,7 +56,9 @@ async function purgeExpiredAccounts(){
     await writeUsers(kept)
     console.log(`[auth] Purged ${users.length - kept.length} expired account(s)`)
   }
- }catch{}
+  } catch (error) {
+    console.error('[auth] Failed to purge expired accounts:', error)
+  }
 }
 purgeExpiredAccounts()
 setInterval(purgeExpiredAccounts, 24 * 60 * 60 * 1000) // Run once a day

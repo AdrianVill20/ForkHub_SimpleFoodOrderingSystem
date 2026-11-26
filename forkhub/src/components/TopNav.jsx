@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuthModal } from '../contexts/AuthModalContext'
+import { useAuthModal } from '../contexts/useAuthModal'
 import { getCartCount } from '../services/cartService'
 import { ROLES } from '../constants'
 import { formatName } from '../utils/formatName'

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
-import { useAuthModal } from '../contexts/AuthModalContext'
+import { useAuthModal } from '../contexts/useAuthModal'
 import { deleteUser } from '../services/authService'
 import { DELIVERY_BRANCH } from '../constants'
 import profileIcon from '../assets/profile-icon.svg'
@@ -76,7 +76,7 @@ export default function DashboardPage() {
     }
 
     loadProfile()
-  }, [apiBaseUrl, navigate])
+  }, [apiBaseUrl, navigate, openAuth])
 
   useEffect(() => {
     const query = profile.address.trim()

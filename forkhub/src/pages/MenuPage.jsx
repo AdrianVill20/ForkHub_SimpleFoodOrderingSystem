@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import CategoryModal from '../components/CategoryModal'
-import { initMenu } from '../services/menuService'
-import { getCartCount } from '../services/cartService'
 import { SERVICE_TYPE } from '../constants'
 
 const CATEGORIES = [
@@ -18,9 +16,7 @@ const CATEGORIES = [
 
 export default function MenuPage() {
   const navigate = useNavigate()
-  const [ready, setReady]                   = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [cartCount, setCartCount]           = useState(getCartCount())
 
   const serviceType = localStorage.getItem('order_service_type') || SERVICE_TYPE.DELIVERY
   let userAddress = 'No saved address yet'
@@ -28,18 +24,6 @@ export default function MenuPage() {
     const user = JSON.parse(localStorage.getItem('auth_user') || '{}')
     userAddress = user.address || userAddress
   } catch { /* keep default */ }
-
-  // Fetch menu.json on first load, then show the grid
-  useEffect(() => {
-    initMenu().then(() => setReady(true))
-  }, [])
-
-  // Keep cart badge in sync
-  useEffect(() => {
-    const onUpdate = () => setCartCount(getCartCount())
-    window.addEventListener('cart-updated', onUpdate)
-    return () => window.removeEventListener('cart-updated', onUpdate)
-  }, [])
 
   return (
     <div className="page">
@@ -54,38 +38,31 @@ export default function MenuPage() {
               <div className="menu-header-glow" />
             </div>
             <div className="menu-section-body">
-              {!ready ? (
-                <div className="menu-loading">
-                  <div className="menu-loading-spinner" />
-                  <p>Loading menu…</p>
-                </div>
-              ) : (
-                <div className="menu-grid-new">
-                  {CATEGORIES.map((cat, i) => (
-                    <article
-                      key={cat.title}
-                      className="menu-card menu-card-clickable"
-                      onClick={() => setSelectedCategory(cat.title)}
-                      style={{ animationDelay: `${i * 0.06}s` }}
-                    >
-                      <div className="menu-card-img-wrap">
-                        <img
-                          src={cat.image}
-                          alt={cat.title}
-                          className="menu-card-img"
-                          onError={(e) => {
-                            e.target.style.display = 'none'
-                            e.target.nextSibling.style.display = 'block'
-                          }}
-                        />
-                        <div className="menu-card-img-fallback" style={{ display: 'none' }} />
-                      </div>
-                      <h3 className="menu-card-title">{cat.title}</h3>
-                      <div className="menu-card-shimmer" />
-                    </article>
-                  ))}
-                </div>
-              )}
+              <div className="menu-grid-new">
+                {CATEGORIES.map((cat, i) => (
+                  <article
+                    key={cat.title}
+                    className="menu-card menu-card-clickable"
+                    onClick={() => setSelectedCategory(cat.title)}
+                    style={{ animationDelay: `${i * 0.06}s` }}
+                  >
+                    <div className="menu-card-img-wrap">
+                      <img
+                        src={cat.image}
+                        alt={cat.title}
+                        className="menu-card-img"
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.nextSibling.style.display = 'block'
+                        }}
+                      />
+                      <div className="menu-card-img-fallback" style={{ display: 'none' }} />
+                    </div>
+                    <h3 className="menu-card-title">{cat.title}</h3>
+                    <div className="menu-card-shimmer" />
+                  </article>
+                ))}
+              </div>
             </div>
           </section>
 

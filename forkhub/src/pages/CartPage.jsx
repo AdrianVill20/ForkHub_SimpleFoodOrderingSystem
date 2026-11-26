@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
-import { useAuthModal } from '../contexts/AuthModalContext'
+import { useAuthModal } from '../contexts/useAuthModal'
 import { getCart, removeFromCart, updateCartQty, getCartTotal, clearCart } from '../services/cartService'
 import { SERVICE_TYPE } from '../constants'
 

@@ -17,7 +17,7 @@ export const ORDER_STATUS = {
   CANCELLED: 'Cancelled',
 }
 
-// Every status in the order an order moves through them (used by the admin dropdown and sorting)
+// The sequence an order moves through. Used by the admin dropdown and sorting.
 export const ORDER_STATUS_FLOW = [
   ORDER_STATUS.PENDING,
   ORDER_STATUS.PREPARING,

@@ -39,11 +39,3 @@ export async function updateMenuItem(id, updates) {
     body: JSON.stringify(updates),
   })
 }
-
-export async function deleteMenuItem(id) {
-  return request(`/${id}`, { method: 'DELETE' })
-}
-
-/* ── Legacy no-ops kept so nothing breaks if still imported ── */
-export function initMenu() { return Promise.resolve() }
-export function resetMenu() { return Promise.resolve() }

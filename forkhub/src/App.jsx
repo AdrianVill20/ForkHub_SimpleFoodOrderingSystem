@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom'
-import { AuthModalProvider, useAuthModal } from './contexts/AuthModalContext'
+import { AuthModalProvider } from './contexts/AuthModalContext'
+import { useAuthModal } from './contexts/useAuthModal'
 import Home from './pages/Home'
 import ProfilePage from './pages/ProfilePage'
 import MenuPage from './pages/MenuPage'
@@ -14,8 +15,6 @@ import './App.css'
 import './GourmetEmber.css'
 
 function ProtectedRoute({ isAuthenticated, children, requireAdmin = false }) {
-  const location = useLocation()
-
   if (!isAuthenticated) {
     return (
       <Navigate

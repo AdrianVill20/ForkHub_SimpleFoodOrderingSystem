@@ -1,7 +1,6 @@
 import express    from 'express'
 import cors       from 'cors'
 import path       from 'node:path'
-import { fileURLToPath } from 'node:url'
 import authRoutes from './routes/auth.routes.js'
 import menuRoutes from './routes/menu.routes.js'
 import orderRoutes from './routes/order.routes.js'
