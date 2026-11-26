@@ -1,6 +1,8 @@
+using System.Text.Json;
 using ForkHub.Api;
 using ForkHub.Api.Auth;
 using ForkHub.Api.Data;
+using ForkHub.Api.Models;
 using ForkHub.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -77,6 +79,42 @@ await using (var scope = app.Services.CreateAsyncScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ForkHubDbContext>();
     await db.Database.MigrateAsync();
+
+    if (!await db.MenuItems.AnyAsync())
+    {
+        var menuPath = Path.Combine(rootDir, "data", "menu.json");
+        if (!File.Exists(menuPath))
+        {
+            app.Logger.LogWarning("Menu seeding skipped because {MenuPath} was not found.", menuPath);
+        }
+        else
+        {
+            await using var menuFile = File.OpenRead(menuPath);
+            var menuItems = await JsonSerializer.DeserializeAsync<List<MenuItem>>(
+                menuFile,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                ?? throw new InvalidDataException($"Menu data is empty or invalid: {menuPath}");
+
+            db.MenuItems.AddRange(menuItems.Select((item, position) => new MenuItemEntity
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Category = item.Category,
+                Subcategory = item.Subcategory,
+                Description = item.Description,
+                Price = item.Price,
+                Image = item.Image,
+                Unavailable = item.Unavailable,
+                Position = position,
+            }));
+            await db.SaveChangesAsync();
+            app.Logger.LogInformation("Seeded {MenuItemCount} menu items from {MenuPath}.", menuItems.Count, menuPath);
+        }
+    }
+    else
+    {
+        app.Logger.LogInformation("Menu seeding skipped because MenuItems already contains rows.");
+    }
 }
 
 app.MapControllers();
