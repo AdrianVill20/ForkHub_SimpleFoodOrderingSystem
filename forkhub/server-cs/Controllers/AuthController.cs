@@ -63,7 +63,7 @@ public sealed class AuthController(ForkHubDbContext db, TokenService tokens, ICo
         if (user.IsDeleted == true && !string.IsNullOrEmpty(user.ScheduledDeletionAt) &&
             DateTimeOffset.TryParse(user.ScheduledDeletionAt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var scheduled) && scheduled <= DateTimeOffset.UtcNow)
         {
-            throw new HttpError(401, "This account has been permanently deleted");
+            throw new HttpError(401, "This account has been deleted. Contact an administrator to restore it.");
         }
         if (string.IsNullOrEmpty(user.Password) || !BCrypt.Net.BCrypt.Verify(password, user.Password)) throw new HttpError(401, "Invalid email or password");
         var responseUser = EntityMapping.ToAppUser(user);
