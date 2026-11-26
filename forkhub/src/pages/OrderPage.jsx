@@ -1,21 +1,24 @@
-import { use, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
+import OrderDetails from '../components/OrderDetails'
 import Pagination from '../components/Pagination'
 import { paginate } from '../utils/pagination'
 import { getCart, getCartTotal, clearCart } from '../services/cartService'
 import { saveOrder, getAllOrders, canCancel, updateOrderStatus } from '../services/orderService'
-import { ORDER_STATUS, SERVICE_TYPE } from '../constants'
-
-const BRANCHES = [
-  { id: 'puso-village', name: 'Puso Village, Cebu City, PH', lat: 10.2913456, lng: 123.9016386 },
-]
+import { DELIVERY_BRANCH, ORDER_STATUS, SERVICE_TYPE } from '../constants'
 
 export default function OrderPage() {
   const navigate = useNavigate()
   const [serviceType, setServiceType] = useState(localStorage.getItem('order_service_type') || SERVICE_TYPE.DELIVERY)
-  const [address, setAddress] = useState('')
+  const [address, setAddress] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('auth_user') || '{}').address || ''
+    } catch {
+      return ''
+    }
+  })
   const [phone, setPhone] = useState('')
   const [destination, setDestination] = useState(null)
   const [placedOrder, setPlacedOrder] = useState(null)
@@ -24,13 +27,14 @@ export default function OrderPage() {
 
   const [cart, setCart] = useState(getCart())
   const total = getCartTotal()
-  const branch = BRANCHES[0]
+  const branch = DELIVERY_BRANCH
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
   const [orderHistory, setOrderHistory] = useState([])
   const [cancellingId, setCancellingId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
   const [historyPage, setHistoryPage] = useState(1)
+  const [expandedOrderId, setExpandedOrderId] = useState(null)
   const historyPaging = paginate([...orderHistory].reverse(), historyPage)
 
   // Auto-fill phone from user data on mount
@@ -117,12 +121,13 @@ export default function OrderPage() {
     }
 
     localStorage.setItem('order_service_type', serviceType)
+    const isPickup = serviceType === SERVICE_TYPE.PICK_UP
     const order = await saveOrder({
       serviceType,
       branch,
-      address: address.trim() || 'Delivery location set on map',
+      address: isPickup ? branch.name : address.trim() || 'Delivery location set on map',
       phone: phone.trim(),
-      destination,
+      destination: isPickup ? { lat: branch.lat, lng: branch.lng, name: branch.name } : destination,
     })
     setPlacedOrder(order)
     setShowConfirmation(true)
@@ -207,12 +212,21 @@ export default function OrderPage() {
                                     <button className="order-cancel-back-btn" onClick={() => setCancellingId(null)}>Back</button>
                                   </div>
                                 )}
-                                <button className="order-track-btn" onClick={() => navigate(`/tracking?q=${encodeURIComponent(o.id)}`)}>Track</button>
+                                <button
+                                  className="order-details-toggle"
+                                  type="button"
+                                  aria-expanded={expandedOrderId === o.id}
+                                  onClick={() => setExpandedOrderId(expandedOrderId === o.id ? null : o.id)}
+                                >
+                                  {expandedOrderId === o.id ? 'Hide Details' : 'Order Details'}
+                                </button>
+                                <button className="order-track-btn" onClick={() => navigate(`/orders/${encodeURIComponent(o.id)}`)}>Track</button>
                               </div>
                               {o.status === ORDER_STATUS.CANCELLED && o.cancelReason && (
                                 <p className="order-cancel-reason-display">Reason: {o.cancelReason}</p>
                               )}
                             </div>
+                            {expandedOrderId === o.id && <OrderDetails order={o} compact />}
                           </div>
                         ))}
                       </div>
@@ -243,11 +257,7 @@ export default function OrderPage() {
                             name="service-type"
                             value="Pick Up"
                             checked={serviceType === SERVICE_TYPE.PICK_UP}
-                            onChange={() => {
-                              setServiceType(SERVICE_TYPE.PICK_UP)
-                              setAddress(branch.name)
-                              setDestination({ lat: branch.lat, lng: branch.lng, name: branch.name })
-                            }}
+                            onChange={() => setServiceType(SERVICE_TYPE.PICK_UP)}
                           />
                           <span className="order-radio-indicator" />
                           <span className="order-radio-text">Pick Up</span>
@@ -376,7 +386,7 @@ export default function OrderPage() {
                     </div>
                   </div>
                   <div className="order-confirm-actions">
-                    <button className="order-confirm-track-btn" type="button" onClick={() => navigate(`/tracking?q=${encodeURIComponent(orderSummary.id)}`)}>
+                    <button className="order-confirm-track-btn" type="button" onClick={() => navigate(`/orders/${encodeURIComponent(orderSummary.id)}`)}>
                       Track Order
                     </button>
                     <button type="button" className="order-confirm-menu-btn" onClick={() => navigate('/menu')}>
@@ -473,7 +483,7 @@ export default function OrderPage() {
                 className="order-confirm-modal-btn order-confirm-modal-btn-primary"
                 onClick={() => {
                   setShowConfirmation(false)
-                  navigate(`/tracking?q=${encodeURIComponent(orderSummary?.id || '')}`)
+                  navigate(`/orders/${encodeURIComponent(orderSummary?.id || '')}`)
                 }}
               >
                 Track Order

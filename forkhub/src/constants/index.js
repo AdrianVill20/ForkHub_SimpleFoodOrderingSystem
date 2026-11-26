@@ -35,3 +35,10 @@ export const SERVICE_TYPE = {
   DELIVERY: 'Delivery',
   PICK_UP: 'Pick Up',
 }
+
+export const DELIVERY_BRANCH = {
+  id: 'puso-village',
+  name: 'Puso Village, Cebu City, PH',
+  lat: 10.2913456,
+  lng: 123.9016386,
+}

@@ -98,11 +98,7 @@ export default function Login() {
         required
       />
 
-      <div className="remember-forgot">
-        <label className="remember-me">
-          <input type="checkbox" />
-          <span>Remember me</span>
-        </label>
+      <div className="login-aux-row">
         <a href="#" className="forgot-password">Forgot Password?</a>
       </div>
 

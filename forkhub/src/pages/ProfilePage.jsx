@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
+import DeliveryMap from '../components/DeliveryMap'
 import { useAuthModal } from '../contexts/AuthModalContext'
 import { deleteUser } from '../services/authService'
+import { DELIVERY_BRANCH } from '../constants'
 import profileIcon from '../assets/profile-icon.svg'
 import emailIcon from '../assets/email-icon.svg'
 import phoneIcon from '../assets/phone-icon.svg'
@@ -24,12 +26,17 @@ export default function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [addressDestination, setAddressDestination] = useState(null)
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false)
+  const [addressSearchMessage, setAddressSearchMessage] = useState('')
+  const lastGeocodedAddressRef = useRef('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [confirmText, setConfirmText] = useState('')
   const [scheduledDeletion, setScheduledDeletion] = useState(null)
   const [showDeletionScheduled, setShowDeletionScheduled] = useState(false)
   const navigate = useNavigate()
+  const { openAuth } = useAuthModal()
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
   useEffect(() => {
@@ -71,9 +78,81 @@ export default function DashboardPage() {
     loadProfile()
   }, [apiBaseUrl, navigate])
 
+  useEffect(() => {
+    const query = profile.address.trim()
+    if (!isEditing || !query || lastGeocodedAddressRef.current === query) {
+      if (!isEditing) setIsSearchingAddress(false)
+      if (!query) {
+        setAddressDestination(null)
+        setAddressSearchMessage('')
+      }
+      return
+    }
+
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
+      setIsSearchingAddress(true)
+      setAddressSearchMessage('Searching address…')
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,
+          { signal: controller.signal },
+        )
+        if (!response.ok) throw new Error('Address search failed')
+
+        const results = await response.json()
+        if (!Array.isArray(results) || results.length === 0) {
+          setAddressDestination(null)
+          setAddressSearchMessage('Address not found. Try another address or pin it on the map.')
+          return
+        }
+
+        const result = results[0]
+        const lat = Number(result.lat)
+        const lng = Number(result.lon)
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          throw new Error('The address result did not include a valid location.')
+        }
+
+        const resolvedAddress = result.display_name || query
+        lastGeocodedAddressRef.current = resolvedAddress
+        setAddressDestination({ lat, lng, name: resolvedAddress })
+        setAddressSearchMessage('Location found and shown on the map.')
+        setProfile((previous) => ({ ...previous, address: resolvedAddress }))
+      } catch (error) {
+        if (controller.signal.aborted) return
+        setAddressDestination(null)
+        setAddressSearchMessage(error.message || 'Unable to locate the address. Try another query.')
+      } finally {
+        if (!controller.signal.aborted) setIsSearchingAddress(false)
+      }
+    }, 700)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [isEditing, profile.address])
+
   const updateProfileField = (fieldName, value) => {
     setProfile((prev) => ({ ...prev, [fieldName]: value }))
   }
+
+  const handleAddressInputChange = (value) => {
+    lastGeocodedAddressRef.current = ''
+    setIsSearchingAddress(false)
+    setAddressDestination(null)
+    setAddressSearchMessage('')
+    updateProfileField('address', value)
+  }
+
+  const handlePinnedAddressChange = useCallback((value) => {
+    lastGeocodedAddressRef.current = value.trim()
+    setIsSearchingAddress(false)
+    setAddressSearchMessage('Delivery location pinned.')
+    setProfile((previous) => ({ ...previous, address: value }))
+  }, [])
 
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim()
 
@@ -397,13 +476,23 @@ export default function DashboardPage() {
                     </label>
                     <textarea
                       value={profile.address}
-                      onChange={e => updateProfileField('address', e.target.value)}
+                      onChange={e => handleAddressInputChange(e.target.value)}
                       className="field"
-                      placeholder="Enter your complete delivery address"
+                      placeholder="Type your delivery address"
                       rows="4"
                       style={{ resize: 'vertical', fontFamily: 'inherit', padding: '12px' }}
                     />
-                    <p style={{ fontSize: '12px', color: 'var(--color-outline)', margin: '4px 0 0' }}>Include street, city, and postal code</p>
+                    <p className="muted" role="status" style={{ margin: '4px 0 0' }}>
+                      {isSearchingAddress ? 'Searching address…' : addressSearchMessage || 'Type an address to locate it, or click the map to pin it.'}
+                    </p>
+                    <DeliveryMap
+                      branch={DELIVERY_BRANCH}
+                      address={profile.address}
+                      destination={addressDestination}
+                      onDestinationChange={setAddressDestination}
+                      onAddressChange={handlePinnedAddressChange}
+                      onStatusChange={setAddressSearchMessage}
+                    />
                   </div>
                 ) : (
                   <div className="profile-address-display">

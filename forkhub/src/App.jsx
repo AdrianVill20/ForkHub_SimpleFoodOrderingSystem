@@ -217,6 +217,16 @@ function App() {
           )}
         />
         <Route
+          path="/orders/:orderId"
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CustomerRoute isAuthenticated={isAuthenticated}>
+                <TrackingPage />
+              </CustomerRoute>
+            </ProtectedRoute>
+          )}
+        />
+        <Route
           path="/tracking"
           element={(
             <ProtectedRoute isAuthenticated={isAuthenticated}>

@@ -1,9 +1,9 @@
 import { useState, useEffect,  useRef, useCallback } from 'react'
 import TopNav from '../components/TopNav'
-import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService'
+import { getMenuItems, addMenuItem, updateMenuItem } from '../services/menuService'
 import { getAllOrders, updateOrderStatus } from '../services/orderService'
 import Pagination from '../components/Pagination'
-import { paginate } from '../utils/pagination'
+import { PAGE_SIZE, paginate } from '../utils/pagination'
 import { formatName } from '../utils/formatName'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { ORDER_STATUS, ORDER_STATUS_FLOW, ROLES } from '../constants'
@@ -89,7 +89,7 @@ function ImageUpload({ category, value, onChange }) {
 
 }
 
-function FormFields({ form, setForm }) {
+function FormFields({ form, setForm, showAvailability = false }) {
   const lbl = { fontWeight:700, fontSize:13, color:'var(--color-on-surface)', display:'block', marginBottom:2, marginTop:10 }
 
   return (
@@ -141,7 +141,18 @@ function FormFields({ form, setForm }) {
         required 
         />
 
-         <ImageUpload
+      {showAvailability && (
+        <label className="admin-availability-toggle">
+          <input
+            type="checkbox"
+            checked={form.unavailable !== true}
+            onChange={(e) => setForm({ ...form, unavailable: !e.target.checked })}
+          />
+          <span>Available for orders</span>
+        </label>
+      )}
+
+      <ImageUpload
         category={form.category}
         value={form.image}
         onChange={(path) => setForm({...form, image: path})}
@@ -168,8 +179,14 @@ export default function AdminPage() {
   const [itemPage, setItemPage]       = useState(1)
   const [orderPage, setOrderPage]     = useState(1)
   const [userPage, setUserPage]       = useState(1)
+  const [orderStatusFilter, setOrderStatusFilter] = useState('All')
 
-  async function reload() {
+  const showToast = useCallback((msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 2800)
+  }, [])
+
+  const reload = useCallback(async () => {
     setLoading(true)
     try {
       const data = await getMenuItems()
@@ -179,17 +196,17 @@ export default function AdminPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [showToast])
 
-  useEffect(() => { reload() }, [])
+  useEffect(() => { void reload() }, [reload])
 
-  async function loadUsers() {
-  const token = localStorage.getItem('auth_token') || ''
-  const res   = await fetch('/api/auth/users', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  setUsers(await res.json())
-}
+  const loadUsers = useCallback(async () => {
+    const token = localStorage.getItem('auth_token') || ''
+    const res = await fetch('/api/auth/users', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    setUsers(await res.json())
+  }, [])
 
   // A top-bar link was clicked (or the page was opened/refreshed): show that tab and load its data.
   // location.key changes on every click, so clicking "Menu" while editing still returns to the list.
@@ -197,18 +214,13 @@ export default function AdminPage() {
     setView(tab)
     if (tab === 'add') setForm(EMPTY_FORM)
     if (tab === 'orders') getAllOrders().then(setOrders).catch(() => setOrders([]))
-    if (tab === 'users') loadUsers()
-  }, [tab, location.key])
+    if (tab === 'users') void loadUsers()
+  }, [tab, location.key, loadUsers])
 
   // Switch to a top-bar tab from inside the page, keeping the address in sync
   function goTo(next) {
     setView(next)
     setSearchParams(next === 'list' ? {} : { view: next })
-  }
-
-  function showToast(msg, type = 'success') {
-    setToast({ msg, type })
-    setTimeout(() => setToast(null), 2800)
   }
 
   const filtered = items.filter((item) => {
@@ -217,7 +229,10 @@ export default function AdminPage() {
     return matchCat && matchSearch
   })
   const itemPaging  = paginate(filtered, itemPage)
-  const orderPaging = paginate(sortOrdersByStatus(orders), orderPage)
+  const itemRangeStart = filtered.length ? (itemPaging.current - 1) * PAGE_SIZE + 1 : 0
+  const itemRangeEnd = Math.min(itemPaging.current * PAGE_SIZE, filtered.length)
+  const filteredOrders = sortOrdersByStatus(orders).filter((order) => orderStatusFilter === 'All' || order.status === orderStatusFilter)
+  const orderPaging = paginate(filteredOrders, orderPage)
   const userPaging  = paginate(users, userPage)
   // The Action column only holds "Restore", so show it only when some account is pending deletion
   const hasPendingDeletion = users.some((user) => user.isDeleted)
@@ -279,10 +294,6 @@ export default function AdminPage() {
     }
   }
 
-  const lbl = { fontWeight:700, fontSize:13, color:'var(--color-on-surface)', display:'block', marginBottom:2, marginTop:10 }
-  const th  = { padding:'10px 12px', fontWeight:700, fontSize:12, textTransform:'uppercase' }
-  const td  = { padding:'10px 12px', verticalAlign:'middle' }
-
   return (
     <div className="page">
       <TopNav />
@@ -319,9 +330,13 @@ export default function AdminPage() {
                       {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                     </select>
                   </div>
-                  <p className="admin-count">{loading ? 'Loading…' : `Showing ${filtered.length} of ${items.length} items`}</p>
+                  <p className="admin-count">
+                    {loading
+                      ? 'Loading…'
+                      : `Showing ${itemRangeStart}${itemRangeEnd !== itemRangeStart ? `-${itemRangeEnd}` : ''} of ${filtered.length} items${filtered.length !== items.length ? ` (filtered from ${items.length})` : ''}`}
+                  </p>
                   <div className="admin-table-wrap">
-                    <table className="admin-table">
+                    <table className="admin-table admin-table--menu">
                       <thead>
                         <tr>
                           <th>Image</th>
@@ -329,7 +344,7 @@ export default function AdminPage() {
                           <th>Category</th>
                           <th>Sub</th>
                           <th>Price</th>
-                          <th>Actions</th>
+                          <th className="admin-actions-heading">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -337,7 +352,7 @@ export default function AdminPage() {
                           <tr><td colSpan={6} className="admin-empty-row">No items found.</td></tr>
                         )}
                         {itemPaging.rows.map((item) => (
-                          <tr key={item.id} style={{ opacity: item.unavailable ? 0.6 : 1, backgroundColor: item.unavailable ? 'var(--color-surface-container-low)' : 'transparent' }}>
+                          <tr key={item.id} style={{ backgroundColor: item.unavailable ? 'var(--color-surface-container-low)' : 'transparent' }}>
                             <td>
                               <img src={item.image} alt={item.name} className="admin-item-img" onError={(e) => { e.target.style.display='none' }} style={{ filter: item.unavailable ? 'grayscale(100%)' : 'none', opacity: item.unavailable ? 0.5 : 1 }} />
                             </td>
@@ -352,14 +367,16 @@ export default function AdminPage() {
                             <td>{item.category}</td>
                             <td>{item.subcategory}</td>
                             <td className="admin-item-price">₱{item.price}</td>
-                            <td className="admin-actions">
-                              <button className="admin-edit-btn" onClick={() => openEdit(item)}>Edit</button>
-                              <button
-                                className={item.unavailable ? 'admin-enable-btn' : 'admin-unavailable-btn'}
-                                onClick={() => openDelete(item)}
-                              >
-                                {item.unavailable ? 'Enable' : 'Unavailable'}
-                              </button>
+                            <td className="admin-actions-cell">
+                              <div className="admin-actions-group">
+                                <button className="admin-edit-btn" onClick={() => openEdit(item)}>Edit</button>
+                                <button
+                                  className={`admin-action-btn ${item.unavailable ? 'admin-action-btn--available' : 'admin-action-btn--unavailable'}`}
+                                  onClick={() => openDelete(item)}
+                                >
+                                  {item.unavailable ? 'Mark Available' : 'Mark Unavailable'}
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -384,7 +401,7 @@ export default function AdminPage() {
               {/* EDIT */}
               {view === 'edit' && (
                 <form onSubmit={handleEdit} className="admin-form">
-                  <FormFields form={form} setForm={setForm} />
+                  <FormFields form={form} setForm={setForm} showAvailability />
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-save-btn">SAVE CHANGES</button>
                     <button type="button" className="admin-cancel-btn" onClick={() => { goTo('list'); setForm(EMPTY_FORM) }}>CANCEL</button>
@@ -418,10 +435,23 @@ export default function AdminPage() {
               {/* ORDERS */}
               {view === 'orders' && (
                 <div className="admin-view-body">
-                  <p className="admin-count">{orders.length === 0 ? 'No orders placed yet.' : `${orders.length} order(s)`}</p>
-                  {orders.length > 0 && (
+                  <div className="admin-orders-toolbar">
+                    <p className="admin-count">{orders.length === 0 ? 'No orders placed yet.' : `${filteredOrders.length} of ${orders.length} order(s)`}</p>
+                    <label className="admin-orders-status-filter">
+                      <span>Filter status</span>
+                      <select
+                        className="select-field admin-filter-select"
+                        value={orderStatusFilter}
+                        onChange={(e) => { setOrderStatusFilter(e.target.value); setOrderPage(1) }}
+                      >
+                        <option value="All">All statuses</option>
+                        {ORDER_STATUS_FLOW.map((status) => <option key={status} value={status}>{status}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                  {orders.length > 0 && filteredOrders.length > 0 && (
                     <div className="admin-table-wrap">
-                      <table className="admin-table">
+                      <table className="admin-table admin-table--orders">
                         <thead>
                           <tr>
                             <th>Order #</th>
@@ -447,6 +477,7 @@ export default function AdminPage() {
                                     try{
                                     await updateOrderStatus(order.id, e.target.value)
                                     setOrders(await getAllOrders())
+                                    setOrderPage(1)
                                     showToast(`Order ${order.id} status updated.`)
                                     } catch { showToast('Failed to update status.', 'error') }
                                   }}
@@ -478,6 +509,9 @@ export default function AdminPage() {
                       </table>
                     </div>
                   )}
+                  {orders.length > 0 && filteredOrders.length === 0 && (
+                    <p className="admin-empty-row">No orders match this status.</p>
+                  )}
                   <Pagination page={orderPaging.current} totalPages={orderPaging.totalPages} onChange={setOrderPage} />
                 </div>
               )}
@@ -490,7 +524,7 @@ export default function AdminPage() {
                   </p>
                   {users.length > 0 && (
                     <div className="admin-table-wrap">
-                      <table className="admin-table">
+                      <table className="admin-table admin-table--users">
                         <thead>
                           <tr>
                             <th>Name</th>
@@ -499,7 +533,7 @@ export default function AdminPage() {
                             <th>Joined</th>
                             <th>Status</th>
                             <th>Deletion Date</th>
-                            {hasPendingDeletion && <th>Action</th>}
+                            {hasPendingDeletion && <th className="admin-actions-heading">Action</th>}
                           </tr>
                         </thead>
                         <tbody>
@@ -536,20 +570,22 @@ export default function AdminPage() {
                                   : '—'}
                               </td>
                               {hasPendingDeletion && (
-                                <td className="admin-actions">
-                                  {user.isDeleted && (
-                                    <button
-                                      className="admin-edit-btn"
-                                      onClick={async () => {
-                                        const token = localStorage.getItem('auth_token') || ''
-                                        await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
-                                        loadUsers()
-                                        showToast(`"${user.email}" restored.`)
-                                      }}
-                                    >
-                                      Restore
-                                    </button>
-                                  )}
+                                <td className="admin-actions-cell">
+                                  <div className="admin-actions-group">
+                                    {user.isDeleted && (
+                                      <button
+                                        className="admin-edit-btn"
+                                        onClick={async () => {
+                                          const token = localStorage.getItem('auth_token') || ''
+                                          await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                                          loadUsers()
+                                          showToast(`"${user.email}" restored.`)
+                                        }}
+                                      >
+                                        Restore
+                                      </button>
+                                    )}
+                                  </div>
                                 </td>
                               )}
                             </tr>

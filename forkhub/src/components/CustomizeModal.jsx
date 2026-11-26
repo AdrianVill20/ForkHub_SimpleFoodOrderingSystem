@@ -238,7 +238,7 @@ export default function CustomizeModal({ item, onClose, onAdded }) {
               disabled={added}
               style={{ flex: 1 }}
             >
-              {added ? '✓ ADDED TO ORDER!' : 'ADD TO ORDER'}
+              {added ? '✓ ADDED TO CART!' : 'ADD TO CART'}
             </button>
           </div>
         </div>

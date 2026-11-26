@@ -5,7 +5,6 @@ import { RegisterModal } from '../pages/Register'
 export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
@@ -135,39 +134,15 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
           <input className="field" name="email" autoComplete="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
           <label style={{ display: 'block', marginTop: 16 }}>Password</label>
-          <div className="auth-password-field">
-            <input
-              className="field"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              className="auth-password-toggle"
-              type="button"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              aria-pressed={showPassword}
-              onClick={() => setShowPassword((visible) => !visible)}
-            >
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                {showPassword ? (
-                  <>
-                    <path d="M3 3l18 18" />
-                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
-                    <path d="M9.9 5.2A10.7 10.7 0 0112 5c6.4 0 10 7 10 7a14.8 14.8 0 01-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.5 10.5 0 004.1-.8" />
-                  </>
-                ) : (
-                  <>
-                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
+          <input
+            className="field"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           {errorMessage ? (
             <p className="muted" style={{ color: 'var(--color-error)', marginTop: 10 }}>

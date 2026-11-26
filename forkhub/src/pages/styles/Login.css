@@ -1,24 +1,9 @@
-.remember-forgot {
+.login-aux-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 24px;
   font-size: 14px;
-}
-
-.remember-me {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: #666666;
-}
-
-.remember-me input[type="checkbox"] {
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  accent-color: #ff6b35;
 }
 
 .forgot-password {
@@ -50,12 +35,4 @@
 .form-footer a:hover {
   color: #e55a24;
   text-decoration: underline;
-}
-
-@media (max-width: 480px) {
-  .remember-forgot {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
 }
