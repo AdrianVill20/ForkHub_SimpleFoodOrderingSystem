@@ -250,7 +250,7 @@ export default function UserPage() {
               </div>
               
               <div className="profile-card-content-new">
-                <p className="profile-danger-warning">⚠️ Permanently delete your account and all data</p>
+                <p className="profile-danger-warning">Delete your account without permanently removing your data</p>
               </div>
 
               <div className="profile-card-footer danger">
@@ -279,7 +279,7 @@ export default function UserPage() {
                 <img src={dangerIcon} alt="Warning" />
               </div>
               <h2>Delete Your Account?</h2>
-              <p>This action is permanent and cannot be undone</p>
+              <p>You can restore your account within 5 days</p>
             </div>
             
             <div className="profile-modal-body-new">
@@ -289,8 +289,8 @@ export default function UserPage() {
               <ul className="profile-modal-list">
                 <li>Remove all your personal data</li>
                 <li>Cancel any active orders</li>
-                <li>Delete your order history</li>
-                <li>Close your account permanently</li>
+                <li>Retain your order history</li>
+                <li>Mark your account as deleted</li>
               </ul>
 
               <label className="profile-modal-label-new">
@@ -320,7 +320,7 @@ export default function UserPage() {
                 disabled={isDeleting || confirmText !== 'DELETE'}
                 className={`profile-modal-btn-delete-new ${confirmText === 'DELETE' ? 'enabled' : 'disabled'}`}
               >
-                {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
               </button>
             </div>
           </div>
