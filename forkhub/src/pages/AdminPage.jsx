@@ -196,7 +196,7 @@ export default function AdminPage() {
   useEffect(() => {
     setView(tab)
     if (tab === 'add') setForm(EMPTY_FORM)
-    if (tab === 'orders') getAllOrders().then(setOrders).catch(() => setOrders([]))
+    if (tab === 'orders') getAllOrders().then((list) => setOrders(sortOrdersByStatus(list))).catch(() => setOrders([]))
     if (tab === 'users') loadUsers()
   }, [tab, location.key])
 
@@ -217,7 +217,7 @@ export default function AdminPage() {
     return matchCat && matchSearch
   })
   const itemPaging  = paginate(filtered, itemPage)
-  const orderPaging = paginate(sortOrdersByStatus(orders), orderPage)
+  const orderPaging = paginate(orders, orderPage)
   const userPaging  = paginate(users, userPage)
   // The Action column only holds "Restore", so show it only when some account is pending deletion
   const hasPendingDeletion = users.some((user) => user.isDeleted)
@@ -446,7 +446,12 @@ export default function AdminPage() {
                                   onChange={async (e) => {
                                     try{
                                     await updateOrderStatus(order.id, e.target.value)
-                                    setOrders(await getAllOrders())
+                                    // Keep rows where they are; re-sorting by status would move this one to another page
+                                    const fresh = await getAllOrders()
+                                    setOrders((prev) => {
+                                      const pos = new Map(prev.map((o, i) => [o.id, i]))
+                                      return [...fresh].sort((a, b) => (pos.get(a.id) ?? -1) - (pos.get(b.id) ?? -1))
+                                    })
                                     showToast(`Order ${order.id} status updated.`)
                                     } catch { showToast('Failed to update status.', 'error') }
                                   }}
