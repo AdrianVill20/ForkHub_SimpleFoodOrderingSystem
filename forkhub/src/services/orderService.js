@@ -1,4 +1,5 @@
 import { getCart, getCartTotal, clearCart } from './cartService'
+import { CUSTOMER_CANCELLABLE_STATUSES } from '../constants'
 
 const BASE = '/api/orders'
 const token = () => localStorage.getItem('auth_token') || ''
@@ -54,8 +55,6 @@ export async function updateOrderStatus(orderId, newStatus, reason) {
 }
 
 // Customers can only cancel before the restaurant starts preparing the order
-const CANCELLABLE = ['Pending']
-
 export function canCancel(status) {
-  return CANCELLABLE.includes(status)
+  return CUSTOMER_CANCELLABLE_STATUSES.includes(status)
 }

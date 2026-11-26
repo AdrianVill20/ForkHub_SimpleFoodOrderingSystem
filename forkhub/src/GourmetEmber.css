@@ -46,6 +46,7 @@ html {
   transition: color 160ms ease, background 160ms ease;
 }
 .top-nav-item:hover, .top-nav-right .top-nav-item:hover { color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.top-nav-item.active { color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, transparent); border-color: color-mix(in srgb, var(--color-primary) 30%, transparent); }
 .top-nav-right { display: flex; align-items: center; gap: 8px; }
 .top-nav-right .auth-topnav-signin { border: 1px solid var(--color-primary); color: var(--color-primary); background: transparent; cursor: pointer; }
 .top-nav-cart, .top-nav-right .top-nav-cart { border-color: var(--color-primary-container, #D62839) !important; color: var(--color-on-primary, #FFFFFF) !important; background: var(--color-primary-container, var(--primary, #D62839)) !important; }
@@ -315,6 +316,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--color-primary-
 /* Full-width admin page so the orders table fits without scrolling sideways. */
 .admin-content-wrap { width: 100%; padding: 24px 24px 40px; }
 .admin-content-wrap .admin-layout { max-width: none; }
+/* The page is full width for the tables; keep the add/edit form a comfortable width */
+.admin-content-wrap .admin-form { max-width: 880px; margin: 0 auto; }
 .admin-address-cell { font-size: 12px; min-width: 160px; white-space: normal; word-break: break-word; }
 
 /* ---- Pagination ---- */
