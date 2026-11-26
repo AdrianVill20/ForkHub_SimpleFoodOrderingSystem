@@ -4,13 +4,17 @@ import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from '../se
 import { getAllOrders, updateOrderStatus } from '../services/orderService'
 import Pagination from '../components/Pagination'
 import { paginate } from '../utils/pagination'
+import { formatName } from '../utils/formatName'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { ORDER_STATUS, ORDER_STATUS_FLOW, ROLES } from '../constants'
 
 const CATEGORIES = ['Pizza','Pasta','Sides','Chicken','Desserts','Beverages','Extras']
-// Admin order list is sorted in this status order; newest first inside each status.
-const STATUS_ORDER = ['Pending','Preparing','Out for delivery','Ready for pickup','Delivered','Completed','Cancelled']
+// Views the top bar links to with /admin?view=... ('list' is plain /admin)
+const TAB_VIEWS = ['list', 'add', 'orders', 'users']
 
+// Admin order list is sorted in status order; newest first inside each status.
 function sortOrdersByStatus(list) {
-  const rank = (status) => { const i = STATUS_ORDER.indexOf(status); return i === -1 ? STATUS_ORDER.length : i }
+  const rank = (status) => { const i = ORDER_STATUS_FLOW.indexOf(status); return i === -1 ? ORDER_STATUS_FLOW.length : i }
   return [...list].sort((a, b) => rank(a.status) - rank(b.status) || new Date(b.placedAt) - new Date(a.placedAt))
 }
 const EMPTY_FORM  = { name:'', category:'Pizza', subcategory:'Classic', description:'', price:'', image:'' }
@@ -147,7 +151,10 @@ function FormFields({ form, setForm }) {
 }
 
 export default function AdminPage() {
-  const [view, setView]               = useState('list')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
+  const tab = TAB_VIEWS.includes(searchParams.get('view')) ? searchParams.get('view') : 'list'
+  const [view, setView]               = useState(tab)
   const [items, setItems]             = useState([])
   const [loading, setLoading]         = useState(false)
   const [form, setForm]               = useState(EMPTY_FORM)
@@ -184,6 +191,21 @@ export default function AdminPage() {
   setUsers(await res.json())
 }
 
+  // A top-bar link was clicked (or the page was opened/refreshed): show that tab and load its data.
+  // location.key changes on every click, so clicking "Menu" while editing still returns to the list.
+  useEffect(() => {
+    setView(tab)
+    if (tab === 'add') setForm(EMPTY_FORM)
+    if (tab === 'orders') getAllOrders().then(setOrders).catch(() => setOrders([]))
+    if (tab === 'users') loadUsers()
+  }, [tab, location.key])
+
+  // Switch to a top-bar tab from inside the page, keeping the address in sync
+  function goTo(next) {
+    setView(next)
+    setSearchParams(next === 'list' ? {} : { view: next })
+  }
+
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 2800)
@@ -197,6 +219,8 @@ export default function AdminPage() {
   const itemPaging  = paginate(filtered, itemPage)
   const orderPaging = paginate(sortOrdersByStatus(orders), orderPage)
   const userPaging  = paginate(users, userPage)
+  // The Action column only holds "Restore", so show it only when some account is pending deletion
+  const hasPendingDeletion = users.some((user) => user.isDeleted)
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -206,7 +230,7 @@ export default function AdminPage() {
       await reload()
       showToast(`"${form.name}" added successfully!`)
       setForm(EMPTY_FORM)
-      setView('list')
+      goTo('list')
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -224,7 +248,7 @@ export default function AdminPage() {
       await updateMenuItem(editingId, { ...form, price: Number(form.price) })
       await reload()
       showToast(`"${form.name}" updated successfully!`)
-      setView('list')
+      goTo('list')
       setEditingId(null)
       setForm(EMPTY_FORM)
     } catch (err) {
@@ -249,7 +273,7 @@ export default function AdminPage() {
         showToast(`"${deleteTarget.name}" is now available again.`, 'success')
       }
       setDeleteTarget(null)
-      setView('list')
+      goTo('list')
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -285,21 +309,6 @@ export default function AdminPage() {
             </div>
 
             <div className="admin-section-body">
-              <div className="admin-tabs">
-                <button className={`admin-tab ${view === 'list' ? 'active' : ''}`} onClick={() => setView('list')}>
-                  <img src="/favicon.svg" alt="" className="admin-tab-icon" /> List Items
-                </button>
-                <button className={`admin-tab ${view === 'add'  ? 'active' : ''}`} onClick={() => { setForm(EMPTY_FORM); setView('add') }}>
-                  <span className="admin-tab-plus">+</span> Add Item
-                </button>
-                <button className={`admin-tab ${view === 'orders' ? 'active' : ''}`} onClick={async () => { try { setOrders(await getAllOrders()) } catch { setOrders([]) } setView('orders') }}>
-                   <img src="/favicon.svg" alt="" className="admin-tab-icon" /> Orders
-                </button>
-                <button className={`admin-tab ${view === 'users' ? 'active' : ''}`} onClick={() => { loadUsers(); setView('users') }}>
-                  <img src="/favicon.svg" alt="" className="admin-tab-icon" /> User Accounts
-                </button>
-              </div>
-
               {/* LIST */}
               {view === 'list' && (
                 <div className="admin-view-body">
@@ -367,7 +376,7 @@ export default function AdminPage() {
                   <FormFields form={form} setForm={setForm} />
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-submit-btn">ADD ITEM</button>
-                    <button type="button" className="admin-cancel-btn" onClick={() => setView('list')}>CANCEL</button>
+                    <button type="button" className="admin-cancel-btn" onClick={() => goTo('list')}>CANCEL</button>
                   </div>
                 </form>
               )}
@@ -378,7 +387,7 @@ export default function AdminPage() {
                   <FormFields form={form} setForm={setForm} />
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-save-btn">SAVE CHANGES</button>
-                    <button type="button" className="admin-cancel-btn" onClick={() => { setView('list'); setForm(EMPTY_FORM) }}>CANCEL</button>
+                    <button type="button" className="admin-cancel-btn" onClick={() => { goTo('list'); setForm(EMPTY_FORM) }}>CANCEL</button>
                   </div>
                 </form>
               )}
@@ -401,7 +410,7 @@ export default function AdminPage() {
                     <button className="admin-delete-confirm-btn" onClick={confirmDelete}>
                       {deleteTarget.unavailable ? 'YES, ENABLE' : 'YES, MAKE UNAVAILABLE'}
                     </button>
-                    <button className="admin-cancel-btn" onClick={() => { setDeleteTarget(null); setView('list') }}>CANCEL</button>
+                    <button className="admin-cancel-btn" onClick={() => { setDeleteTarget(null); goTo('list') }}>CANCEL</button>
                   </div>
                 </div>
               )}
@@ -442,16 +451,12 @@ export default function AdminPage() {
                                     } catch { showToast('Failed to update status.', 'error') }
                                   }}
                                 >
-                                  <option value="Pending">Pending</option>
-                                  <option value="Preparing">Preparing</option>
-                                  <option value="Out for delivery">Out for delivery</option>
-                                  <option value="Ready for pickup">Ready for pickup</option>
-                                  <option value="Delivered">Delivered</option>
-                                  <option value="Completed">Completed</option>
-                                  <option value="Cancelled">Cancelled</option>
+                                  {ORDER_STATUS_FLOW.map((status) => (
+                                    <option key={status} value={status}>{status}</option>
+                                  ))}
                                 </select>
                               </td>
-                              <td className="admin-reason-cell">{order.status === 'Cancelled' ? (order.cancelReason || '—') : '—'}</td>
+                              <td className="admin-reason-cell">{order.status === ORDER_STATUS.CANCELLED ? (order.cancelReason || '—') : '—'}</td>
                               <td>{order.serviceType}</td>
                               <td className="admin-address-cell">
                                 {order.address || '—'}
@@ -494,21 +499,21 @@ export default function AdminPage() {
                             <th>Joined</th>
                             <th>Status</th>
                             <th>Deletion Date</th>
-                            <th>Action</th>
+                            {hasPendingDeletion && <th>Action</th>}
                           </tr>
                         </thead>
                         <tbody>
                           {userPaging.rows.map((user) => (
                             <tr key={user.id} style={{ opacity: user.isDeleted ? 0.7 : 1, background: user.isDeleted ? 'var(--color-error-container)' : 'transparent' }}>
                               <td className="admin-item-name">
-                                {[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}
+                                {formatName(user.firstName, user.lastName) || '—'}
                               </td>
                               <td style={{ fontSize: 12 }}>{user.email}</td>
                               <td>
                                 <span style={{
                                   padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                                  background: user.role === 'admin' ? 'var(--color-surface-container-low)' : 'var(--color-surface-container-low)',
-                                  color:      user.role === 'admin' ? 'var(--color-tertiary)' : 'var(--color-on-surface-variant)',
+                                  background: user.role === ROLES.ADMIN ? 'var(--color-surface-container-low)' : 'var(--color-surface-container-low)',
+                                  color:      user.role === ROLES.ADMIN ? 'var(--color-tertiary)' : 'var(--color-on-surface-variant)',
                                 }}>
                                   {user.role}
                                 </span>
@@ -530,21 +535,23 @@ export default function AdminPage() {
                                   ? new Date(user.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
                                   : '—'}
                               </td>
-                              <td className="admin-actions">
-                                {user.isDeleted && (
-                                  <button
-                                    className="admin-edit-btn"
-                                    onClick={async () => {
-                                      const token = localStorage.getItem('auth_token') || ''
-                                      await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
-                                      loadUsers()
-                                      showToast(`"${user.email}" restored.`)
-                                    }}
-                                  >
-                                    Restore
-                                  </button>
-                                )}
-                              </td>
+                              {hasPendingDeletion && (
+                                <td className="admin-actions">
+                                  {user.isDeleted && (
+                                    <button
+                                      className="admin-edit-btn"
+                                      onClick={async () => {
+                                        const token = localStorage.getItem('auth_token') || ''
+                                        await fetch(`/api/auth/users/${user.id}/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                                        loadUsers()
+                                        showToast(`"${user.email}" restored.`)
+                                      }}
+                                    >
+                                      Restore
+                                    </button>
+                                  )}
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>

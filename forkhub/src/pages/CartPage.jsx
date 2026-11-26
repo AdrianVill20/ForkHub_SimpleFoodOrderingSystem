@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import { useAuthModal } from '../contexts/AuthModalContext'
 import { getCart, removeFromCart, updateCartQty, getCartTotal, clearCart } from '../services/cartService'
+import { SERVICE_TYPE } from '../constants'
 
 export default function CartPage() {
   const navigate = useNavigate()
   const { openAuth } = useAuthModal()
   const [cart, setCart] = useState(getCart())
-  const serviceType = localStorage.getItem('order_service_type') || 'Delivery'
+  const serviceType = localStorage.getItem('order_service_type') || SERVICE_TYPE.DELIVERY
   let userAddress = 'No saved address yet'
   try {
     const user = JSON.parse(localStorage.getItem('auth_user') || '{}')
