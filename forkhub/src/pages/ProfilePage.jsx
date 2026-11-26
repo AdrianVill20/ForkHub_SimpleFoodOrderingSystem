@@ -577,7 +577,7 @@ export default function DashboardPage() {
               </div>
               
               <div className="profile-card-content-new">
-                <p className="profile-danger-warning">Permanently delete your account and all data</p>
+                <p className="profile-danger-warning">Delete your account without permanently removing your data</p>
               </div>
 
               <div className="profile-card-footer danger">
@@ -615,12 +615,12 @@ export default function DashboardPage() {
           <div className="profile-modal-content-new" onClick={(e) => e.stopPropagation()}>
             <div className="profile-modal-header-new">
               <div className="profile-modal-icon" style={{ fontSize: 32 }}>⏳</div>
-              <h2>Deletion Scheduled</h2>
-              <p>Your account is scheduled for permanent deletion</p>
+              <h2>Account Deleted</h2>
+              <p>Your account has been marked as deleted</p>
             </div>
             <div className="profile-modal-body-new">
               <p style={{ textAlign: 'center', marginBottom: 12, color: 'var(--color-on-surface-variant)' }}>
-                Your account and all data will be <strong>permanently deleted on</strong>:
+                You can restore your account until:
               </p>
               <p style={{
                 textAlign: 'center', fontWeight: 700, fontSize: 18,
@@ -673,9 +673,9 @@ export default function DashboardPage() {
               display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 4px 20px color-mix(in srgb, var(--color-inverse-surface) 25%, transparent)',
             }}>
               <div style={{ flex: 1 }}>
-                <strong>Account pending deletion</strong>
+                <strong>Account marked as deleted</strong>
                 <p style={{ margin: '4px 0 0', fontSize: 13 }}>
-                  Scheduled for {new Date(u.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  Recovery available until {new Date(u.scheduledDeletionAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
               <button
@@ -703,7 +703,7 @@ export default function DashboardPage() {
                 <img src={dangerIcon} alt="Warning" />
               </div>
               <h2>Delete Your Account?</h2>
-              <p>This action is permanent and cannot be undone</p>
+              <p>You can restore your account within 5 days</p>
             </div>
             
             <div className="profile-modal-body-new">
@@ -713,8 +713,8 @@ export default function DashboardPage() {
               <ul className="profile-modal-list">
                 <li>Remove all your personal data</li>
                 <li>Cancel any active orders</li>
-                <li>Delete your order history</li>
-                <li>Close your account permanently</li>
+                <li>Retain your order history</li>
+                <li>Mark your account as deleted</li>
               </ul>
 
               <label className="profile-modal-label-new">
@@ -743,7 +743,7 @@ export default function DashboardPage() {
                 disabled={isDeleting || confirmText !== 'DELETE'}
                 className={`profile-modal-btn-delete-new ${confirmText === 'DELETE' ? 'enabled' : 'disabled'}`}
               >
-                {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
               </button>
             </div>
           </div>
