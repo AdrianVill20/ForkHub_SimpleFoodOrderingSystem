@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PasswordField from '../components/PasswordField'
+import { isValidPhone, normalizePhone, PHONE_ERROR_MESSAGE } from '../utils/phone'
 
 export function RegisterModal({ nextPath, onClose, onDismissRoot, overlayExtraClass }) {
   useEffect(() => {
@@ -87,10 +89,19 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
   const [adminCode, setAdminCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+  const phoneRef = useRef(null)
   const navigate = useNavigate()
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
   const register = async () => {
+    if (!isValidPhone(phone)) {
+      setPhoneError(PHONE_ERROR_MESSAGE)
+      phoneRef.current?.focus()
+      return
+    }
+    setPhoneError('')
+
     if (!email.trim() || !confirmEmail.trim() || !password || !confirmPassword) {
       setErrorMessage('Email and password fields are required.')
       return
@@ -116,7 +127,7 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
         body: JSON.stringify({
           firstName,
           lastName,
-          phone,
+          phone: normalizePhone(phone),
           email,
           password,
           ...(isAdmin ? { adminCode } : {}),
@@ -240,17 +251,26 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
           onChange={(event) => setConfirmEmail(event.target.value)}
         />
         <label htmlFor="reg-phone" className="register-premium-label">
-          Primary phone <span className="register-premium-opt">optional but recommended</span>
+          Primary phone <span aria-hidden="true">*</span>
         </label>
         <input
           id="reg-phone"
+          ref={phoneRef}
           className="field register-premium-field"
           type="tel"
           autoComplete="tel"
+          aria-required="true"
+          aria-invalid={phoneError ? 'true' : undefined}
+          aria-describedby={phoneError ? 'reg-phone-error' : undefined}
           placeholder="0917 123 4567"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
+          onChange={(event) => {
+            setPhone(event.target.value)
+            if (phoneError) setPhoneError(isValidPhone(event.target.value) ? '' : PHONE_ERROR_MESSAGE)
+          }}
+          onBlur={() => setPhoneError(isValidPhone(phone) ? '' : PHONE_ERROR_MESSAGE)}
         />
+        {phoneError ? <p id="reg-phone-error" className="register-premium-error" role="alert">{phoneError}</p> : null}
       </section>
 
       <section className="register-premium-section register-premium-section--security" aria-labelledby="reg-section-pw">
@@ -263,10 +283,9 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
         <label htmlFor="reg-pw" className="register-premium-label">
           Password
         </label>
-        <input
+        <PasswordField
           id="reg-pw"
           className="field register-premium-field"
-          type="password"
           autoComplete="new-password"
           placeholder="At least 8 characters"
           value={password}
@@ -275,10 +294,9 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
         <label htmlFor="reg-pw2" className="register-premium-label">
           Confirm password
         </label>
-        <input
+        <PasswordField
           id="reg-pw2"
           className="field register-premium-field"
-          type="password"
           autoComplete="new-password"
           placeholder="Repeat password"
           value={confirmPassword}
@@ -301,10 +319,9 @@ function RegisterFormInner({ nextPath, onClose, onDismissRoot }) {
               <label htmlFor="reg-admin-code" className="register-premium-label register-premium-label--indent">
                 Admin secret code
               </label>
-              <input
+              <PasswordField
                 id="reg-admin-code"
                 className="field register-premium-field"
-                type="password"
                 placeholder="Enter the code provided by your lead"
                 value={adminCode}
                 onChange={(e) => setAdminCode(e.target.value)}

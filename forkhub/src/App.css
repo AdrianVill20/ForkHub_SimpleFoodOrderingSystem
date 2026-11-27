@@ -658,6 +658,52 @@ button.top-nav-item.auth-topnav-signin {
   cursor: not-allowed;
 }
 
+.password-field-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.password-field-input {
+  padding-right: 52px !important;
+}
+
+.password-field-wrap input::-ms-reveal,
+.password-field-wrap input::-ms-clear {
+  display: none;
+}
+
+.password-eye-button {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.password-eye-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.password-eye-button:focus-visible {
+  outline: 3px solid var(--color-secondary-container);
+  outline-offset: -2px;
+}
+
 .layout-2col {
   display: grid;
   grid-template-columns: 2fr 1fr;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import DeliveryMap from '../components/DeliveryMap'
@@ -8,6 +8,27 @@ import { paginate } from '../utils/pagination'
 import { getCart, getCartTotal, clearCart } from '../services/cartService'
 import { saveOrder, getAllOrders, canCancel, updateOrderStatus } from '../services/orderService'
 import { DELIVERY_BRANCH, ORDER_STATUS, SERVICE_TYPE } from '../constants'
+import { isValidPhone, normalizePhone, PHONE_ERROR_MESSAGE } from '../utils/phone'
+
+const INITIAL_ADDRESS_MESSAGE = 'Type your delivery address and press Enter to see matching places, or click the map to pin your delivery location.'
+const CEBU_VIEWBOX = '122.9,11.7,124.9,9.0'
+
+function isCebuProvinceResult(result) {
+  const addressDetails = result?.address
+  if (String(addressDetails?.country_code || '').toLowerCase() !== 'ph') return false
+
+  const hasCebuProvinceCode = Object.entries(addressDetails).some(([key, value]) => (
+    /^ISO3166-2-lvl\d+$/.test(key) && value === 'PH-CEB'
+  ))
+  const hasCebuProvinceName = ['province', 'county', 'state_district'].some((key) => (
+    ['cebu', 'cebu province'].includes(String(addressDetails[key] || '').trim().toLowerCase())
+  ))
+  const isCebuCity = ['cebu', 'cebu city'].includes(String(addressDetails.city || '').trim().toLowerCase())
+
+  return hasCebuProvinceCode || hasCebuProvinceName || isCebuCity
+}
+
+const CEBU_AREA_MESSAGE = 'Delivery is available only within Cebu Province. Choose a location in Cebu.'
 
 export default function OrderPage() {
   const navigate = useNavigate()
@@ -19,17 +40,28 @@ export default function OrderPage() {
       return ''
     }
   })
+  const addressRef = useRef(address)
+  const addressSearchControllerRef = useRef(null)
+  const activeSearchTextRef = useRef('')
+  const lastSearchedTextRef = useRef('')
+  const lastAddressResultsRef = useRef({ query: '', options: [] })
+  const lastRequestAtRef = useRef(0)
+  const savedAddressSearchStartedRef = useRef(false)
+  const [typedAddress, setTypedAddress] = useState(null)
+  const [addressEditVersion, setAddressEditVersion] = useState(0)
   const [phone, setPhone] = useState('')
   const [destination, setDestination] = useState(null)
   const [placedOrder, setPlacedOrder] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [phoneEditable, setPhoneEditable] = useState(false)
+  const [phoneError, setPhoneError] = useState('')
 
   const [cart, setCart] = useState(getCart())
   const total = getCartTotal()
   const branch = DELIVERY_BRANCH
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
-  const [searchMessage, setSearchMessage] = useState('')
+  const [searchMessage, setSearchMessage] = useState(INITIAL_ADDRESS_MESSAGE)
+  const [addressOptions, setAddressOptions] = useState([])
   const [orderHistory, setOrderHistory] = useState([])
   const [cancellingId, setCancellingId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -59,55 +91,157 @@ export default function OrderPage() {
     return () => window.removeEventListener('cart-updated', handleCartUpdated)
   }, [])
 
-  const geocodeAddress = useCallback(async (query) => {
-    const trimmed = String(query || '').trim()
-    if (!trimmed) {
-      setSearchMessage('')
+  const cancelAddressSearch = useCallback(() => {
+    if (activeSearchTextRef.current.trim() === lastSearchedTextRef.current) {
+      lastSearchedTextRef.current = ''
+    }
+    addressSearchControllerRef.current?.abort()
+    addressSearchControllerRef.current = null
+    activeSearchTextRef.current = ''
+    setIsSearchingAddress(false)
+  }, [])
+
+  const selectAddressOption = useCallback((option, updateAddress = true) => {
+    if (updateAddress) {
+      addressRef.current = option.name
+      setAddress(option.name)
+      setTypedAddress(null)
+      setAddressEditVersion((version) => version + 1)
+    }
+    setAddressOptions([])
+    setDestination({ lat: option.lat, lng: option.lng, name: option.name })
+    setSearchMessage('Location found and shown on the map.')
+  }, [])
+
+  const searchAddress = useCallback(async (query, selectFirst = false) => {
+    const searchText = String(query || '')
+    const trimmed = searchText.trim()
+    if (!trimmed || searchText !== addressRef.current) return
+    const cachedResults = lastAddressResultsRef.current
+    if (trimmed === cachedResults.query) {
+      if (selectFirst && cachedResults.options.length > 0) {
+        selectAddressOption(cachedResults.options[0], false)
+      } else {
+        setAddressOptions(cachedResults.options)
+        setSearchMessage(cachedResults.options.length > 0
+          ? 'Choose a matching place below to set the delivery pin.'
+          : 'No matching places in Cebu Province. Check the spelling or choose a location within Cebu.')
+      }
       return
     }
+    if (trimmed === lastSearchedTextRef.current || activeSearchTextRef.current === searchText) return
 
+    cancelAddressSearch()
+    const controller = new AbortController()
+    addressSearchControllerRef.current = controller
+    activeSearchTextRef.current = searchText
     setIsSearchingAddress(true)
     setSearchMessage('Searching address…')
 
     try {
+      const waitForRateLimit = Math.max(0, 1000 - (Date.now() - lastRequestAtRef.current))
+      if (waitForRateLimit > 0) {
+        await new Promise((resolve) => setTimeout(resolve, waitForRateLimit))
+      }
+      if (controller.signal.aborted || addressRef.current !== searchText) return
+
+      lastRequestAtRef.current = Date.now()
+      lastSearchedTextRef.current = trimmed
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(trimmed)}`,
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ph&viewbox=${CEBU_VIEWBOX}&bounded=1&limit=5&q=${encodeURIComponent(trimmed)}`,
+        { signal: controller.signal },
       )
       if (!response.ok) {
         throw new Error('Search failed')
       }
 
       const results = await response.json()
+      if (controller.signal.aborted || addressRef.current !== searchText) return
       if (!Array.isArray(results) || results.length === 0) {
-        setSearchMessage('Address not found.')
+        lastSearchedTextRef.current = ''
+        lastAddressResultsRef.current = { query: trimmed, options: [] }
+        setAddressOptions([])
+        setSearchMessage('No matching places in Cebu Province. Check the spelling or choose a location within Cebu.')
         return
       }
 
-      const result = results[0]
-      const nextDestination = {
-        lat: parseFloat(result.lat),
-        lng: parseFloat(result.lon),
-        name: result.display_name,
+      const options = results
+        .filter(isCebuProvinceResult)
+        .map((result) => ({
+          lat: Number.parseFloat(result.lat),
+          lng: Number.parseFloat(result.lon),
+          name: result.display_name,
+        }))
+        .filter((option) => Number.isFinite(option.lat) && Number.isFinite(option.lng) && option.name)
+      lastAddressResultsRef.current = { query: trimmed, options }
+      if (options.length === 0) {
+        lastSearchedTextRef.current = ''
+        setAddressOptions([])
+        setSearchMessage('No matching places in Cebu Province. Check the spelling or choose a location within Cebu.')
+        return
       }
-      setDestination(nextDestination)
-      setSearchMessage('Location found and shown on the map.')
-      setAddress(result.display_name)
+
+      if (selectFirst) {
+        selectAddressOption(options[0], false)
+      } else {
+        setAddressOptions(options)
+        setSearchMessage('Choose a matching place below to set the delivery pin.')
+      }
     } catch {
-      setSearchMessage('Unable to locate address. Please try a different query.')
+      if (controller.signal.aborted) return
+      lastSearchedTextRef.current = ''
+      lastAddressResultsRef.current = { query: '', options: [] }
+      setAddressOptions([])
+      setSearchMessage('Unable to locate address. Please try again.')
     } finally {
-      setIsSearchingAddress(false)
+      if (addressSearchControllerRef.current === controller) {
+        if (controller.signal.aborted) {
+          lastSearchedTextRef.current = ''
+        }
+        addressSearchControllerRef.current = null
+        activeSearchTextRef.current = ''
+        setIsSearchingAddress(false)
+      }
     }
-  }, [])
+  }, [cancelAddressSearch, selectAddressOption])
+
+  const handleAddressInput = useCallback((event) => {
+    const value = event.target.value
+    cancelAddressSearch()
+    addressRef.current = value
+    setAddress(value)
+    setTypedAddress(value)
+    setAddressEditVersion((version) => version + 1)
+    setAddressOptions([])
+    setSearchMessage(INITIAL_ADDRESS_MESSAGE)
+  }, [cancelAddressSearch])
+
+  const handleMapAddressChange = useCallback((value) => {
+    cancelAddressSearch()
+    addressRef.current = value
+    setAddress(value)
+    setTypedAddress(null)
+    setAddressOptions([])
+    setSearchMessage('Delivery location pinned.')
+  }, [cancelAddressSearch])
 
   useEffect(() => {
+    if (typedAddress === null || typedAddress.trim().length < 5) return undefined
+
     const timer = setTimeout(() => {
-      if (address.trim()) {
-        geocodeAddress(address)
-      }
-    }, 700)
+      searchAddress(typedAddress)
+    }, 1500)
 
     return () => clearTimeout(timer)
-  }, [address, geocodeAddress])
+  }, [searchAddress, typedAddress])
+
+  useEffect(() => {
+    if (savedAddressSearchStartedRef.current) return
+    savedAddressSearchStartedRef.current = true
+    if (addressRef.current.trim()) {
+      searchAddress(addressRef.current, true)
+    }
+  }, [searchAddress])
 
   const handlePlaceOrder = async () => {
     if (!cart || cart.length === 0) return
@@ -115,10 +249,16 @@ export default function OrderPage() {
       alert('Please enter a delivery address or pin a delivery location on the map.')
       return
     }
-    if (!phone.trim()) {
-      alert('Please enter your phone number for tracking.')
+    if (serviceType === SERVICE_TYPE.DELIVERY && !destination) {
+      setSearchMessage(CEBU_AREA_MESSAGE)
+      alert(CEBU_AREA_MESSAGE)
       return
     }
+    if (!isValidPhone(phone)) {
+      setPhoneError(PHONE_ERROR_MESSAGE)
+      return
+    }
+    setPhoneError('')
 
     localStorage.setItem('order_service_type', serviceType)
     const isPickup = serviceType === SERVICE_TYPE.PICK_UP
@@ -126,7 +266,7 @@ export default function OrderPage() {
       serviceType,
       branch,
       address: isPickup ? branch.name : address.trim() || 'Delivery location set on map',
-      phone: phone.trim(),
+      phone: normalizePhone(phone),
       destination: isPickup ? { lat: branch.lat, lng: branch.lng, name: branch.name } : destination,
     })
     setPlacedOrder(order)
@@ -275,24 +415,78 @@ export default function OrderPage() {
                     <div className="order-delivery-section">
                       <h3 className="order-label">Delivery Address</h3>
                       <p className="order-hint">
-                        Type your delivery address to locate it automatically, or click the map to pin your delivery location.
+                        Search with Enter, the Search button, or after pausing while you type, then select a matching place.
                       </p>
                       <textarea
                         className="field order-field"
                         rows={3}
                         placeholder="Enter a complete delivery address"
                         value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={handleAddressInput}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' && !event.shiftKey) {
+                            event.preventDefault()
+                            searchAddress(addressRef.current)
+                          }
+                        }}
                       />
+                      <button
+                        type="button"
+                        className="btn-red"
+                        style={{ padding: '6px 12px', marginBottom: 8 }}
+                        onClick={() => searchAddress(addressRef.current)}
+                      >
+                        Search
+                      </button>
+                      {addressOptions.length > 0 && (
+                        <div
+                          role="listbox"
+                          aria-label="Matching delivery places"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 4,
+                            padding: 8,
+                            marginBottom: 8,
+                            border: '1px solid var(--color-outline-variant)',
+                            borderRadius: 8,
+                            background: 'var(--color-surface-container-lowest)',
+                          }}
+                        >
+                          {addressOptions.map((option) => (
+                            <button
+                              key={`${option.lat},${option.lng},${option.name}`}
+                              type="button"
+                              role="option"
+                              aria-selected="false"
+                              onClick={() => selectAddressOption(option)}
+                              style={{
+                                padding: '8px 10px',
+                                border: 0,
+                                background: 'transparent',
+                                color: 'var(--color-on-surface)',
+                                textAlign: 'left',
+                                textTransform: 'none',
+                                whiteSpace: 'normal',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {option.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <p className="order-status-text">
-                        {isSearchingAddress ? 'Searching address…' : searchMessage || 'Address results and pinned location appear on the map below.'}
+                        {isSearchingAddress ? 'Searching address…' : searchMessage}
                       </p>
                       <DeliveryMap
                         branch={branch}
                         address={address}
                         destination={destination}
+                        addressEditVersion={addressEditVersion}
+                        isLocationInDeliveryArea={isCebuProvinceResult}
                         onDestinationChange={setDestination}
-                        onAddressChange={setAddress}
+                        onAddressChange={handleMapAddressChange}
                         onStatusChange={setSearchMessage}
                       />
                     </div>
@@ -333,12 +527,19 @@ export default function OrderPage() {
                         type="text"
                         placeholder="09XXXXXXXXX"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => {
+                          setPhone(e.target.value)
+                          setPhoneError(isValidPhone(e.target.value) ? '' : PHONE_ERROR_MESSAGE)
+                        }}
+                        onBlur={() => setPhoneError(isValidPhone(phone) ? '' : PHONE_ERROR_MESSAGE)}
+                        aria-invalid={phoneError ? 'true' : undefined}
+                        aria-describedby={phoneError ? 'order-phone-error' : undefined}
                         autoFocus
                       />
                     ) : (
                       <p className="order-value">{phone || 'No phone number saved'}</p>
                     )}
+                    {phoneError ? <p id="order-phone-error" className="order-status-text" role="alert">{phoneError}</p> : null}
                   </div>
 
                   <div className="order-total-row">
@@ -346,7 +547,12 @@ export default function OrderPage() {
                       <p className="order-total-label">Order total</p>
                       <p className="order-total-price">₱{total.toFixed(2)}</p>
                     </div>
-                    <button className="order-place-btn" type="button" onClick={handlePlaceOrder}>
+                    <button
+                      className="order-place-btn"
+                      type="button"
+                      onClick={handlePlaceOrder}
+                      disabled={!isValidPhone(phone)}
+                    >
                       Place Order
                     </button>
                   </div>

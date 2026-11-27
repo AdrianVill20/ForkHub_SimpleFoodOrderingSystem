@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import OrderDetails from '../components/OrderDetails'
 import { findOrder } from '../services/orderService'
+import { isValidPhone, normalizePhone } from '../utils/phone'
 
 export default function TrackingPage() {
   const navigate = useNavigate()
@@ -16,9 +17,10 @@ export default function TrackingPage() {
 
   const handleSearch = async (value = query) => {
     if (!value.trim()) return
+    const searchValue = isValidPhone(value) ? normalizePhone(value) : value.trim()
     setOrder(null); setMessage('')
     try {
-      const found = await findOrder(value)
+      const found = await findOrder(searchValue)
       if (found) { setOrder(found); setMessage('Order found.') }
       else        { setMessage('No order found. Check your order number or phone.') }
     } catch { setMessage('No order found. Check your order number or phone.') }

@@ -5,6 +5,7 @@ import DeliveryMap from '../components/DeliveryMap'
 import { useAuthModal } from '../contexts/useAuthModal'
 import { deleteUser } from '../services/authService'
 import { DELIVERY_BRANCH } from '../constants'
+import { isValidPhone, normalizePhone, PHONE_ERROR_MESSAGE } from '../utils/phone'
 import profileIcon from '../assets/profile-icon.svg'
 import emailIcon from '../assets/email-icon.svg'
 import phoneIcon from '../assets/phone-icon.svg'
@@ -27,6 +28,7 @@ export default function DashboardPage() {
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [addressDestination, setAddressDestination] = useState(null)
+  const [phoneError, setPhoneError] = useState('')
   const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [addressSearchMessage, setAddressSearchMessage] = useState('')
   const lastGeocodedAddressRef = useRef('')
@@ -159,7 +161,10 @@ export default function DashboardPage() {
   const saveProfile = async () => {
     const token = localStorage.getItem('auth_token')
     if (!token) { navigate('/profile'); return }
-
+    if (!isValidPhone(profile.phone)) {
+      setPhoneError(PHONE_ERROR_MESSAGE)
+      return
+    }
     setErrorMessage('')
     setSuccessMessage('')
     setIsSaving(true)
@@ -174,7 +179,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           firstName: profile.firstName,
           lastName: profile.lastName,
-          phone: profile.phone,
+          phone: normalizePhone(profile.phone),
           address: profile.address,
         }),
       })
@@ -389,10 +394,18 @@ export default function DashboardPage() {
                       <input
                         type="tel"
                         value={profile.phone}
-                        onChange={e => updateProfileField('phone', e.target.value)}
+                        onChange={e => {
+                          updateProfileField('phone', e.target.value)
+                          setPhoneError(isValidPhone(e.target.value) ? '' : PHONE_ERROR_MESSAGE)
+                        }}
+                        onBlur={() => setPhoneError(isValidPhone(profile.phone) ? '' : PHONE_ERROR_MESSAGE)}
+                        aria-required="true"
+                        aria-invalid={phoneError ? 'true' : undefined}
+                        aria-describedby={phoneError ? 'profile-phone-error' : undefined}
                         className="field"
-                        placeholder="Phone Number"
+                        placeholder="0917 123 4567"
                       />
+                      {phoneError ? <p id="profile-phone-error" className="muted" role="alert" style={{ color: 'var(--color-error)' }}>{phoneError}</p> : null}
                     </div>
                   </div>
                 ) : (
@@ -436,7 +449,7 @@ export default function DashboardPage() {
                     <button
                       className="profile-btn-primary"
                       onClick={saveProfile}
-                      disabled={isSaving}
+                      disabled={isSaving || !isValidPhone(profile.phone)}
                       style={{ flex: 1 }}
                     >
                       {isSaving ? 'Saving...' : 'Save Changes'}

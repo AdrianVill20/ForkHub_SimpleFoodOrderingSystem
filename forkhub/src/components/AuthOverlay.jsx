@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { RegisterModal } from '../pages/Register'
+import PasswordField from './PasswordField'
 
 export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
   const [email, setEmail] = useState('')
@@ -134,10 +135,9 @@ export default function AuthOverlay({ nextPath, initialMode, onDismiss }) {
           <input className="field" name="email" autoComplete="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
           <label style={{ display: 'block', marginTop: 16 }}>Password</label>
-          <input
+          <PasswordField
             className="field"
             name="password"
-            type="password"
             autoComplete="current-password"
             placeholder="Password"
             value={password}
