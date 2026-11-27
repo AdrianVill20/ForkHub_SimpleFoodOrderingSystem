@@ -3652,6 +3652,13 @@ button.top-nav-item.auth-topnav-signin {
   animation: orderFadeIn 0.4s ease-out;
 }
 
+.leaflet-tooltip.leaflet-branch-tooltip {
+  max-width: min(220px, calc(100vw - 80px));
+  text-align: center;
+  white-space: normal;
+  width: max-content;
+}
+
 .order-hint {
   color: var(--color-outline);
   font-size: 13px;

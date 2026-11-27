@@ -411,93 +411,96 @@ export default function OrderPage() {
                     </div>
                   </div>
 
-                  {serviceType === SERVICE_TYPE.DELIVERY ? (
-                    <div className="order-delivery-section">
-                      <h3 className="order-label">Delivery Address</h3>
-                      <p className="order-hint">
-                        Search with Enter, the Search button, or after pausing while you type, then select a matching place.
-                      </p>
-                      <textarea
-                        className="field order-field"
-                        rows={3}
-                        placeholder="Enter a complete delivery address"
-                        value={address}
-                        onChange={handleAddressInput}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' && !event.shiftKey) {
-                            event.preventDefault()
-                            searchAddress(addressRef.current)
-                          }
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="btn-red"
-                        style={{ padding: '6px 12px', marginBottom: 8 }}
-                        onClick={() => searchAddress(addressRef.current)}
-                      >
-                        Search
-                      </button>
-                      {addressOptions.length > 0 && (
-                        <div
-                          role="listbox"
-                          aria-label="Matching delivery places"
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 4,
-                            padding: 8,
-                            marginBottom: 8,
-                            border: '1px solid var(--color-outline-variant)',
-                            borderRadius: 8,
-                            background: 'var(--color-surface-container-lowest)',
+                  <div className="order-delivery-section">
+                    {serviceType === SERVICE_TYPE.DELIVERY ? (
+                      <>
+                        <h3 className="order-label">Delivery Address</h3>
+                        <p className="order-hint">
+                          Search with Enter, the Search button, or by clicking on the map.
+                        </p>
+                        <textarea
+                          className="field order-field"
+                          rows={3}
+                          placeholder="Enter a complete delivery address"
+                          value={address}
+                          onChange={handleAddressInput}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' && !event.shiftKey) {
+                              event.preventDefault()
+                              searchAddress(addressRef.current)
+                            }
                           }}
+                        />
+                        <button
+                          type="button"
+                          className="btn-red"
+                          style={{ padding: '6px 12px', marginBottom: 8 }}
+                          onClick={() => searchAddress(addressRef.current)}
                         >
-                          {addressOptions.map((option) => (
-                            <button
-                              key={`${option.lat},${option.lng},${option.name}`}
-                              type="button"
-                              role="option"
-                              aria-selected="false"
-                              onClick={() => selectAddressOption(option)}
-                              style={{
-                                padding: '8px 10px',
-                                border: 0,
-                                background: 'transparent',
-                                color: 'var(--color-on-surface)',
-                                textAlign: 'left',
-                                textTransform: 'none',
-                                whiteSpace: 'normal',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {option.name}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      <p className="order-status-text">
-                        {isSearchingAddress ? 'Searching address…' : searchMessage}
-                      </p>
-                      <DeliveryMap
-                        branch={branch}
-                        address={address}
-                        destination={destination}
-                        addressEditVersion={addressEditVersion}
-                        isLocationInDeliveryArea={isCebuProvinceResult}
-                        onDestinationChange={setDestination}
-                        onAddressChange={handleMapAddressChange}
-                        onStatusChange={setSearchMessage}
-                      />
-                    </div>
-                  ) : (
-                    <div className="order-delivery-section">
-                      <h3 className="order-label">Branch Location</h3>
-                      <p className="order-hint">
-                        Pickup at {branch.name}. The branch location is shown in the sidebar.
-                      </p>
-                    </div>
-                  )}
+                          Search
+                        </button>
+                        {addressOptions.length > 0 && (
+                          <div
+                            role="listbox"
+                            aria-label="Matching delivery places"
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 4,
+                              padding: 8,
+                              marginBottom: 8,
+                              border: '1px solid var(--color-outline-variant)',
+                              borderRadius: 8,
+                              background: 'var(--color-surface-container-lowest)',
+                            }}
+                          >
+                            {addressOptions.map((option) => (
+                              <button
+                                key={`${option.lat},${option.lng},${option.name}`}
+                                type="button"
+                                role="option"
+                                aria-selected="false"
+                                onClick={() => selectAddressOption(option)}
+                                style={{
+                                  padding: '8px 10px',
+                                  border: 0,
+                                  background: 'transparent',
+                                  color: 'var(--color-on-surface)',
+                                  textAlign: 'left',
+                                  textTransform: 'none',
+                                  whiteSpace: 'normal',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {option.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <p className="order-status-text">
+                          {isSearchingAddress ? 'Searching address…' : searchMessage}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="order-label">Branch Location</h3>
+                        <p className="order-hint">
+                          Pickup at {branch.name}. The branch location is shown in the sidebar.
+                        </p>
+                      </>
+                    )}
+                    <DeliveryMap
+                      branch={branch}
+                      address={address}
+                      destination={serviceType === SERVICE_TYPE.DELIVERY ? destination : null}
+                      addressEditVersion={addressEditVersion}
+                      isLocationInDeliveryArea={isCebuProvinceResult}
+                      onDestinationChange={setDestination}
+                      onAddressChange={handleMapAddressChange}
+                      onStatusChange={setSearchMessage}
+                      mode={serviceType === SERVICE_TYPE.DELIVERY ? 'delivery' : 'pickup'}
+                    />
+                  </div>
 
                   <div className="order-form-group">
                     <h3 className="order-label">
